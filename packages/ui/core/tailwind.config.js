@@ -12,7 +12,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Open Sans,sans-serif', ...defaultTheme.fontFamily.sans],
+        sans: [`Mulish,sans-serif`, ...defaultTheme.fontFamily.sans]
       },
       boxShadow:{
         'step-container-ds':'0px 0px 22px rgba(186, 186, 191, 0.3)',
