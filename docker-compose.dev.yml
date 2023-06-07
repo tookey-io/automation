@@ -7,7 +7,7 @@ services:
     environment:
       AP_JWT_SECRET: super-secret
       AP_POSTGRES_HOST: postgres
-      AP_SIGN_UP_ENABLED: false
+      AP_SIGN_UP_ENABLED: 'false'
       AP_REDIS_HOST: redis
       AP_EXECUTION_MODE: UNSANDBOXED
     user: 1000:1000
