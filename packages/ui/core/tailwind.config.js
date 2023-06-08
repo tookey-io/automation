@@ -15,8 +15,8 @@ module.exports = {
         sans: [`Mulish,sans-serif`, ...defaultTheme.fontFamily.sans]
       },
       boxShadow:{
-        'step-container-ds':'0px 0px 22px rgba(186, 186, 191, 0.3)',
-        'portal-ds' : '0px 0px 90px rgba(0, 0, 0, 0.14)'
+        // 'step-container-ds':'0px 0px 22px rgba(186, 186, 191, 0.3)',
+        // 'portal-ds' : '0px 0px 90px rgba(0, 0, 0, 0.14)'
       },
       backgroundImage: {
         authBg: "url('/assets/img/custom/auth/auth-bg.png')",
@@ -27,7 +27,7 @@ module.exports = {
       },
       colors: {
         body: '#4f4f4f',
-        border: '#c2c9d1',
+        border: 'transparent',
         white: '#ffffff',
         grayCard: '#fafafa',
         placeholder: '#c8c8c8',
@@ -35,7 +35,7 @@ module.exports = {
           DEFAULT: '#dc3545',
           light: '#efa2a980',
         },
-        primary: { DEFAULT: '#6e41e2', medium:'#ab90ee', light: '#eee9fc', dark: '#6838e0','10':'rgba(110, 65, 226, 0.1)' },
+        primary: { DEFAULT: '#f9831a', medium:'#ffbe55', light: '#ffedbd', dark: '#c94d00','10':'#f9831a19' },
         warn: {
          DEFAULT:'#f78a3b',
          light:"#FFF6E4",
