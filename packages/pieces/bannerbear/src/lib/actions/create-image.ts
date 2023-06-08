@@ -1,7 +1,7 @@
 import { createAction, Property, DynamicPropsValue } from '@activepieces/pieces-framework';
 import { AuthenticationType, httpClient, HttpMethod, HttpRequest } from '@activepieces/pieces-common';
 
-export const createImageFromTemplate = createAction({
+  export const createImageFromTemplate = createAction({
   name: 'bannerbear_create_image', // Must be a unique across the piece, this shouldn't be changed.
   displayName: 'Create Image',
   description: 'Create image from Bannerbear template',

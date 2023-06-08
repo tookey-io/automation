@@ -1,0 +1,36 @@
+{
+  "name": "pieces-tookey-wallet",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/tookey-wallet/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/tookey-wallet",
+        "tsConfig": "packages/pieces/tookey-wallet/tsconfig.lib.json",
+        "packageJson": "packages/pieces/tookey-wallet/package.json",
+        "main": "packages/pieces/tookey-wallet/src/index.ts",
+        "assets": [
+          "packages/pieces/tookey-wallet/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/tookey-wallet/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": []
+}
