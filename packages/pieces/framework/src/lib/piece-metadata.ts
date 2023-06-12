@@ -7,6 +7,7 @@ export type PieceBase = {
   tags: string[];
   logoUrl: string;
   description: string;
+  directoryName?: string;
   version: string;
   minimumSupportedRelease?: string;
   maximumSupportedRelease?: string;
