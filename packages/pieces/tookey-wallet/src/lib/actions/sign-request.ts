@@ -1,10 +1,4 @@
-import {
-  createAction,
-  DynamicPropsValue,
-  Property,
-} from '@activepieces/pieces-framework';
-import { httpClient, HttpMethod } from '@activepieces/pieces-common';
-import { KeyListDto, TokenDto } from '../types';
+import { createAction, Property } from '@activepieces/pieces-framework';
 import { Backend, Token } from '../backend';
 
 export const signRequest = createAction({
@@ -25,7 +19,12 @@ export const signRequest = createAction({
       description: 'Tookey API Key',
       required: true,
     }),
-    wallet: Property.Dropdown({
+    hash: Property.ShortText({
+      displayName: 'Digest',
+      description: 'Hex encoded 256 bit digest of signing message',
+      required: true,
+    }),
+    wallet: Property.Dropdown<string, true>({
       displayName: 'Wallet',
       description: 'Wallet to sign hash',
       required: true,
@@ -34,23 +33,13 @@ export const signRequest = createAction({
       async options({ apiKey, backendUrl }) {
         if (typeof backendUrl !== 'string')
           return {
-            disabled: false,
-            options: [
-              {
-                value: '0x',
-                label: 'Backend url is not valid',
-              },
-            ],
+            disabled: true,
+            options: [],
           };
         if (typeof apiKey !== 'string')
           return {
-            disabled: false,
-            options: [
-              {
-                value: '0x',
-                label: 'Apikey is not valid',
-              },
-            ],
+            disabled: true,
+            options: [],
           };
 
         try {
@@ -62,38 +51,29 @@ export const signRequest = createAction({
 
           return {
             disabled: false,
-            options: [
-              ...(await backend.getKeys().then((keys) =>
-                keys.items.map((key) => ({
-                  value: key.publicKey,
-                  label: key.name,
-                }))
-              )),
-              {
-                value: '0x',
-                label: backendUrl,
-              },
-              {
-                value: '0x2',
-                label: apiKey,
-              },
-            ],
+            options: await backend.getKeys().then((keys) =>
+              keys.items.map((key) => ({
+                value: key.publicKey,
+                label: key.name,
+              }))
+            ),
           };
-        } catch (e: any) {
+        } catch {
           return {
-            disabled: false,
-            options: [
-              {
-                value: '0x',
-                label: e.toString(),
-              },
-            ],
+            disabled: true,
+            options: [],
           };
         }
       },
     }),
   },
   async run({ propsValue }) {
-    return {};
+    const backend = new Backend(
+      propsValue.backendUrl,
+      new Token(propsValue.apiKey, new Date(new Date().getTime() + 86400000)),
+      Token.empty()
+    );
+
+    return backend.sign(propsValue.wallet, propsValue.hash);
   },
 });

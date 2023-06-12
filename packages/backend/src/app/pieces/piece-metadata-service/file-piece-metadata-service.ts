@@ -38,6 +38,7 @@ export const FilePieceMetadataService = (): PieceMetadataService => {
             return piecesMetadata.map(p => ({
                 name: p.name,
                 displayName: p.displayName,
+                tags: p.tags,
                 description: p.description,
                 logoUrl: p.logoUrl,
                 version: p.version,

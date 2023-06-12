@@ -24,3 +24,6 @@ export interface KeyDto {
 export interface KeyListDto {
   items: KeyDto[];
 }
+
+
+export type EmptyRecord = Record<string, never>

@@ -5,6 +5,7 @@ export class FlowItemDetails {
     public type: ActionType | TriggerType,
     public name: string,
     public description: string,
+    public tags: string[],
     public logoUrl?: string,
     public extra?: {
       appName: string;

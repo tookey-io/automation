@@ -1,5 +1,9 @@
-import { httpClient, HttpMethod } from '@activepieces/pieces-common';
-import { KeyListDto, SingInResponseDto, TokenDto } from './types';
+import {
+  httpClient,
+  HttpMessageBody,
+  HttpMethod,
+} from '@activepieces/pieces-common';
+import { EmptyRecord, KeyListDto, SingInResponseDto, TokenDto } from './types';
 
 enum AuthenticationMethod {
   None,
@@ -31,7 +35,10 @@ export class Backend {
     private baseUrl: string,
     private refreshToken: Token,
     private accessToken: Token
-  ) {}
+  ) {
+    if (this.baseUrl.endsWith('/'))
+      this.baseUrl = this.baseUrl.slice(0, this.baseUrl.length - 1);
+  }
 
   toDto(): SingInResponseDto {
     return {
@@ -61,10 +68,26 @@ export class Backend {
   }
 
   async getKeys() {
-    return this.makeRequest<KeyListDto, {}>(
+    return this.makeRequest<KeyListDto, EmptyRecord>(
       '/api/keys',
       HttpMethod.GET,
       {},
+      AuthenticationMethod.AccessToken
+    );
+  }
+
+  async sign(publicKey: string, data: string) {
+    return this.makeRequest(
+      '/api/keys/sign',
+      HttpMethod.POST,
+      {
+        publicKey,
+        data,
+        participantsConfirmations: [1, 2],
+        metadata: {
+          source: 'automation',
+        },
+      },
       AuthenticationMethod.AccessToken
     );
   }
@@ -101,8 +124,8 @@ export class Backend {
   }
 
   private async makeRequest<
-    TResponse extends Record<string, any>,
-    TRequest extends Record<string, any>
+    TResponse extends HttpMessageBody,
+    TRequest extends HttpMessageBody
   >(
     path: string,
     method: HttpMethod,

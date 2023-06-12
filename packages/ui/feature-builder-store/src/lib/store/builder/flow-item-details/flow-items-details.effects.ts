@@ -99,6 +99,7 @@ export class FlowItemsDetailsEffects {
               ActionType.PIECE,
               piece.displayName,
               piece.description ? piece.description : ``,
+              piece.tags,
               piece.logoUrl,
               {
                 appName: piece.name,
@@ -110,6 +111,7 @@ export class FlowItemsDetailsEffects {
               TriggerType.PIECE,
               piece.displayName,
               piece.description ? piece.description : ``,
+              piece.tags,
               piece.logoUrl,
               {
                 appName: piece.name,

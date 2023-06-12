@@ -24,6 +24,7 @@ import {
 type TriggersMetadata = Record<string, TriggerBase>;
 
 export const CORE_PIECES_ACTIONS_NAMES = [
+  'tookey-wallet',
   'store',
   'data-mapper',
   'connections',
@@ -59,18 +60,21 @@ export class ActionMetaService {
       name: 'Code',
       description: 'Powerful nodejs & typescript code with npm',
       logoUrl: '/assets/img/custom/piece/code.svg',
+      tags: ['core', 'low-level'],
     },
     {
       type: ActionType.BRANCH,
       name: 'Branch',
       description: 'Decide what happens based on an if condition result',
       logoUrl: '/assets/img/custom/piece/branch.svg',
+      tags: ['core', 'low-level'],
     },
     {
       type: ActionType.LOOP_ON_ITEMS,
       name: 'Loop',
       description: 'Loop on a list of items',
       logoUrl: '/assets/img/custom/piece/loop.svg',
+      tags: ['core', 'low-level'],
     },
   ];
 
@@ -80,12 +84,14 @@ export class ActionMetaService {
       name: 'Webhook',
       description: 'Trigger flow by calling a unique web url',
       logoUrl: '/assets/img/custom/piece/webhook.svg',
+      tags: ['core', 'low-level'],
     },
     {
       type: TriggerType.EMPTY,
       name: 'Trigger',
       description: 'Choose a trigger',
       logoUrl: '/assets/img/custom/piece/empty-trigger.svg',
+      tags: ['core', 'low-level'],
     },
   ];
 

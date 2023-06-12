@@ -10,6 +10,7 @@ export class Piece implements PieceBase {
   constructor(
     public readonly name: string,
     public readonly displayName: string,
+    public readonly tags: string[],
     public readonly logoUrl: string,
     public readonly authors: string[],
     public readonly version: string,
@@ -50,6 +51,7 @@ export class Piece implements PieceBase {
     return {
       name: this.name,
       displayName: this.displayName,
+      tags: this.tags,
       logoUrl: this.logoUrl,
       actions: this._actions,
       triggers: this._triggers,
@@ -64,6 +66,7 @@ export class Piece implements PieceBase {
 export const createPiece = (request: {
   name: string;
   displayName: string;
+  tags?: string[];
   logoUrl: string;
   authors?: string[],
   actions: Action[];
@@ -80,6 +83,7 @@ export const createPiece = (request: {
   new Piece(
     request.name,
     request.displayName,
+    request.tags || [],
     request.logoUrl,
     request.authors ?? [],
     request.version,

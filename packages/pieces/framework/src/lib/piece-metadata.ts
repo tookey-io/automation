@@ -4,6 +4,7 @@ import { TriggerStrategy } from "./trigger/trigger";
 export type PieceBase = {
   name: string;
   displayName: string;
+  tags: string[];
   logoUrl: string;
   description: string;
   version: string;
