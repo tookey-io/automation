@@ -4,8 +4,8 @@ import { PieceMetadata, PieceMetadataSummary } from '@activepieces/pieces-framew
 import { AllPiecesStats, pieceStatsService } from './piece-stats-service'
 import { StatusCodes } from 'http-status-codes'
 import { ActivepiecesError, ErrorCode } from '@activepieces/shared'
-
-const CLOUD_API_URL = 'https://cloud.activepieces.com/api/v1/pieces'
+import { SystemProp } from '../../helper/system/system-prop'
+import { system } from '../../helper/system/system'
 
 const handleHttpErrors = async (response: Response) => {
     if (response.status === StatusCodes.NOT_FOUND) {
@@ -25,18 +25,14 @@ const handleHttpErrors = async (response: Response) => {
 export const CloudPieceMetadataService = (): PieceMetadataService => {
     return {
         async list({ release }): Promise<PieceMetadataSummary[]> {
-            const response = await fetch(`${CLOUD_API_URL}?release=${release}`)
-
+            const response = await fetch(`${system.getOrThrow(SystemProp.CLOUD_API_URL)}?release=${release}`)
             await handleHttpErrors(response)
-
             return await response.json() as PieceMetadataSummary[]
         },
 
         async get({ name, version }: GetParams): Promise<PieceMetadata> {
-            const response = await fetch(`${CLOUD_API_URL}/${name}?version=${version}`)
-
+            const response = await fetch(`${system.getOrThrow(SystemProp.CLOUD_API_URL)}/${name}?version=${version}`)
             await handleHttpErrors(response)
-
             return await response.json() as PieceMetadata
         },
 
