@@ -3,6 +3,7 @@ export const environment = {
   apiUrl: 'http://localhost:3000/v1',
   jwtTokenName: 'token',
   redirectUrl: 'http://localhost:4200/redirect',
+  backendUrl: 'http://localhost:3001',
   userPropertyNameInLocalStorage: 'currentUser',
   // BEGIN EE
   firebase: {

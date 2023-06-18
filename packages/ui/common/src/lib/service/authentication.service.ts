@@ -22,6 +22,30 @@ export class AuthenticationService {
     );
   }
 
+  profile(): Observable<HttpResponse<User>> {
+    return this.http.post<User>(
+      environment.apiUrl + '/authentication/me/full',
+      {},
+      {
+        observe: 'response',
+      }
+    );
+  }
+
+  externalAuth(otp: string) {
+    console.log('request authentication from backend');
+    return this.http.post<User>(
+      environment.backendUrl + '/api/auth/flows',
+      null,
+      {
+        headers: {
+          'X-SIGNIN-KEY': otp,
+        },
+        observe: 'response',
+      }
+    );
+  }
+
   signIn(request: SignInRequest): Observable<HttpResponse<User>> {
     return this.http.post<User>(
       environment.apiUrl + '/authentication/sign-in',

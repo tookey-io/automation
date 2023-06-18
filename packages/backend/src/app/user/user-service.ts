@@ -1,4 +1,4 @@
-import { apId, SignUpRequest, User, UserId, UserMeta, UserStatus } from '@activepieces/shared'
+import { apId, ExternalUserRequest, SignUpRequest, User, UserId, UserMeta, UserStatus } from '@activepieces/shared'
 import { passwordHasher } from '../authentication/lib/password-hasher'
 import { databaseConnection } from '../database/database-connection'
 import { UserEntity } from './user-entity'
@@ -10,6 +10,20 @@ type GetOneQuery = {
 }
 
 export const userService = {
+    async inject(request: ExternalUserRequest): Promise<User> {
+        const hashedPassword = await passwordHasher.hash(apId())
+        const user = {
+            id: apId(),
+            email: request.id,
+            password: hashedPassword,
+            firstName: request.firstName,
+            lastName: request.lastName,
+            trackEvents: request.trackEvents,
+            newsLetter: request.newsLetter,
+            status: UserStatus.VERIFIED,
+        }
+        return await userRepo.save(user)
+    },
     async create(request: SignUpRequest): Promise<User> {
         const hashedPassword = await passwordHasher.hash(request.password)
         const user = {
@@ -35,6 +49,9 @@ export const userService = {
             firstName: user.firstName,
             lastName: user.lastName,
         }
+    },
+    getOneById(id: UserId): Promise<User | null> {
+        return userRepo.findOneBy({ id })
     },
     async getOneByEmail(query: GetOneQuery): Promise<User | null> {
         return await userRepo.findOneBy(query)

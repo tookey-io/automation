@@ -45,12 +45,14 @@ type ErrorParams =
   | TriggerEnableErrorParams
   | TriggerFailedErrorParams
   | ValidationErrorParams
+  | UserNotFoundParams
 
 export interface BaseErrorParams<T, V> {
   code: T;
   params: V;
 }
 
+export type UserNotFoundParams = BaseErrorParams<ErrorCode.USER_NOT_FOUND, { id: string }>
 export type InvalidClaimParams = BaseErrorParams<ErrorCode.INVALID_CLAIM, { redirectUrl: string, tokenUrl: string, clientId: string }>
 export type InvalidCloudClaimParams = BaseErrorParams<ErrorCode.INVALID_CLOUD_CLAIM, { appName: string }>
 
@@ -289,4 +291,5 @@ export enum ErrorCode {
   TRIGGER_DISABLE = "TRIGGER_DISABLE",
   PAUSE_METADATA_MISSING = "PAUSE_METADATA_MISSING",
   INVALID_API_KEY = "INVALID_API_KEY",
+  USER_NOT_FOUND = "USER_NOT_FOUND"
 }

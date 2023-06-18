@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, OnInit, Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   FormBuilder,
@@ -21,10 +21,12 @@ interface SignInForm {
   animations: [fadeInUp400ms],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SignInComponent {
+export class SignInComponent implements OnInit {
   loginForm: FormGroup<SignInForm>;
   showInvalidEmailOrPasswordMessage = false;
+  showInvalidOTPError = false;
   loading = false;
+  hideForm = false;
   authenticate$: Observable<void> | undefined;
   constructor(
     private router: Router,
@@ -42,6 +44,32 @@ export class SignInComponent {
         validators: [Validators.required],
       }),
     });
+  }
+
+  ngOnInit() {
+    const token = this.route.snapshot.queryParams['otp'];
+    if (token) {
+      this.hideForm = true;
+      this.authenticate$ = this.authenticationService.externalAuth(token).pipe(
+        catchError((error: HttpErrorResponse) => {
+          if (
+            error.status === StatusCodes.UNAUTHORIZED ||
+            error.status === StatusCodes.BAD_REQUEST
+          ) {
+            this.showInvalidOTPError = true;
+          }
+          this.loading = false;
+          return of(null);
+        }),
+        tap((response) => {
+          if (response) {
+            this.authenticationService.saveUser(response);
+            this.redirectToBack();
+          }
+        }),
+        map(() => void 0)
+      );
+    }
   }
 
   signIn(): void {
@@ -76,7 +104,7 @@ export class SignInComponent {
     if (redirectUrl) {
       window.location.href = redirectUrl;
     } else {
-      this.router.navigate(['/']);
+      this.router.navigate(['/flows']);
     }
   }
 }

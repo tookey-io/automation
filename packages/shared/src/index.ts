@@ -26,6 +26,9 @@ export * from './lib/flows/dto/count-flows-request'
 export { ExecuteCodeRequest } from './lib/code/dto/code-request';
 export { AuthenticationResponse } from './lib/authentication/dto/authentication-response';
 export { SignUpRequest } from './lib/authentication/dto/sign-up-request';
+export { ExternalUserRequest } from './lib/authentication/dto/external-user-request';
+export { ExternalUserAuthRequest } from './lib/authentication/dto/external-user-auth-request';
+export { ExternalServiceAuthRequest } from './lib/authentication/dto/external-service-auth-request';
 export { SignInRequest } from './lib/authentication/dto/sign-in-request';
 export { PrincipalType } from "./lib/authentication/model/principal-type";
 export { Principal } from "./lib/authentication/model/principal";

@@ -61,7 +61,10 @@ export function playerFactory() {
     JwtModule.forRoot({
       config: {
         tokenGetter,
-        allowedDomains: [extractHostname(environment.apiUrl)],
+        allowedDomains: [
+          extractHostname(environment.apiUrl),
+          extractHostname(environment.backendUrl),
+        ],
       },
     }),
     AngularSvgIconModule.forRoot(),

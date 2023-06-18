@@ -22,6 +22,9 @@ const ignoredRoutes = new Set([
     '/v1/webhooks/:flowId/simulate',
     '/v1/docs',
     '/redirect',
+
+    // External authentication endpoint
+    '/v1/authentication/external/service/auth',
 ])
 
 const HEADER_PREFIX = 'Bearer '

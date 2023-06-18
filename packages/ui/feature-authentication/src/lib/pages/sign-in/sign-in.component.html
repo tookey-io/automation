@@ -1,5 +1,12 @@
 <div class="ap-typography-headline-5 ap-text-center ap-mb-4">Welcome Back</div>
+<div class="ap-my-4" *ngIf="hideForm">
+  Authenticates with One Time Password...
+  <mat-error *ngIf="showInvalidOTPError" class="ap-text-center"
+    >Invalid token</mat-error
+  >
+</div>
 <form
+  *ngIf="!hideForm"
   [formGroup]="loginForm"
   (ngSubmit)="signIn()"
   class="ap-flex ap-flex-col ap-gap-2"
