@@ -1,0 +1,58 @@
+name: Docker build
+
+on:
+  workflow_dispatch:
+    
+  push:
+    branches:
+      - main
+      - develop
+      - features/tookey-automation # temporary to test workflow
+  release:
+    types:
+      - published
+
+jobs:
+  docker_build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - 
+        uses: actions/checkout@v3
+
+      - 
+        name: Install doctl and Authorize to Digital Ocean
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - 
+        name: Login to registry
+        run: doctl registry login
+
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+
+      - 
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - 
+        name: Build, cache and push docker image
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: registry.digitalocean.com/tookey/${{ github.event.repository.name }}:${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
