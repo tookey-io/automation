@@ -1,8 +1,9 @@
 export const environment = {
   production: true,
-  apiUrl: '/api/v1',
+  apiUrl: 'https://automation.apps-production.tookey.cloud/api/v1',
   jwtTokenName: 'token',
-  redirectUrl: 'http://localhost:8080/redirect',
+  redirectUrl: 'https://automation.tookey.io/',
+  backendUrl: 'https://backend.apps-production.tookey.cloud/',
   userPropertyNameInLocalStorage: 'currentUser',
   // BEGIN EE
   firebase: {
