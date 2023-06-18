@@ -36,7 +36,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           # generate Docker tags based on the following events/attributes
-          name: |
+          images: |
             registry.digitalocean.com/tookey/automation
           tags: |
             type=ref,event=branch
