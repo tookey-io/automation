@@ -1,12 +1,15 @@
+import { ProjectId } from "@activepieces/shared";
 import { PiecePropertyMap } from "./property";
 import { TriggerStrategy } from "./trigger/trigger";
 
 export type PieceBase = {
+  id?: string;
   name: string;
   displayName: string;
   tags: string[];
   logoUrl: string;
   description: string;
+  projectId?: ProjectId;
   directoryName?: string;
   version: string;
   minimumSupportedRelease?: string;

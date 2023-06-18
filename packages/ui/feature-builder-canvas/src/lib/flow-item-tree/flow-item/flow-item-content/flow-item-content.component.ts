@@ -13,6 +13,7 @@ import {
   map,
   Observable,
   of,
+  shareReplay,
   Subject,
   switchMap,
   takeUntil,
@@ -30,7 +31,7 @@ import {
   flowHelper,
 } from '@activepieces/shared';
 import {
-  ActionMetaService,
+  PieceMetadataService,
   CORE_PIECES_ACTIONS_NAMES,
   CORE_PIECES_TRIGGERS,
   FlowItemDetails,
@@ -88,12 +89,11 @@ export class FlowItemContentComponent implements OnInit {
     private cd: ChangeDetectorRef,
     private runDetailsService: RunDetailsService,
     private flowRendererService: FlowRendererService,
-    private actionMetaDataService: ActionMetaService
+    private actionMetaDataService: PieceMetadataService
   ) {}
 
   ngOnInit(): void {
     this.isDragging$ = this.flowRendererService.draggingSubject.asObservable();
-
     this.selectedRun$ = this.store.select(
       BuilderSelectors.selectCurrentFlowRun
     );
@@ -147,7 +147,6 @@ export class FlowItemContentComponent implements OnInit {
     return this.selectedRun$.pipe(
       distinctUntilChanged(),
       map((selectedRun) => {
-        this.stepResult = undefined;
         if (selectedRun) {
           if (selectedRun.status !== ExecutionOutputStatus.RUNNING) {
             const stepName = this._flowItem.name;
@@ -165,7 +164,8 @@ export class FlowItemContentComponent implements OnInit {
           }
         }
         return undefined;
-      })
+      }),
+      shareReplay(1)
     );
   }
 

@@ -58,4 +58,4 @@ We're building no-code connectors to make automation of blockchain activity a fr
 
 ## Open Source and Cloud
 
-The core of Activepieces is available as open source under the [MIT license](https://github.com/tookey-io/automation/blob/main/LICENSE). While most of its features are openly accessible, certain functionalities are exclusive to the signing partner version and remain closed source.
+The core of Tookey Automation is available as open source under the [MIT license](https://github.com/tookey-io/automation/blob/main/LICENSE). While most of its features are openly accessible, certain functionalities are exclusive to the signing partner version and remain closed source.
