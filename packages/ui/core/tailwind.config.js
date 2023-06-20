@@ -35,7 +35,7 @@ module.exports = {
           DEFAULT: '#dc3545',
           light: '#efa2a980',
         },
-        primary: { DEFAULT: '#f9831a', medium:'#ffbe55', light: '#ffedbd', dark: '#c94d00','10':'#f9831a19' },
+        primary: { DEFAULT: '#333840', medium:'#707479', light: '#e7e7e8', dark: '#272b32','10':'#33384019' },
         warn: {
          DEFAULT:'#f78a3b',
          light:"#FFF6E4",
@@ -66,6 +66,10 @@ module.exports = {
         disable:'#AAAAAA',
         outline: 'rgba(0, 0, 0, 0.12)'
       },
+    },
+    borderRadius: {
+      // Not needed
+      full: '9999px',
     },
     container: {
       center: true,

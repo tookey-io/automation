@@ -179,36 +179,36 @@ $ap-typography: mat.define-typography-config(
   @include mat.typography-level($ap-typography, 'button');
 }
 $ap-primary-palette: (
-  50: #fff8df,
-  100: #ffedbd,
-  200: #ffd987,
-  300: #ffbe55,
-  400: #ff9900,
-  500: #f9831a,
-  600: #ea6a00,
-  700: #c94d00,
-  800: #b03f00,
-  900: #8d290f,
-  A100: #ffffff,
-  A200: #fff8df,
-  A400: #ffbe55,
-  A700: #f9831a,
+  50 : #e7e7e8,
+  100 : #c2c3c6,
+  200 : #999ca0,
+  300 : #707479,
+  400 : #52565d,
+  500 : #333840,
+  600 : #2e323a,
+  700 : #272b32,
+  800 : #20242a,
+  900 : #14171c,
+  A100 : #6397ff,
+  A200 : #3075ff,
+  A400 : #0054fc,
+  A700 : #004be2,
   contrast: (
-    50: #000000,
-    100: #000000,
-    200: #000000,
-    300: #000000,
-    400: #ffffff,
-    500: #ffffff,
-    600: #ffffff,
-    700: #ffffff,
-    800: #ffffff,
-    900: #ffffff,
-    A100: #000000,
-    A200: #000000,
-    A400: #000000,
-    A700: #000000,
-  ),
+      50 : #000000,
+      100 : #000000,
+      200 : #000000,
+      300 : #ffffff,
+      400 : #ffffff,
+      500 : #ffffff,
+      600 : #ffffff,
+      700 : #ffffff,
+      800 : #ffffff,
+      900 : #ffffff,
+      A100 : #000000,
+      A200 : #ffffff,
+      A400 : #ffffff,
+      A700 : #ffffff,
+  )
 );
 $ap-danger-palette: (
   50: #fbe7e9,
@@ -687,4 +687,8 @@ app-dashboard-container .mat-drawer {
 .mat-expansion-panel-content
 {
   overflow:hidden !important;
+}
+
+:root {
+  --mdc-shape-small: 0px;
 }
