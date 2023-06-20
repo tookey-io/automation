@@ -12,6 +12,11 @@ on:
     types:
       - published
 
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  
 jobs:
   docker_build:
     runs-on: ubuntu-latest
