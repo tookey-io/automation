@@ -4,11 +4,11 @@
 -   Self-host with a simple Docker command
 -   An alternative to Zapier, Make.com and Tray
 
-## Quicklinks
+# ✨ What Is Tookey Automation?
 
 [Website](https://tookey.io/product/automation), [Docs](https://tookey.gitbook.io/)
 
-## Features
+Tookey is Web3 automation based on open-source Activepieces software. Tookey integrates EVM, The Graph, Covalent with incorporation with Google Sheets, OpenAI, Discord, and RSS, along with 80+ other integrations. [The list of supported integrations](https://www.activepieces.com/docs/pieces/overview) continues to grow rapidly, thanks to valuable contributions from the community.
 
 <table>
   
@@ -20,7 +20,7 @@
       Powerful Logging
     </th>
 
-  </tr>
+If you cannot find a specific piece on the pieces roadmap, please submit a request by visiting the following link: [Request Piece](https://github.com/activepieces/activepieces/issues/new/choose)
 
    <tr>
     <td width="50%">
@@ -56,6 +56,7 @@ We're building no-code connectors to make automation of blockchain activity a fr
 
 > :warning: The list of connectors will keep changing as we hear from our users, [request piece](https://github.com/tookey-io/automation/issues/new/choose) if you can't find it on the [Automation Roadmap](https://github.com/orgs/tookey-io/projects/2/views/1).
 
-## Open Source and Cloud
+<br>
+<br>
 
 The core of Tookey Automation is available as open source under the [MIT license](https://github.com/tookey-io/automation/blob/main/LICENSE). While most of its features are openly accessible, certain functionalities are exclusive to the signing partner version and remain closed source.
