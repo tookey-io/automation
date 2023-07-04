@@ -174,14 +174,14 @@ export class CollectionBuilderComponent implements OnInit, OnDestroy {
             })
           );
           this.titleService.setTitle(
-            `${routeData.runInformation.flow.version.displayName} - Activepieces`
+            `${routeData.runInformation.flow.version.displayName} - Tookey Automation`
           );
           this.snackbar.openFromComponent(TestRunBarComponent, {
             duration: undefined,
           });
         } else {
           this.titleService.setTitle(
-            `${routeData.flowAndFolder.flow.version.displayName} - Activepieces`
+            `${routeData.flowAndFolder.flow.version.displayName} - Tookey Automation`
           );
           this.store.dispatch(
             BuilderActions.loadInitial({

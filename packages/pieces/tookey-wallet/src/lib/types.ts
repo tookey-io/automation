@@ -1,14 +1,3 @@
-export interface TokenDto {
-  token: string;
-  validUntil: string;
-}
-
-export interface SingInResponseDto {
-    access: TokenDto;
-    refresh: TokenDto;
-}
-
-
 export interface KeyDto {
   id: number;
   roomId: string;
@@ -23,6 +12,18 @@ export interface KeyDto {
 
 export interface KeyListDto {
   items: KeyDto[];
+}
+
+export interface DeviceDto {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+  revision: number;
+  name: string;
+  description: string;
+  token: string;
+
 }
 
 

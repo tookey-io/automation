@@ -1,5 +1,5 @@
 import { createAction, Property } from '@activepieces/pieces-framework';
-import { Backend, Token } from '../backend';
+import { Backend } from '../backend';
 
 export const fetchKeys = createAction({
   name: 'fetch-keys',
@@ -22,8 +22,7 @@ export const fetchKeys = createAction({
   async run({ propsValue: { backendUrl, apiKey } }) {
     const backend = new Backend(
       backendUrl,
-      new Token(apiKey, new Date(new Date().getTime() + 86400000)),
-      Token.empty()
+      apiKey,
     );
 
     return backend.getKeys();

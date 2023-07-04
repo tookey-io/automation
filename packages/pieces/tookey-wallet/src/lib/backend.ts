@@ -3,68 +3,15 @@ import {
   HttpMessageBody,
   HttpMethod,
 } from '@activepieces/pieces-common';
-import { EmptyRecord, KeyListDto, SingInResponseDto, TokenDto } from './types';
-
-enum AuthenticationMethod {
-  None,
-  RefreshToken,
-  AccessToken,
-}
-
-export class Token {
-  constructor(public token: string, public validUntil: Date) {}
-
-  static empty() {
-    return new Token('', new Date(0));
-  }
-
-  static fromDto(dto: TokenDto) {
-    return new Token(dto.token, new Date(dto.validUntil));
-  }
-
-  toDto(): TokenDto {
-    return {
-      token: this.token,
-      validUntil: this.validUntil.toISOString(),
-    };
-  }
-}
+import { DeviceDto, EmptyRecord, KeyListDto } from './types';
 
 export class Backend {
   constructor(
     private baseUrl: string,
-    private refreshToken: Token,
-    private accessToken: Token
+    private token: string,
   ) {
     if (this.baseUrl.endsWith('/'))
       this.baseUrl = this.baseUrl.slice(0, this.baseUrl.length - 1);
-  }
-
-  toDto(): SingInResponseDto {
-    return {
-      refresh: this.refreshToken.toDto(),
-      access: this.accessToken.toDto(),
-    };
-  }
-
-  static async fromDto(baseUrl: string, dto: SingInResponseDto) {
-    return new Backend(
-      baseUrl,
-      Token.fromDto(dto.refresh),
-      Token.fromDto(dto.access)
-    );
-  }
-
-  static async fromOTP(baseUrl: string, otp: string) {
-    const { body } = await httpClient.sendRequest<SingInResponseDto>({
-      method: HttpMethod.POST,
-      url: `${baseUrl}/api/auth/signin`,
-      headers: {
-        'X-SIGNIN-KEY': otp,
-      },
-    });
-
-    return Backend.fromDto(baseUrl, body);
   }
 
   async getKeys() {
@@ -72,55 +19,49 @@ export class Backend {
       '/api/keys',
       HttpMethod.GET,
       {},
-      AuthenticationMethod.AccessToken
     );
   }
 
-  async sign(publicKey: string, data: string) {
+  async getDevicesForKey(key: string) {
+    return this.makeRequest<DeviceDto[], EmptyRecord>(
+      `/api/devices/key/${key}`,
+      HttpMethod.GET,
+      {},
+    );
+  }
+
+  async initializeSign(publicKey: string, digest: string, externalSignerToken: string) {
     return this.makeRequest(
-      '/api/keys/sign',
+      '/v2/api/sign/init',
       HttpMethod.POST,
       {
-        publicKey,
-        data,
-        participantsConfirmations: [1, 2],
-        metadata: {
-          source: 'automation',
+        task: {
+          publicKey,
+          digest,
+          // meta: {
+          //   kind: 'ethereum-message',
+          //   message: 'hello world',
+          // }
+          meta: {
+            kind: 'ethereum-tx',
+            to: '0x6b7a87899490EcE95443e979cA9485CBE7E71522',
+            from: '0x2A038e100F8B85DF21e4d44121bdBfE0c288A869',
+            value: '0x00',
+            gasLimit: '0xffff',
+            gasPrice: '0xffff',
+            nonce: '0xffff',
+            data: '0x0175b1c470eaaebe04568ab66989f94f5e1f2e396a9fd77111412ed50e80614596e64e500000000000000000000000007ea2be2df7ba6e54b1a9c70676f668455e329d29000000000000000000000000ddf213419be9c8ca854bd3d0a8ce4a1c77117aca000000000000000000000000000000000000000000000000000000042f4c51c0000000000000000000000000000000000000000000000000000000000000a4b1',
+          }
         },
-      },
-      AuthenticationMethod.AccessToken
-    );
-  }
-
-  async refreshAccessToken() {
-    this.accessToken = Token.fromDto(
-      await this.makeRequest(
-        '/api/auth/refresh',
-        HttpMethod.POST,
-        {},
-        AuthenticationMethod.RefreshToken
-      )
-    );
-
-    return this.accessToken;
-  }
-
-  private async getAuthToken(authentication: AuthenticationMethod) {
-    if (authentication === AuthenticationMethod.None) return 'None';
-
-    if (this.refreshToken && this.refreshToken.validUntil > new Date()) {
-      if (authentication === AuthenticationMethod.RefreshToken) {
-        return this.refreshToken.token;
-      } else {
-        if (!this.accessToken || this.accessToken.validUntil < new Date()) {
-          await this.refreshAccessToken();
-        }
-
-        return this.accessToken.token;
+        externalSignerToken,
+        // publicKey,
+        // data,
+        // participantsConfirmations: [1, 2],
+        // metadata: {
+        //   source: 'automation',
+        // },
       }
-    } else {
-      throw new Error('Not authenticated, refresh token expired or undefined');
-    }
+    );
   }
 
   private async makeRequest<
@@ -130,17 +71,13 @@ export class Backend {
     path: string,
     method: HttpMethod,
     body: TRequest,
-    authentication: AuthenticationMethod
   ): Promise<TResponse> {
-    const auth = authentication !== AuthenticationMethod.None;
-    const authToken = await this.getAuthToken(authentication);
-
     const { body: response } = await httpClient.sendRequest<TResponse>({
       method,
       url: `${this.baseUrl}${path}`,
       body,
       headers: {
-        Authorization: auth ? `Bearer ${authToken}` : undefined,
+        Authorization: `Bearer ${this.token}`,
       },
     });
 
