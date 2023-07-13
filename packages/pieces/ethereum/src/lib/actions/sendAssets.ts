@@ -1,0 +1,39 @@
+import { Property, createAction } from '@activepieces/pieces-framework';
+import { commonProps } from './common';
+import * as ethers from 'ethers';
+import { CHAINS } from '../../constants';
+
+export const sendNative = createAction({
+    name: 'sendNative',
+    displayName: 'Send Native',
+    description: 'Send native assets to another address',
+    props: {
+        ...commonProps,
+        from: Property.ShortText({
+            displayName: 'From Address',
+            description: 'From Address',
+            required: true,
+        }),
+        to: Property.ShortText({
+            displayName: 'To Address',
+            description: 'To Address',
+            required: true,
+        }),
+        amount: Property.Number({
+            displayName: 'Amount',
+            description: 'Amount in ETH (1.0 = 1 ETH)',
+            required: true,
+        }),
+    },
+    async run({ propsValue: { from, to, amount, chain } }) {
+        const provider = new ethers.JsonRpcProvider(CHAINS[chain].rpcUrls.default.http[0]);
+        from = await ethers.resolveAddress(from, provider);
+        to = await ethers.resolveAddress(to, provider);
+        const value = ethers.toBeHex(ethers.parseEther(amount.toString()));
+        return {
+            from,
+            to,
+            value,
+        };
+    },
+});

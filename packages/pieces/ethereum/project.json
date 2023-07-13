@@ -1,0 +1,36 @@
+{
+  "name": "pieces-ethereum",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/ethereum/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/ethereum",
+        "tsConfig": "packages/pieces/ethereum/tsconfig.lib.json",
+        "packageJson": "packages/pieces/ethereum/package.json",
+        "main": "packages/pieces/ethereum/src/index.ts",
+        "assets": [
+          "packages/pieces/ethereum/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/ethereum/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": []
+}

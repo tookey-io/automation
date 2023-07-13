@@ -1,11 +1,12 @@
 import { createAction, Property } from '@activepieces/pieces-framework';
 import { Backend } from '../backend';
+import * as ethers from 'ethers';
 
 export const signRequest = createAction({
   name: 'sign-request',
-  displayName: 'Sign Request',
+  displayName: 'Sign Transaction Request',
   description:
-    'Send request on signing hex encoded hash string (will fire autherization flow or check previous autherization)',
+    'Send request on signing transaction',
   sampleData: {},
   props: {
     backendUrl: Property.ShortText({
@@ -17,11 +18,6 @@ export const signRequest = createAction({
     apiKey: Property.SecretText({
       displayName: 'Api Key',
       description: 'Tookey API Key',
-      required: true,
-    }),
-    hash: Property.ShortText({
-      displayName: 'Digest',
-      description: 'Hex encoded 256 bit digest of signing message',
       required: true,
     }),
     wallet: Property.Dropdown<string, true>({
@@ -126,6 +122,11 @@ export const signRequest = createAction({
         }
       },
     }),
+    tx: Property.Object({
+      displayName: 'Transaction',
+      description: 'Transaction to sign',
+      required: true,
+    }),
   },
   async run({ propsValue }) {
     const backend = new Backend(
@@ -133,6 +134,13 @@ export const signRequest = createAction({
       propsValue.apiKey,
     );
 
-    return backend.initializeSign(propsValue.wallet, propsValue.hash, propsValue.signer);
+    const hash = ethers.Transaction.from({
+      ...propsValue.tx,
+      from: undefined
+    }).unsignedHash;
+    return backend.initializeSign(propsValue.wallet, hash, propsValue.signer, {
+      kind: 'ethereum-tx',
+      ...propsValue.tx,
+    });
   },
 });
