@@ -1,7 +1,7 @@
 {
-  "name": "pieces-tookey-wallet",
+  "name": "pieces-moonbeam",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/pieces/tookey-wallet/src",
+  "sourceRoot": "packages/pieces/moonbeam/src",
   "projectType": "library",
   "targets": {
     "build": {
@@ -10,18 +10,18 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/packages/pieces/tookey-wallet",
-        "tsConfig": "packages/pieces/tookey-wallet/tsconfig.lib.json",
-        "packageJson": "packages/pieces/tookey-wallet/package.json",
-        "main": "packages/pieces/tookey-wallet/src/index.ts",
+        "outputPath": "dist/packages/pieces/moonbeam",
+        "tsConfig": "packages/pieces/moonbeam/tsconfig.lib.json",
+        "packageJson": "packages/pieces/moonbeam/package.json",
+        "main": "packages/pieces/moonbeam/src/index.ts",
         "assets": [
-          "packages/pieces/tookey-wallet/*.md"
+          "packages/pieces/moonbeam/*.md"
         ],
         "buildableProjectDepsInPackageJsonType": "dependencies"
       }
     },
     "publish": {
-      "command": "node tools/scripts/publish.mjs pieces-tookey-wallet {args.ver} {args.tag}",
+      "command": "node tools/scripts/publish.mjs pieces-moonbeam {args.ver} {args.tag}",
       "dependsOn": [
         "build"
       ]
@@ -33,7 +33,7 @@
       ],
       "options": {
         "lintFilePatterns": [
-          "packages/pieces/tookey-wallet/**/*.ts"
+          "packages/pieces/moonbeam/**/*.ts"
         ]
       }
     }

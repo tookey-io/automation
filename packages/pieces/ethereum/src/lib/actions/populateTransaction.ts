@@ -3,6 +3,7 @@ import { commonProps } from "./common";
 import { mainnet } from "viem/chains";
 import * as ethers from "ethers";
 import { serializeToHex } from "../serializeToHex";
+import { CHAINS } from "../../constants";
 
 export const populateTransaction = createAction({
     name: "populateTransaction",
@@ -10,16 +11,27 @@ export const populateTransaction = createAction({
     description: "Populate a transaction with the gas price and nonce",
     props: {
         ...commonProps,
+        from: Property.ShortText({
+            displayName: "From Address",
+            description: "Transaction sender address",
+            required: true,
+        }),
         tx: Property.Object({
             displayName: "Partial transaction",
             description: "Partial transaction to populate",
             required: true,
         }),
     },
-    async run({ propsValue: { tx }}) {
-        const provider = new ethers.JsonRpcProvider(mainnet.rpcUrls.default.http[0]);
-        const signer = new ethers.VoidSigner(tx.from as string, provider);
-        const populated = await signer.populateTransaction(tx);
+    async run({ propsValue: { tx, from, chain }}) {
+        const network = CHAINS[chain];
+        if (!network) throw new Error('Invalid chain');
+        const provider = new ethers.JsonRpcProvider(network.rpcUrls.default.http[0]);
+        if (typeof from !== 'string') throw new Error('Missing from address')
+        const signer = new ethers.VoidSigner(from, provider);
+        const populated = await signer.populateTransaction({
+            ...tx,
+            from
+        });
 
         const serialized = serializeToHex(populated);
 

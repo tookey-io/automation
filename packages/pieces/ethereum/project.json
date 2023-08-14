@@ -5,7 +5,7 @@
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": [
         "{options.outputPath}"
       ],
@@ -20,8 +20,14 @@
         "buildableProjectDepsInPackageJsonType": "dependencies"
       }
     },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-ethereum {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "outputs": [
         "{options.outputFile}"
       ],

@@ -13,16 +13,11 @@ export const fetchKeys = createAction({
       defaultValue: 'https://backend.apps-production.tookey.cloud',
       required: true,
     }),
-    apiKey: Property.SecretText({
-      displayName: 'Api Key',
-      description: 'Tookey API Key',
-      required: true,
-    }),
   },
-  async run({ propsValue: { backendUrl, apiKey } }) {
+  async run({ auth, propsValue: { backendUrl } }) {
     const backend = new Backend(
       backendUrl,
-      apiKey,
+      auth as string,
     );
 
     return backend.getKeys();

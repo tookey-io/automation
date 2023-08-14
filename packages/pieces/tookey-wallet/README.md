@@ -2,6 +2,6 @@
 
 This library was generated with [Nx](https://nx.dev).
 
-## Running lint
+## Building
 
-Run `nx lint pieces-tookey-wallet` to execute the lint via [ESLint](https://eslint.org/).
+Run `nx build pieces-tookey-wallet` to build the library.

@@ -9,9 +9,13 @@ import { isNil } from '@activepieces/shared'
 
 const loadPiecesMetadata = async (): Promise<PieceMetadata[]> => {
     const ignoredPackages = ['framework', 'apps', 'dist', 'common']
+    // const includedPackages = ['core', 'discord', 'tookey-wallet', 'store', 'delay', 'csv', 'ethereum']
     const piecesPath = resolve(cwd(), 'dist', 'packages', 'pieces')
     const piecePackages = await readdir(piecesPath)
     const filteredPiecePackages = piecePackages.filter(d => !ignoredPackages.includes(d))
+    // const filteredPiecePackages = piecePackages.filter(d => includedPackages.includes(d))
+
+    console.log(filteredPiecePackages)
 
     const piecesMetadata: PieceMetadata[] = []
 

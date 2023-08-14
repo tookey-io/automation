@@ -26,7 +26,11 @@ export const sendNative = createAction({
         }),
     },
     async run({ propsValue: { from, to, amount, chain } }) {
-        const provider = new ethers.JsonRpcProvider(CHAINS[chain].rpcUrls.default.http[0]);
+        const network = CHAINS[chain];
+        if (network === undefined) throw new Error('Invalid chain');
+
+        const provider = new ethers.JsonRpcProvider(network.rpcUrls.default.http[0]);
+        
         from = await ethers.resolveAddress(from, provider);
         to = await ethers.resolveAddress(to, provider);
         const value = ethers.toBeHex(ethers.parseEther(amount.toString()));
