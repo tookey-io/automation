@@ -2,8 +2,8 @@ export const apps = {
   production: true,
   apiUrl: 'https://automation.apps-production.tookey.cloud/api/v1',
   jwtTokenName: 'token',
-  redirectUrl: 'https://automation.tookey.io/',
-  backendUrl: 'https://backend.apps-production.tookey.cloud/',
+  redirectUrl: 'https://automation.tookey.io',
+  backendUrl: 'https://backend.apps-production.tookey.cloud',
   userPropertyNameInLocalStorage: 'currentUser',
   // BEGIN EE
   firebase: {
@@ -21,8 +21,8 @@ const aofg = {
   production: true,
   apiUrl: 'https://automation.aofg-production.tookey.cloud/api/v1',
   jwtTokenName: 'token',
-  redirectUrl: 'https://automation.aofg.io/',
-  backendUrl: 'https://backend.aofg-production.tookey.cloud/',
+  redirectUrl: 'https://automation.aofg.io',
+  backendUrl: 'https://backend.aofg-production.tookey.cloud',
   userPropertyNameInLocalStorage: 'currentUser',
   // BEGIN EE
   firebase: {
