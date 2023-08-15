@@ -3,7 +3,7 @@ import { createContextStore } from "../services/storage.service";
 import { VariableService } from "../services/variable-service";
 import { pieceHelper } from "./action-helper";
 import { isValidCron } from 'cron-validator';
-import { TriggerStrategy } from "@activepieces/pieces-framework";
+import { PiecePropertyMap, StaticPropsValue, TriggerStrategy } from "@activepieces/pieces-framework";
 
 type Listener = {
   events: string[];
@@ -25,13 +25,13 @@ export const triggerHelper = {
     const variableService = new VariableService();
     const executionState = new ExecutionState();
 
-    const resolvedProps = await variableService.resolve({
+    const resolvedProps = await variableService.resolve<StaticPropsValue<PiecePropertyMap>>({
       unresolvedInput: input,
       executionState,
       censorConnections: false,
     })
 
-    const { result: validatedProps, errors } = await variableService.validateAndCast(resolvedProps, trigger.props);
+    const {processedInput, errors} = await variableService.applyProcessorsAndValidators(resolvedProps, trigger.props, piece.auth);
 
     if (Object.keys(errors).length > 0) {
       throw new Error(JSON.stringify(errors));
@@ -57,8 +57,8 @@ export const triggerHelper = {
         }
       },
       webhookUrl: params.webhookUrl,
-      auth: validatedProps[AUTHENTICATION_PROPERTY_NAME],
-      propsValue: validatedProps,
+      auth: processedInput[AUTHENTICATION_PROPERTY_NAME],
+      propsValue: processedInput,
       payload: params.triggerPayload ?? {},
     };
     switch (params.hookType) {
@@ -71,6 +71,21 @@ export const triggerHelper = {
           listeners: appListeners,
           scheduleOptions: trigger.type === TriggerStrategy.POLLING ? scheduleOptions : undefined,
         }
+      case TriggerHookType.HANDSHAKE: {
+        try {
+          const response = await trigger.onHandshake(context);
+          return {
+            success: true,
+            response
+          }
+        } catch (e: any) {
+          console.error(e)
+          return {
+            success: false,
+            message: e.toString()
+          }
+        } 
+      }
       case TriggerHookType.TEST:
         try {
           return {

@@ -120,7 +120,7 @@ const BranchConditionValid = (addMinLength: boolean) => Type.Union([
   Type.Object({
     firstValue: addMinLength ? Type.String({ minLength: 1 }) : Type.String(),
     secondValue: addMinLength ? Type.String({ minLength: 1 }) : Type.String(),
-    caseSensitive: Type.Boolean(),
+    caseSensitive: Type.Optional(Type.Boolean()),
     operator: Type.Optional(Type.Union([
       Type.Literal( BranchOperator.TEXT_CONTAINS),
       Type.Literal( BranchOperator.TEXT_DOES_NOT_CONTAIN),
@@ -153,6 +153,7 @@ const BranchConditionValid = (addMinLength: boolean) => Type.Union([
 
 export const BranchActionSettingsWithValidation = Type.Object({
   conditions: Type.Array(Type.Array(BranchConditionValid(true))),
+  inputUiInfo: SampleDataSettingsObject,
 })
 
 export const BranchCondition = BranchConditionValid(false);
@@ -160,6 +161,7 @@ export type BranchCondition = Static<typeof BranchCondition>;
 
 export const BranchActionSettings = Type.Object({
   conditions: Type.Array(Type.Array(BranchConditionValid(false))),
+  inputUiInfo: SampleDataSettingsObject,
 })
 export type BranchActionSettings = Static<typeof BranchActionSettings>;
 
@@ -192,6 +194,13 @@ export const Action = Type.Recursive(action => Type.Union([
   })])
 ]));
 
+export const SingleActionSchema = Type.Union([
+  MissingActionSchema,
+  CodeActionSchema,
+  PieceActionSchema,
+  LoopOnItemsActionSchema,
+  BranchActionSchema
+])
 export type Action = Static<typeof Action>;
 
 export type BranchAction = Static<typeof BranchActionSchema> & { nextAction?: Action, onFailureAction?: Action, onSuccessAction?: Action };

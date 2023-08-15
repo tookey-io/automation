@@ -16,7 +16,9 @@ import {
   Subject,
   combineLatest,
   startWith,
+  take,
 } from 'rxjs';
+import semver from 'semver';
 import { environment } from '../environments/environment';
 import { FlowItemDetails } from '../models/flow-item-details';
 import { FlagService } from './flag.service';
@@ -40,6 +42,8 @@ export const CORE_PIECES_ACTIONS_NAMES = [
   '@activepieces/piece-delay',
   '@activepieces/piece-http',
   '@activepieces/piece-smtp',
+  '@activepieces/piece-sftp',
+  '@activepieces/piece-approval',
 ];
 export const corePieceIconUrl = (pieceName: string) =>
   `assets/img/custom/piece/${pieceName.replace(
@@ -120,7 +124,7 @@ export class PieceMetadataService {
     triggersMap: TriggersMetadata,
     edition: ApEdition
   ): TriggersMetadata {
-    if (edition === ApEdition.ENTERPRISE) {
+    if (edition !== ApEdition.COMMUNITY) {
       return triggersMap;
     }
 
@@ -166,7 +170,24 @@ export class PieceMetadataService {
   }
 
   getPiecesManifest(): Observable<PieceMetadataSummary[]> {
-    return this.piecesManifest$;
+    return this.piecesManifest$.pipe(take(1));
+  }
+
+  getLatestVersion(pieceName: string): Observable<string | undefined> {
+    return this.getPiecesManifest().pipe(
+      map((pieces) => {
+        const filteredPieces = pieces.filter(
+          (piece) => piece.name === pieceName
+        );
+        if (filteredPieces.length === 0) {
+          return undefined;
+        }
+        return filteredPieces
+          .sort((a, b) => semver.compare(b.version, a.version))
+          .map((piece) => piece.version)[0];
+      }),
+      take(1)
+    );
   }
 
   getPieceNameLogo(pieceName: string): Observable<string | undefined> {

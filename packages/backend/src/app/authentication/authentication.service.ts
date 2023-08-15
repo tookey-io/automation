@@ -1,8 +1,7 @@
-import { ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, SignUpRequest, AuthenticationResponse, PrincipalType, SignInRequest, TelemetryEventName, ApFlagId, apId, ApId } from '@activepieces/shared'
+import { ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, SignUpRequest, AuthenticationResponse, PrincipalType, SignInRequest, TelemetryEventName, ApFlagId, apId, ApId, ActivepiecesError, ErrorCode, UserStatus } from '@activepieces/shared'
 import { userService } from '../user/user-service'
 import { passwordHasher } from './lib/password-hasher'
 import { tokenUtils } from './lib/token-utils'
-import { ActivepiecesError, ErrorCode } from '@activepieces/shared'
 import { projectService } from '../project/project.service'
 import { flagService } from '../flags/flag.service'
 import { QueryFailedError } from 'typeorm'
@@ -96,7 +95,7 @@ export const authenticationService = {
     },
     signUp: async (request: SignUpRequest): Promise<AuthenticationResponse> => {
         try {
-            const user = await userService.create(request)
+            const user = await userService.create(request, UserStatus.VERIFIED)
 
             await flagService.save({ id: ApFlagId.USER_CREATED, value: true })
 

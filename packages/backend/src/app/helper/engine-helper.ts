@@ -19,6 +19,9 @@ import {
     ErrorCode,
     ExecuteCodeOperation,
     ExecuteExtractPieceMetadata,
+    ExecuteValidateAuthOperation,
+    ExecuteValidateAuthResponse,
+    ApEnvironment,
 } from '@activepieces/shared'
 import { Sandbox, sandboxManager } from '../workers/sandbox'
 import { system } from './system/system'
@@ -31,14 +34,21 @@ import { getEdition, getWebhookSecret } from './secret-helper'
 import { appEventRoutingService } from '../app-event-routing/app-event-routing.service'
 import { pieceManager } from '../flows/common/piece-installer'
 import { packageManager } from './package-manager'
+import { pieceMetadataService } from '../pieces/piece-metadata-service'
+import { flowVersionService } from '../flows/flow-version/flow-version.service'
+
+
+const apEnvironment = system.get(SystemProp.ENVIRONMENT)
 
 type InstallPieceParams = {
+    projectId: string
     path: string
     pieceName: string
     pieceVersion: string
 }
 
 type GetSandboxParams = {
+    projectId: string
     pieceName: string
     pieceVersion: string
 }
@@ -55,6 +65,8 @@ export type EngineHelperPropResult = DropdownState<unknown> | Record<string, Dyn
 
 export type EngineHelperActionResult = ExecuteActionResponse
 
+export type EngineHelperValidateAuthResult = ExecuteValidateAuthResponse
+
 export type EngineHelperCodeResult = ExecuteActionResponse
 export type EngineHelperExtractPieceInformation = Omit<PieceMetadata, 'name' | 'version'>
 
@@ -65,6 +77,7 @@ export type EngineHelperResult =
     | EngineHelperCodeResult
     | EngineHelperExtractPieceInformation
     | EngineHelperActionResult
+    | EngineHelperValidateAuthResult
 
 export type EngineHelperResponse<Result extends EngineHelperResult> = {
     status: EngineResponseStatus
@@ -75,7 +88,6 @@ export type EngineHelperResponse<Result extends EngineHelperResult> = {
 
 
 const engineExecutablePath = system.getOrThrow(SystemProp.ENGINE_EXECUTABLE_PATH)
-
 
 const installPiece = async (params: InstallPieceParams) => {
     logger.debug(params, '[InstallPiece] params')
@@ -101,19 +113,21 @@ const generateWorkerToken = (request: GenerateWorkerTokenParams): Promise<string
     })
 }
 
-const getSandbox = async ({ pieceName, pieceVersion }: GetSandboxParams): Promise<Sandbox> => {
-    const sandbox = await sandboxManager.obtainSandbox(`${pieceName}:${pieceVersion}`)
+const getSandbox = async ({ pieceName, pieceVersion, projectId }: GetSandboxParams): Promise<Sandbox> => {
+    const sandboxName = getCacheKey({ pieceName, pieceVersion, projectId })
+    const sandbox = await sandboxManager.obtainSandbox(sandboxName)
 
     if (sandbox.cached) {
-        logger.info(`Reusing sandbox number ${sandbox.boxId} for ${pieceName}:${pieceVersion}`)
+        logger.info(`Reusing sandbox number ${sandbox.boxId} for ${sandboxName}`)
         await sandbox.clean()
     }
     else {
-        logger.info(`Preparing sandbox number ${sandbox.boxId} for ${pieceName}:${pieceVersion}`)
+        logger.info(`Preparing sandbox number ${sandbox.boxId} for ${sandboxName}`)
         await sandbox.recreate()
         const path = sandbox.getSandboxFolderPath()
 
         await installPiece({
+            projectId,
             path,
             pieceName,
             pieceVersion,
@@ -123,10 +137,17 @@ const getSandbox = async ({ pieceName, pieceVersion }: GetSandboxParams): Promis
     return sandbox
 }
 
+function getCacheKey({ pieceName, pieceVersion, projectId }: GetSandboxParams) {
+    if (apEnvironment === ApEnvironment.DEVELOPMENT) {
+        return apId()
+    }
+    return `${projectId}:${pieceName}:${pieceVersion}`
+}
+
 function tryParseJson(value: unknown) {
     try {
         return JSON.parse(value as string)
-    } 
+    }
     catch (e) {
         return value
     }
@@ -137,7 +158,8 @@ const execute = async <Result extends EngineHelperResult>(
     sandbox: Sandbox,
     input: EngineOperation,
 ): Promise<EngineHelperResponse<Result>> => {
-    logger.info(`Executing ${operation} inside sandbox number ${sandbox.boxId}`)
+    logger.debug(`Executing ${operation} inside sandbox number ${sandbox.boxId}`)
+    logger.debug(`[EngineHelper#execute] workerToken=${(input as Record<string, string>).workerToken}`)
 
     const sandboxPath = sandbox.getSandboxFolderPath()
 
@@ -153,11 +175,11 @@ const execute = async <Result extends EngineHelperResult>(
     const sandboxResponse = await sandbox.runCommandLine(`${nodeExecutablePath} main.js ${operation}`)
 
     sandboxResponse.standardOutput.split('\n').forEach(f => {
-        if (f.trim().length > 0) logger.info({}, chalk.yellow(f))
+        if (f.trim().length > 0) logger.debug({}, chalk.yellow(f))
     })
 
     sandboxResponse.standardError.split('\n').forEach(f => {
-        if (f.trim().length > 0) logger.error({}, chalk.red(f))
+        if (f.trim().length > 0) logger.debug({}, chalk.red(f))
     })
 
     if (sandboxResponse.verdict === EngineResponseStatus.TIMEOUT) {
@@ -203,16 +225,19 @@ export const engineHelper = {
     async executeTrigger<T extends TriggerHookType>(
         operation: ExecuteTriggerOperation<T>,
     ): Promise<EngineHelperResponse<EngineHelperTriggerResult<T>>> {
-        const { pieceName, pieceVersion } = (operation.flowVersion.trigger as PieceTrigger).settings
+        const lockedFlowVersion = await flowVersionService.lockPieceVersions(operation.projectId, operation.flowVersion)
+        const { pieceName, pieceVersion } = (lockedFlowVersion.trigger as PieceTrigger).settings
 
         const sandbox = await getSandbox({
+            projectId: operation.projectId,
             pieceName,
             pieceVersion,
         })
 
         const input = {
             ...operation,
-            edition: await getEdition(),
+            flowVersion: lockedFlowVersion,
+            edition: getEdition(),
             appWebhookUrl: await appEventRoutingService.getAppWebhookUrl({ appName: pieceName }),
             webhookSecret: await getWebhookSecret(operation.flowVersion),
             workerToken: await generateWorkerToken({ projectId: operation.projectId }),
@@ -235,15 +260,21 @@ export const engineHelper = {
     ): Promise<EngineHelperResponse<EngineHelperPropResult>> {
         logger.debug(operation, '[EngineHelper#executeProp] operation')
 
-        const { pieceName, pieceVersion } = operation
+        const result = await pieceMetadataService.get({
+            projectId: operation.projectId,
+            name: operation.pieceName,
+            version: operation.pieceVersion,
+        })
 
         const sandbox = await getSandbox({
-            pieceName,
-            pieceVersion,
+            projectId: operation.projectId,
+            pieceName: result.name,
+            pieceVersion: result.version,
         })
 
         const input = {
             ...operation,
+            pieceVersion: result.version,
             workerToken: await generateWorkerToken({ projectId: operation.projectId }),
         }
 
@@ -284,11 +315,13 @@ export const engineHelper = {
 
     async extractPieceMetadata(operation: ExecuteExtractPieceMetadata): Promise<EngineHelperResponse<EngineHelperExtractPieceInformation>> {
         logger.info(operation, '[EngineHelper#ExecuteExtractPieceMetadata] operation')
-        const sandbox = await sandboxManager.obtainSandbox(operation.pieceName)
+        const sandbox = await sandboxManager.obtainSandbox(apId())
         await sandbox.recreate()
-        const packages: Record<string, string> = {}
-        packages[operation.pieceName] = operation.pieceVersion
-        await packageManager.addDependencies(sandbox.getSandboxFolderPath(), packages)
+        await packageManager.addDependencies(sandbox.getSandboxFolderPath(), {
+            [operation.pieceName]: {
+                version: operation.pieceVersion,
+            },
+        })
 
         try {
             return await execute(
@@ -304,9 +337,45 @@ export const engineHelper = {
     async executeAction(operation: ExecuteActionOperation): Promise<EngineHelperResponse<EngineHelperActionResult>> {
         logger.debug(operation, '[EngineHelper#executeAction] operation')
 
+        const result = await pieceMetadataService.get({
+            projectId: operation.projectId,
+            name: operation.pieceName,
+            version: operation.pieceVersion,
+        })
+
+        const sandbox = await getSandbox({
+            projectId: operation.projectId,
+            pieceName: result.name,
+            pieceVersion: result.version,
+        })
+
+        const input = {
+            ...operation,
+            pieceVersion: result.version,
+            workerToken: await generateWorkerToken({ projectId: operation.projectId }),
+        }
+
+        try {
+            return await execute(
+                EngineOperationType.EXECUTE_ACTION,
+                sandbox,
+                input,
+            )
+        }
+        finally {
+            await sandboxManager.returnSandbox(sandbox.boxId)
+        }
+    },
+
+    async executeValidateAuth(
+        operation: ExecuteValidateAuthOperation,
+    ): Promise<EngineHelperResponse<EngineHelperValidateAuthResult>> {
+        logger.debug(operation, '[EngineHelper#executeValidateAuth] operation')
+
         const { pieceName, pieceVersion } = operation
 
         const sandbox = await getSandbox({
+            projectId: operation.projectId,
             pieceName,
             pieceVersion,
         })
@@ -318,7 +387,7 @@ export const engineHelper = {
 
         try {
             return await execute(
-                EngineOperationType.EXECUTE_ACTION,
+                EngineOperationType.EXECUTE_VALIDATE_AUTH,
                 sandbox,
                 input,
             )

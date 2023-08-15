@@ -1,5 +1,5 @@
 import { readdir } from 'node:fs/promises'
-import { resolve, join} from 'node:path'
+import { resolve, join } from 'node:path'
 import { cwd } from 'node:process'
 import { Piece, PieceMetadata, PieceMetadataSummary } from '@activepieces/pieces-framework'
 import { ActivepiecesError, ErrorCode, extractPieceFromModule } from '@activepieces/shared'
@@ -36,7 +36,7 @@ const loadPiecesMetadata = async (): Promise<PieceMetadata[]> => {
                 version: pieceVersion,
             })
         }
-        catch(ex) {
+        catch (ex) {
             captureException(ex)
         }
     }
@@ -81,7 +81,7 @@ export const FilePieceMetadataService = (): PieceMetadataService => {
             return pieceMetadata
         },
 
-        async delete(){
+        async delete() {
             throw new Error('Deleting pieces is not supported in development mode')
         },
         async create() {

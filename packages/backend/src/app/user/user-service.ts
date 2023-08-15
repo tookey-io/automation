@@ -24,7 +24,8 @@ export const userService = {
         }
         return await userRepo.save(user)
     },
-    async create(request: SignUpRequest): Promise<User> {
+    
+    async create(request: SignUpRequest, status: UserStatus): Promise<User> {
         const hashedPassword = await passwordHasher.hash(request.password)
         const user = {
             id: apId(),
@@ -34,13 +35,13 @@ export const userService = {
             lastName: request.lastName,
             trackEvents: request.trackEvents,
             newsLetter: request.newsLetter,
-            status: UserStatus.VERIFIED,
+            status,
         }
         return await userRepo.save(user)
     },
-    async getMetaInfo({id}: {id: UserId}): Promise<UserMeta | null> {
-        const user = await userRepo.findOneBy({id})
-        if(!user){
+    async getMetaInfo({ id }: { id: UserId }): Promise<UserMeta | null> {
+        const user = await userRepo.findOneBy({ id })
+        if (!user) {
             return null
         }
         return {

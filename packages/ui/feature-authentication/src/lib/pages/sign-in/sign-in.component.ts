@@ -102,7 +102,7 @@ export class SignInComponent implements OnInit {
   redirectToBack() {
     const redirectUrl = this.route.snapshot.queryParamMap.get('redirect_url');
     if (redirectUrl) {
-      window.location.href = redirectUrl;
+      this.router.navigateByUrl(decodeURIComponent(redirectUrl));
     } else {
       this.router.navigate(['/flows']);
     }

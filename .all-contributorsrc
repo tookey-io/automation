@@ -382,6 +382,78 @@
       "contributions": [
         "plugin"
       ]
+    },
+    {
+      "login": "Ozak93",
+      "name": "Osama Zakarneh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/31257994?v=4",
+      "profile": "https://github.com/Ozak93",
+      "contributions": [
+        "plugin"
+      ]
+    },
+    {
+      "login": "phestvik",
+      "name": "phestvik",
+      "avatar_url": "https://avatars.githubusercontent.com/u/88210985?v=4",
+      "profile": "https://github.com/phestvik",
+      "contributions": [
+        "ideas"
+      ]
+    },
+    {
+      "login": "Rajdeep1311",
+      "name": "Rajdeep Pal",
+      "avatar_url": "https://avatars.githubusercontent.com/u/113296626?v=4",
+      "profile": "http://website-portfolio-bucket.s3-website-ap-northeast-1.amazonaws.com/",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "camilou",
+      "name": "Camilo Usuga",
+      "avatar_url": "https://avatars.githubusercontent.com/u/40870?v=4",
+      "profile": "http://www.tepote.com",
+      "contributions": [
+        "plugin"
+      ]
+    },
+    {
+      "login": "kishanprmr",
+      "name": "Kishan Parmar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/135701940?v=4",
+      "profile": "https://github.com/kishanprmr",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "BBND",
+      "name": "BBND",
+      "avatar_url": "https://avatars.githubusercontent.com/u/42919338?v=4",
+      "profile": "https://github.com/BBND",
+      "contributions": [
+        "plugin"
+      ]
+    },
+    {
+      "login": "haseebrehmanpc",
+      "name": "Haseeb Rehman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/37938986?v=4",
+      "profile": "https://github.com/haseebrehmanpc",
+      "contributions": [
+        "plugin"
+      ]
+    },
+    {
+      "login": "rita-gorokhod",
+      "name": "Rita Gorokhod",
+      "avatar_url": "https://avatars.githubusercontent.com/u/60586879?v=4",
+      "profile": "https://www.linkedin.com/in/ritagorokhod/",
+      "contributions": [
+        "plugin"
+      ]
     }
   ],
   "commitType": "docs"

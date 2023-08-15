@@ -22,7 +22,6 @@ type PieceEventProcessors = {
   parseAndReply: (ctx: { payload: EventPayload }) => ParseEventResponse
   verify: (ctx: { webhookSecret: string, payload: EventPayload, appWebhookUrl: string }) => boolean
 }
-
 export class Piece<PieceAuth extends PieceAuthProperty = PieceAuthProperty> implements Omit<PieceBase, "version" | "name"> {
   private readonly _actions: Record<string, Action> = {}
   private readonly _triggers: Record<string, Trigger> = {}

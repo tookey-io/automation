@@ -5,6 +5,12 @@ export const apps = {
   redirectUrl: 'https://automation.tookey.io',
   backendUrl: 'https://backend.apps-production.tookey.cloud',
   userPropertyNameInLocalStorage: 'currentUser',
+  //You need to edit index.html manually
+  websiteTitle: 'Activepieces',
+  activateBeamer: true,
+  showFeedbackButton: true,
+  showDocsButton: true,
+  showUserProfile: true,
   // BEGIN EE
   firebase: {
     apiKey: 'AIzaSyBik7RRZ6S8QIpG4GqzwoF_SCNn3Dr9PPw',
