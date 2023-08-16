@@ -6,10 +6,10 @@ export const apps = {
   backendUrl: 'https://backend.apps-production.tookey.cloud',
   userPropertyNameInLocalStorage: 'currentUser',
   //You need to edit index.html manually
-  websiteTitle: 'Activepieces',
-  activateBeamer: true,
-  showFeedbackButton: true,
-  showDocsButton: true,
+  websiteTitle: 'Tookey Automation',
+  activateBeamer: false,
+  showFeedbackButton: false,
+  showDocsButton: false,
   showUserProfile: true,
   // BEGIN EE
   firebase: {
@@ -30,6 +30,10 @@ const aofg = {
   redirectUrl: 'https://automation.aofg.io',
   backendUrl: 'https://backend.aofg-production.tookey.cloud',
   userPropertyNameInLocalStorage: 'currentUser',
+  websiteTitle: 'Tookey Test Automation',
+  activateBeamer: false,
+  showFeedbackButton: false,
+  showDocsButton: false,
   // BEGIN EE
   firebase: {
     apiKey: 'AIzaSyBik7RRZ6S8QIpG4GqzwoF_SCNn3Dr9PPw',

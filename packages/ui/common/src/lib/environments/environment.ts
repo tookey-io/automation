@@ -6,11 +6,11 @@ export const environment = {
   backendUrl: 'http://localhost:3001',
   userPropertyNameInLocalStorage: 'currentUser',
   //You need to edit index.html manually
-  activateBeamer: true,
-  showFeedbackButton: true,
-  showDocsButton: true,
+  activateBeamer: false,
+  showFeedbackButton: false,
+  showDocsButton: false,
   showUserProfile: true,
-  websiteTitle: 'Activepieces',
+  websiteTitle: 'Tookey Automation',
   // BEGIN EE
   firebase: {
     apiKey: 'AIzaSyBik7RRZ6S8QIpG4GqzwoF_SCNn3Dr9PPw',
