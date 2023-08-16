@@ -10,14 +10,16 @@ services:
 
   app:
     image: activepieces/ap-base:3
-    container_name: app
+    platform: linux/arm64
+    container_name: activepieces
     environment:
       AP_JWT_SECRET: super-secret
       AP_POSTGRES_HOST: postgres
       AP_SIGN_UP_ENABLED: 'false'
       AP_REDIS_HOST: redis
-      AP_EXECUTION_MODE: UNSANDBOXED
-    user: 1000:1000
+      AP_EXECUTION_MODE: SANDBOXED
+      AP_ENVIRONMENT: prod
+    privileged: true
     ports:
      - "3000:3000"
      - "4200:4200"

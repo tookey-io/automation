@@ -2,6 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "rootDir": ".",
     "sourceMap": true,
@@ -177,7 +178,7 @@
         "packages/pieces/telegram-bot/src/index.ts"
       ],
       "@activepieces/piece-todoist": ["packages/pieces/todoist/src/index.ts"],
-      "@activepieces/piece-tookey-wallet": [
+      "@tookey-io/piece-wallet": [
           "packages/pieces/tookey-wallet/src/index.ts"
       ],
       "@activepieces/piece-trello": ["packages/pieces/trello/src/index.ts"],
@@ -241,6 +242,6 @@
       ],
       "@activepieces/ui/templates": ["packages/ui/templates/src/index.ts"]
     },
-    "exclude": ["node_modules", "tmp"]
-  }
+  },
+  "exclude": ["node_modules", "tmp"]
 }

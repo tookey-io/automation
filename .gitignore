@@ -12,6 +12,7 @@ builds
 
 # dependencies
 node_modules
+node_modules_local
 
 # IDEs and editors
 /.idea
