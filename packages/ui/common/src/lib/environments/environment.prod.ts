@@ -21,7 +21,7 @@ export const apps = {
     appId: '1:89039225374:web:7e9279293327e02123640f',
   },
   // END EE
-};
+} as const;
 
 const aofg = {
   production: true,
@@ -34,6 +34,7 @@ const aofg = {
   activateBeamer: false,
   showFeedbackButton: false,
   showDocsButton: false,
+  showUserProfile: true,
   // BEGIN EE
   firebase: {
     apiKey: 'AIzaSyBik7RRZ6S8QIpG4GqzwoF_SCNn3Dr9PPw',
@@ -43,7 +44,7 @@ const aofg = {
     messagingSenderId: '89039225374',
     appId: '1:89039225374:web:7e9279293327e02123640f',
   },
-};
+} as const;
 
 
 
