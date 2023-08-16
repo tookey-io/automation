@@ -20,11 +20,12 @@ const byDisplayNameIgnoreCase = (a: PieceMetadata, b: PieceMetadata) => {
 export const generateMetadata = async (): Promise<PieceMetadata[]> => {
   console.log('generateMetadata');
 
-  const pieces: PieceMetadata[] = [];
-
+  
   const piecePackageNames = await getAvailablePieceNames();
-
-  for (const packageName of piecePackageNames) {
+  
+  console.log('piecePackageNames', piecePackageNames);
+  
+  const pieces: PieceMetadata[] = await Promise.all(piecePackageNames.map(async (packageName) => {
     const packagePath = `packages/pieces/${packageName}`;
 
     const packageJson = await readPackageJson(packagePath);
@@ -49,9 +50,9 @@ export const generateMetadata = async (): Promise<PieceMetadata[]> => {
       version: piece.version
     };
     validateMetadata(metadata);
-    pieces.push(metadata);
-  }
-
+    return metadata;
+  }));
+  
   pieces.sort(byDisplayNameIgnoreCase);
 
   return pieces;

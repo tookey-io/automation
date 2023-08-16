@@ -5,8 +5,7 @@ import { HttpHeader } from '../../../packages/pieces/common/src';
 
 assert(process.env['AP_CLOUD_API_KEY'], 'API Key is not defined');
 
-const { AP_CLOUD_API_KEY } = process.env;
-const AP_CLOUD_API_BASE = 'https://cloud.activepieces.com/api/v1';
+const { AP_CLOUD_API_BASE, AP_CLOUD_API_KEY } = process.env;
 
 const insertPieceMetadata = async (
   pieceMetadata: PieceMetadata
@@ -14,7 +13,7 @@ const insertPieceMetadata = async (
   const body = JSON.stringify(pieceMetadata);
 
   const headers = {
-    [HttpHeader.API_KEY]: AP_CLOUD_API_KEY,
+    'Authorization': `Bearer ${AP_CLOUD_API_KEY}`,
     [HttpHeader.CONTENT_TYPE]: 'application/json'
   };
 
@@ -24,7 +23,8 @@ const insertPieceMetadata = async (
     body
   });
 
-  if (cloudResponse.status !== StatusCodes.OK) {
+  if (cloudResponse.status !== StatusCodes.OK && cloudResponse.status !== 201) {
+    console.error(cloudResponse.status);
     throw new Error(await cloudResponse.text());
   }
 };
