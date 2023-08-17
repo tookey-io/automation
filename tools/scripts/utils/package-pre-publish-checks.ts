@@ -39,7 +39,7 @@ const packageChangedFromMainBranch = async (path: string): Promise<boolean> => {
   console.info(`[packageChangedFromMainBranch] path=${path}`)
 
   try {
-    const diff = await exec(`git diff --quiet origin/feature/build-tookey-pieces-and-push -- ${path}`)
+    const diff = await exec(`git diff --quiet origin/main -- ${path}`)
     return false
   }
   catch (e) {
