@@ -2,6 +2,8 @@ name: Release Pieces
 
 on:
   workflow_dispatch:
+  branches:
+    - main
   push:
     paths:
       - 'packages/pieces/**'
@@ -26,7 +28,7 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: build packages
-        run: npx nx run-many --target=build
+        run: npx nx run-many --target=build --projects=tag:${{ secrets.VENDOR_NAME}}
 
       - name: copy project .npmrc to user level
         run: cp .npmrc $HOME/.npmrc

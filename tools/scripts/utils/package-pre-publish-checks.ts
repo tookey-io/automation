@@ -66,7 +66,7 @@ export const packagePrePublishChecks = async (path: string): Promise<boolean> =>
 
   const { name: packageName, version: currentVersion } = await readPackageJson(path)
 
-  if (process.env.AP_VENDOR_NAME && !packageName.includes(process.env.AP_VENDOR_NAME)) {
+  if (process.env.VENDOR_NAME && !packageName.includes(process.env.VENDOR_NAME)) {
     return false
   }
 
