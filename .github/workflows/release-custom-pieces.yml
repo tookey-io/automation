@@ -28,18 +28,23 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: build packages
-        run: npx nx run-many --target=build --projects=tag:${{ env.VENDOR_NAME}}
+        run: npx nx run-many --target=build --projects=tag:${{ vars.VENDOR_NAME}}
 
       - name: copy project .npmrc to user level
         run: cp .npmrc $HOME/.npmrc
 
       - name: show .npmrc
         run: cat $HOME/.npmrc
+        
+      - name: show vendor
+        run: ech $VENDOR_NAME
+        env:
+          VENDOR_NAME: ${{ vars.VENDOR_NAME }}
 
       - name: publish pieces packages
         run: npx ts-node tools/scripts/publish-pieces-to-npm.ts
         env:
-          VENDOR_NAME: ${{ env.VENDOR_NAME }}
+          VENDOR_NAME: ${{ vars.VENDOR_NAME }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # - name: update pieces metadata
