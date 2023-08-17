@@ -11,6 +11,7 @@ const auth = PieceAuth.SecretText({
 export const tookeyWallet = createPiece({
   tags: ["tookey", "web3"],
   displayName: "Tookey Wallets",
+  description: "Tookey Wallets",
   logoUrl: "https://tookey.io/images/logo-yellow-2k.png",
   authors: ['aler-denisov'],
   auth,
