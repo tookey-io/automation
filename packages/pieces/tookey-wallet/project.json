@@ -39,6 +39,7 @@
     }
   },
   "tags": [
-    "@tookey-io"
+    "@tookey-io",
+    "custom-piece"
   ]
 }
