@@ -35,9 +35,9 @@ jobs:
 
       - name: show .npmrc
         run: cat $HOME/.npmrc
-        
+
       - name: show vendor
-        run: ech $VENDOR_NAME
+        run: echo $VENDOR_NAME
         env:
           VENDOR_NAME: ${{ vars.VENDOR_NAME }}
 
