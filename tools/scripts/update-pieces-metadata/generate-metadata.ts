@@ -17,11 +17,11 @@ const byDisplayNameIgnoreCase = (a: PieceMetadata, b: PieceMetadata) => {
   return aName.localeCompare(bName, 'en');
 };
 
-export const generateMetadata = async (): Promise<PieceMetadata[]> => {
+export const generateMetadata = async (filter?: string[]): Promise<PieceMetadata[]> => {
   console.log('generateMetadata');
 
   
-  const piecePackageNames = await getAvailablePieceNames();
+  const piecePackageNames = await getAvailablePieceNames(filter);
   
   console.log('piecePackageNames', piecePackageNames);
   

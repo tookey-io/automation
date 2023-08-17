@@ -64,6 +64,11 @@ export const packagePrePublishChecks = async (path: string): Promise<boolean> =>
   assert(path, '[packagePrePublishValidation] parameter "path" is required')
 
   const { name: packageName, version: currentVersion } = await readPackageJson(path)
+
+  if (process.env.AP_VENDOR_NAME && !packageName.includes(process.env.AP_VENDOR_NAME)) {
+    return false
+  }
+
   const latestPublishedVersion = await getLatestPublishedVersion(packageName)
   const currentVersionAlreadyPublished = latestPublishedVersion !== null && currentVersion === latestPublishedVersion
 
@@ -75,8 +80,8 @@ export const packagePrePublishChecks = async (path: string): Promise<boolean> =>
     }
 
     console.info(`[packagePrePublishValidation] package already published, path=${path}, version=${currentVersion}`)
-    return true
+    return false
   }
 
-  return false
+  return true
 }

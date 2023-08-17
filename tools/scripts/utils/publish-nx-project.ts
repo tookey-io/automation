@@ -8,9 +8,9 @@ export const publishNxProject = async (path: string): Promise<void> => {
   console.info(`[publishNxProject] path=${path}`)
   assert(path, '[publishNxProject] parameter "path" is required')
 
-  const packageAlreadyPublished = await packagePrePublishChecks(path);
+  const packagePassedChecks = await packagePrePublishChecks(path);
 
-  if (packageAlreadyPublished) {
+  if (!packagePassedChecks) {
     return;
   }
 
