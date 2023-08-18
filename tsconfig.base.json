@@ -118,6 +118,7 @@
         "packages/pieces/invoiceninja/src/index.ts"
       ],
       "@activepieces/piece-jotform": ["packages/pieces/jotform/src/index.ts"],
+      "@activepieces/piece-kimai": ["packages/pieces/kimai/src/index.ts"],
       "@activepieces/piece-kizeo-forms": [
         "packages/pieces/kizeo-forms/src/index.ts"
       ],
@@ -171,9 +172,11 @@
       ],
       "@activepieces/piece-store": ["packages/pieces/store/src/index.ts"],
       "@activepieces/piece-stripe": ["packages/pieces/stripe/src/index.ts"],
+      "@activepieces/piece-supabase": ["packages/pieces/supabase/src/index.ts"],
       "@activepieces/piece-surveymonkey": [
         "packages/pieces/surveymonkey/src/index.ts"
       ],
+      "@activepieces/piece-tags": ["packages/pieces/tags/src/index.ts"],
       "@activepieces/piece-telegram-bot": [
         "packages/pieces/telegram-bot/src/index.ts"
       ],
