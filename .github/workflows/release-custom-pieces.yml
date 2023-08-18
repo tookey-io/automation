@@ -5,8 +5,8 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - 'packages/pieces/**'
+    paths:
+      - 'packages/pieces/**'
 
 jobs:
   Release-Pieces:
