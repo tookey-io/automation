@@ -4,7 +4,6 @@ import { signRequest } from "./lib/actions/sign-request";
 import { fetchKeys } from "./lib/actions/fetch-keys";
 
 export const TookeyAuth = PieceAuth.CustomAuth({
-  displayName: 'Tookey Connection',
   description: `
   To obtain your Tookey token, follow these steps:
 

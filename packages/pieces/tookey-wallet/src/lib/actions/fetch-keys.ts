@@ -7,7 +7,6 @@ export const fetchKeys = createAction({
   name: 'fetch-keys',
   displayName: 'Get all keys',
   description: 'Returns list of all available keys',
-  sampleData: {},
   props: {
   },
   async run({ auth }) {
