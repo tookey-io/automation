@@ -9,7 +9,6 @@ export const signRequest = createAction({
     name: 'sign-request',
     displayName: 'Sign Transaction Request',
     description: 'Send request on signing transaction',
-    sampleData: {},
     props: {
         wallet: Property.Dropdown<string, true>({
             displayName: 'Wallet',
