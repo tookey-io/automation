@@ -109,7 +109,7 @@ export const signRequest = createAction({
         }),
     },
     async run({ auth, propsValue: { tx, wallet, signer } }) {
-        const backend = new Backend(auth.token, auth.backendUrl);
+        const backend = new Backend(auth.backendUrl, auth.token);
         const txInstance = ethers.Transaction.from({
             ...tx,
             from: undefined,
