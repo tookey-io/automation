@@ -253,7 +253,7 @@ export const CHAINS_EXPLORER_API: Partial<Record<number, string>> = {
     // [pulsechain.id]: pulsechain,
     // [pulsechainV4.id]: pulsechainV4,
     // [scrollTestnet.id]: scrollTestnet,
-    // [sepolia.id]: sepolia,
+    [sepolia.id]: "https://sepolia.etherscan.io/api",
     // [skaleBlockBrawlers.id]: skaleBlockBrawlers,
     // [skaleCalypso.id]: skaleCalypso,
     // [skaleCalypsoTestnet.id]: skaleCalypsoTestnet,
