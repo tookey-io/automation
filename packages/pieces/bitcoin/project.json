@@ -1,0 +1,44 @@
+{
+  "name": "pieces-bitcoin",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/bitcoin/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/bitcoin",
+        "tsConfig": "packages/pieces/bitcoin/tsconfig.lib.json",
+        "packageJson": "packages/pieces/bitcoin/package.json",
+        "main": "packages/pieces/bitcoin/src/index.ts",
+        "assets": [
+          "packages/pieces/bitcoin/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-bitcoin {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/bitcoin/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "@tookey-io"
+  ]
+}
