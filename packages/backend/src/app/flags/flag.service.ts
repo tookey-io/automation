@@ -104,7 +104,7 @@ export const flagService = {
     },
     async getLatestPackageDotJson() {
         try {
-            const pkgJson = (await axios.get('https://raw.githubusercontent.com/activepieces/activepieces/main/package.json')).data
+            const pkgJson = (await axios.get('https://raw.githubusercontent.com/tookey-io/automation/main/package.json')).data
             return pkgJson
         }
         catch (ex) {
