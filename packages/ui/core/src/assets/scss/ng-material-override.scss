@@ -686,6 +686,9 @@ mat-icon[data-mat-icon-name="custom_expand_less"] {
   max-height: 1150px !important;
 }
 
+.material-suffix-icon {
+  padding-right:  max(16px, calc(var(--mdc-shape-small, 4px) + 4px));;
+}
 :root {
   --mdc-shape-small: 0px;
 }
