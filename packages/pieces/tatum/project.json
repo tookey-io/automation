@@ -1,0 +1,42 @@
+{
+  "name": "pieces-tatum",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/tatum/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/tatum",
+        "tsConfig": "packages/pieces/tatum/tsconfig.lib.json",
+        "packageJson": "packages/pieces/tatum/package.json",
+        "main": "packages/pieces/tatum/src/index.ts",
+        "assets": [
+          "packages/pieces/tatum/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-tatum {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/tatum/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": []
+}
