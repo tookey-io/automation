@@ -3,12 +3,11 @@ import { CHAINS } from '../../constants';
 import { Chain } from 'viem';
 
 export const commonProps = {
-    chain: Property.Dropdown({
+    chain: Property.StaticDropdown({
         displayName: 'Chain',
         description: 'Chain to use',
         required: true,
-        refreshers: [],
-        options: async () => ({
+        options: {
             disabled: false,
             options: Object.values(CHAINS)
                 .filter((chain): chain is Chain => !!chain)
@@ -16,7 +15,7 @@ export const commonProps = {
                     value: chain.id,
                     label: chain.name,
                 })),
-        }),
+        },
     }),
 
     network: Property.Object({

@@ -1,0 +1,42 @@
+{
+  "name": "pieces-allbridge",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/allbridge/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/allbridge",
+        "tsConfig": "packages/pieces/allbridge/tsconfig.lib.json",
+        "packageJson": "packages/pieces/allbridge/package.json",
+        "main": "packages/pieces/allbridge/src/index.ts",
+        "assets": [
+          "packages/pieces/allbridge/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-allbridge {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/allbridge/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": []
+}

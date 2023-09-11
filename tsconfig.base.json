@@ -186,9 +186,6 @@
       ],
       "@activepieces/piece-tidycal": ["packages/pieces/tidycal/src/index.ts"],
       "@activepieces/piece-todoist": ["packages/pieces/todoist/src/index.ts"],
-      "@tookey-io/piece-wallet": [
-          "packages/pieces/tookey-wallet/src/index.ts"
-      ],
       "@activepieces/piece-trello": ["packages/pieces/trello/src/index.ts"],
       "@activepieces/piece-twilio": ["packages/pieces/twilio/src/index.ts"],
       "@activepieces/piece-twitter": ["packages/pieces/twitter/src/index.ts"],
@@ -248,7 +245,24 @@
       "@activepieces/ui/feature-templates": [
         "packages/ui/feature-templates/src/index.ts"
       ],
-      "@activepieces/ui/templates": ["packages/ui/templates/src/index.ts"]
+      "@activepieces/ui/templates": ["packages/ui/templates/src/index.ts"],
+      "@tookey-io/piece-allbridge": [
+          "packages/pieces/allbridge/src/index.ts"
+      ],
+      "@tookey-io/piece-cryptoapi": [
+          "packages/pieces/cryptoapi/src/index.ts"
+      ],
+      "@tookey-io/piece-bitcoin": [
+          "packages/pieces/bitcoin/src/index.ts"
+      ],
+      "@tookey-io/piece-epn": ["packages/pieces/epn/src/index.ts"],
+      "@tookey-io/piece-ethereum": [
+          "packages/pieces/ethereum/src/index.ts"
+      ],
+      "@tookey-io/piece-tatum": ["packages/pieces/tatum/src/index.ts"],
+      "@tookey-io/piece-wallet": [
+          "packages/pieces/tookey-wallet/src/index.ts"
+      ]
     },
   },
   "exclude": ["node_modules", "tmp"]

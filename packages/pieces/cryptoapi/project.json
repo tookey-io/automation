@@ -1,0 +1,42 @@
+{
+  "name": "pieces-cryptoapi",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/cryptoapi/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/cryptoapi",
+        "tsConfig": "packages/pieces/cryptoapi/tsconfig.lib.json",
+        "packageJson": "packages/pieces/cryptoapi/package.json",
+        "main": "packages/pieces/cryptoapi/src/index.ts",
+        "assets": [
+          "packages/pieces/cryptoapi/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-cryptoapi {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/cryptoapi/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": []
+}
