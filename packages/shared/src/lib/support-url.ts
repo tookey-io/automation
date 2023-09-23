@@ -1,1 +1,1 @@
-export const supportUrl = "https://community.activepieces.com"
+export const supportUrl = "https://discord.gg/Jxrz3Trd2q"
