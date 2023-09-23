@@ -151,25 +151,6 @@ async function listIssueLabels(
   const response = await httpClient.sendRequest<GithubIssueLabel[]>(request);
   return response.body;
 }
-async function getAssignee(
-  authProp: OAuth2PropertyValue,
-  owner: string,
-  repo: string
-): Promise<GithubAssignee[]> {
-  const request: HttpRequest = {
-    method: HttpMethod.GET,
-    url: `${githubCommon.baseUrl}/repos/${owner}/${repo}/assignees`,
-    queryParams: {
-      per_page: '30',
-    },
-    authentication: {
-      type: AuthenticationType.BEARER_TOKEN,
-      token: authProp.access_token,
-    },
-  };
-  const response = await httpClient.sendRequest<GithubAssignee[]>(request);
-  return response.body;
-}
 export interface GithubRepository {
   name: string;
   owner: {

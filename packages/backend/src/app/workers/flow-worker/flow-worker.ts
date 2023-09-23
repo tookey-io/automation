@@ -1,6 +1,5 @@
 import fs from 'fs-extra'
 import {
-    Action,
     ActionType,
     ActivepiecesError,
     CodeActionSettings,
@@ -9,6 +8,7 @@ import {
     ExecutionOutput,
     ExecutionOutputStatus,
     ExecutionType,
+    File,
     FileId,
     flowHelper,
     FlowRunId,
@@ -17,7 +17,6 @@ import {
     ProjectId,
     RunEnvironment,
     StepOutputStatus,
-    Trigger,
     TriggerType,
 } from '@activepieces/shared'
 import { Sandbox } from '../sandbox'

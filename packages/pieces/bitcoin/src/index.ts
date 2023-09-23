@@ -6,7 +6,7 @@ export const bitcoin = createPiece({
   displayName: "Bitcoin",
   auth: PieceAuth.None(),
   minimumSupportedRelease: '0.7.1',
-  logoUrl: "https://cdn.activepieces.com/pieces/bitcoin.png",
+  logoUrl: "https://raw.githubusercontent.com/tookey-io/icons/main/piece-bitcoin.png",
   authors: [],
   actions: [FetchOrdinals],
   triggers: [],

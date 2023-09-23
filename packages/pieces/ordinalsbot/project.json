@@ -1,0 +1,42 @@
+{
+  "name": "pieces-ordinalsbot",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/ordinalsbot/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/ordinalsbot",
+        "tsConfig": "packages/pieces/ordinalsbot/tsconfig.lib.json",
+        "packageJson": "packages/pieces/ordinalsbot/package.json",
+        "main": "packages/pieces/ordinalsbot/src/index.ts",
+        "assets": [
+          "packages/pieces/ordinalsbot/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-ordinalsbot {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/ordinalsbot/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": []
+}

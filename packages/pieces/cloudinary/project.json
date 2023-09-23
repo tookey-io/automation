@@ -1,0 +1,42 @@
+{
+  "name": "pieces-cloudinary",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/cloudinary/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/cloudinary",
+        "tsConfig": "packages/pieces/cloudinary/tsconfig.lib.json",
+        "packageJson": "packages/pieces/cloudinary/package.json",
+        "main": "packages/pieces/cloudinary/src/index.ts",
+        "assets": [
+          "packages/pieces/cloudinary/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-cloudinary {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/cloudinary/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": []
+}
