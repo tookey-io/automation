@@ -2,12 +2,13 @@ import { ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthReques
 import { userService } from '../user/user-service'
 import { passwordHasher } from './lib/password-hasher'
 import { tokenUtils } from './lib/token-utils'
-import { projectService } from '../project/project.service'
+import { system } from '../helper/system/system'
+import { SystemProp } from '../helper/system/system-prop'
+import { projectService } from '../project/project-service'
 import { flagService } from '../flags/flag.service'
 import { QueryFailedError } from 'typeorm'
 import { telemetry } from '../helper/telemetry.utils'
-import { system } from '../helper/system/system'
-import { SystemProp } from '../helper/system/system-prop'
+import { logger } from '../helper/logger'
 
 export const authenticationService = {
     externalServiceAuth: async (request: ExternalServiceAuthRequest): Promise<{ token: string }> => {
@@ -61,7 +62,7 @@ export const authenticationService = {
                     id: user.id,
                 },
             })
-        } 
+        }
 
         const token = await tokenUtils.encode({
             id: user.id,
@@ -100,7 +101,7 @@ export const authenticationService = {
             await flagService.save({ id: ApFlagId.USER_CREATED, value: true })
 
             const project = await projectService.create({
-                displayName: 'Project',
+                displayName: user.firstName + '\'s Project',
                 ownerId: user.id,
             })
 
@@ -111,6 +112,8 @@ export const authenticationService = {
             })
 
             telemetry.identify(user, project.id)
+                .catch((e) => logger.error(e, '[AuthenticationService#signUp] telemetry.identify'))
+
             telemetry.trackProject(project.id, {
                 name: TelemetryEventName.SIGNED_UP,
                 payload: {
@@ -121,6 +124,7 @@ export const authenticationService = {
                     projectId: project.id,
                 },
             })
+                .catch((e) => logger.error(e, '[AuthenticationService#signUp] telemetry.trackProject'))
 
             const { password: _, ...filteredUser } = user
 
@@ -170,12 +174,12 @@ export const authenticationService = {
         }
 
         // Currently each user have exactly one project.
-        const projects = await projectService.getAll(user.id)
+        const project = await projectService.getUserProject(user.id)
 
         const token = await tokenUtils.encode({
             id: user.id,
             type: PrincipalType.USER,
-            projectId: projects![0].id,
+            projectId: project.id,
         })
 
         const { password: _, ...filteredUser } = user
@@ -183,7 +187,7 @@ export const authenticationService = {
         return {
             ...filteredUser,
             token,
-            projectId: projects![0].id,
+            projectId: project.id,
         }
     },
 }
