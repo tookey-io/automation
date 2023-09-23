@@ -2,7 +2,7 @@
   [class.ap-pointer-events-none]="(isDragging$ | async) === true"
   [class.non-empty-step]="_flowItem.type !== ActionType.MISSING"
   [class.empty-step]="_flowItem.type === ActionType.MISSING">
-  <div class="flow-item ap-flex ap-items-center ap-border-solid ap-border-border ap-border-[1px]"
+  <div class="flow-item ap-flex ap-items-center ap-border-solid ap-border-white ap-border-[1px]"
     [class.selected-non-empty]="selected && _flowItem.type !== ActionType.MISSING"
     [class.selected-empty]="selected && _flowItem.type === ActionType.MISSING"
     [class.empty-trigger]="_flowItem.type === TriggerType.EMPTY" (click)="selectStep()">

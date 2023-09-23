@@ -15,6 +15,7 @@
     "lib": ["es2021", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
       "@activepieces/engine": ["packages/engine/src/main.ts"],
@@ -280,6 +281,6 @@
         "packages/pieces/tookey-wallet/src/index.ts"
       ]
     },
-    "exclude": ["node_modules", "tmp"]
-  }
+  },
+  "exclude": ["node_modules", "tmp"]
 }
