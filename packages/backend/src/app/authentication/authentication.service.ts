@@ -53,21 +53,12 @@ export const authenticationService = {
         }
 
         // Currently each user have exactly one project.
-        const projects = await projectService.getAll(user.id)
-
-        if (!projects || projects.length === 0) {
-            throw new ActivepiecesError({
-                code: ErrorCode.PROJECT_NOT_FOUND,
-                params: {
-                    id: user.id,
-                },
-            })
-        }
+        const project = await projectService.getUserProject(user.id)
 
         const token = await tokenUtils.encode({
             id: user.id,
             type: PrincipalType.USER,
-            projectId: projects[0].id,
+            projectId: project.id,
         })
 
         const { password: _, ...filteredUser } = user
@@ -75,7 +66,7 @@ export const authenticationService = {
         return {
             ...filteredUser,
             token,
-            projectId: projects[0].id,
+            projectId: project.id,
         }
     },
     user: async (request: ApId) => {
