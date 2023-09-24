@@ -49,7 +49,7 @@ export class SidenavRoutesListComponent {
   ];
 
   openDocs() {
-    window.open('https://activepieces.com/docs', '_blank', 'noopener');
+    window.open('https://tookey.gitbook.io/docs', '_blank', 'noopener');
   }
   redirectHome(newWindow: boolean) {
     if (newWindow) {
