@@ -40,10 +40,10 @@ export { TestFlowRunRequestBody } from "./lib/flow-run/test-flow-run-request";
 export { Trigger, EmptyTrigger, PieceTriggerSettings, PieceTrigger, WebhookTrigger, TriggerType, AUTHENTICATION_PROPERTY_NAME} from './lib/flows/triggers/trigger';
 export { FlowVersion, FlowVersionState, FlowVersionId } from './lib/flows/flow-version';
 export { Flow, FlowId } from './lib/flows/flow';
-export { File, FileId } from './lib/file/file'
+export * from './lib/file'
 export * from './lib/flows/flow-helper';
 export { FlowRun, FlowRunId, RunEnvironment } from './lib/flow-run/flow-run'
-export { ExecutionState } from './lib/flow-run/execution/execution-state';
+export * from './lib/flow-run/execution/execution-state';
 export { Project, ProjectId } from './lib/project/project';
 export * from './lib/flows/dto/create-flow-request';
 export { SeekPage, Cursor } from './lib/common/seek-page';
@@ -57,7 +57,10 @@ export * from './lib/flows/flow-instances';
 export * from "./lib/flows/folders/folder";
 export * from "./lib/flows/folders/folder-requests";
 export * from "./lib/flows/dto/flow-template-request";
-import { TypeSystem } from '@sinclair/typebox/system'
+export * from "./lib/flows";
 export * from "./lib/flows/dto/list-flows-request";
+
+import { TypeSystem } from '@sinclair/typebox/system'
 // Look at https://github.com/sinclairzx81/typebox/issues/350
 TypeSystem.ExactOptionalPropertyTypes = false;
+export * from './lib/support-url'

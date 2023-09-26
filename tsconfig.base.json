@@ -2,7 +2,6 @@
   "compileOnSave": false,
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
     "esModuleInterop": true,
     "rootDir": ".",
     "sourceMap": true,
@@ -16,6 +15,7 @@
     "lib": ["es2021", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
       "@activepieces/engine": ["packages/engine/src/main.ts"],
@@ -30,12 +30,6 @@
         "packages/pieces/bannerbear/src/index.ts"
       ],
       "@activepieces/piece-binance": ["packages/pieces/binance/src/index.ts"],
-      "@activepieces/piece-blackbaud": [
-        "packages/pieces/blackbaud/src/index.ts"
-      ],
-      "@activepieces/piece-bloomerang": [
-        "packages/pieces/bloomerang/src/index.ts"
-      ],
       "@activepieces/piece-box": ["packages/pieces/box/src/index.ts"],
       "@activepieces/piece-cal-com": ["packages/pieces/cal-com/src/index.ts"],
       "@activepieces/piece-calendly": ["packages/pieces/calendly/src/index.ts"],
@@ -48,6 +42,12 @@
       "@activepieces/piece-constant-contact": [
         "packages/pieces/constant-contact/src/index.ts"
       ],
+      "@activepieces/piece-contiguity": [
+        "packages/pieces/contiguity/src/index.ts"
+      ],
+      "@activepieces/piece-contentful": [
+        "packages/pieces/contentful/src/index.ts"
+      ],
       "@activepieces/piece-csv": ["packages/pieces/csv/src/index.ts"],
       "@activepieces/piece-data-mapper": [
         "packages/pieces/data-mapper/src/index.ts"
@@ -57,9 +57,6 @@
       "@activepieces/piece-discord": ["packages/pieces/discord/src/index.ts"],
       "@activepieces/piece-drip": ["packages/pieces/drip/src/index.ts"],
       "@activepieces/piece-dropbox": ["packages/pieces/dropbox/src/index.ts"],
-      "@activepieces/piece-ethereum": [
-        "packages/pieces/ethereum/src/index.ts"
-      ],
       "@activepieces/piece-facebook-leads": [
         "packages/pieces/facebook-leads/src/index.ts"
       ],
@@ -78,6 +75,7 @@
       ],
       "@activepieces/piece-ghostcms": ["packages/pieces/ghostcms/src/index.ts"],
       "@activepieces/piece-github": ["packages/pieces/github/src/index.ts"],
+      "@activepieces/piece-gitlab": ["packages/pieces/gitlab/src/index.ts"],
       "@activepieces/piece-gmail": ["packages/pieces/gmail/src/index.ts"],
       "@activepieces/piece-google-calendar": [
         "packages/pieces/google-calendar/src/index.ts"
@@ -122,6 +120,7 @@
       "@activepieces/piece-kizeo-forms": [
         "packages/pieces/kizeo-forms/src/index.ts"
       ],
+      "@activepieces/piece-linear": ["packages/pieces/linear/src/index.ts"],
       "@activepieces/piece-linkedin": ["packages/pieces/linkedin/src/index.ts"],
       "@activepieces/piece-mailchimp": [
         "packages/pieces/mailchimp/src/index.ts"
@@ -138,9 +137,13 @@
       "@activepieces/piece-mindee": ["packages/pieces/mindee/src/index.ts"],
       "@activepieces/piece-monday": ["packages/pieces/monday/src/index.ts"],
       "@activepieces/piece-mysql": ["packages/pieces/mysql/src/index.ts"],
+      "@activepieces/piece-nifty": ["packages/pieces/nifty/src/index.ts"],
       "@activepieces/piece-notion": ["packages/pieces/notion/src/index.ts"],
       "@activepieces/piece-ntfy": ["packages/pieces/ntfy/src/index.ts"],
       "@activepieces/piece-onfleet": ["packages/pieces/onfleet/src/index.ts"],
+      "@activepieces/piece-open-router": [
+        "packages/pieces/open-router/src/index.ts"
+      ],
       "@activepieces/piece-openai": ["packages/pieces/openai/src/index.ts"],
       "@activepieces/piece-pastebin": ["packages/pieces/pastebin/src/index.ts"],
       "@activepieces/piece-pastefy": ["packages/pieces/pastefy/src/index.ts"],
@@ -150,18 +153,22 @@
       "@activepieces/piece-postgres": ["packages/pieces/postgres/src/index.ts"],
       "@activepieces/piece-posthog": ["packages/pieces/posthog/src/index.ts"],
       "@activepieces/piece-pushover": ["packages/pieces/pushover/src/index.ts"],
+      "@activepieces/piece-qdrant": ["packages/pieces/qdrant/src/index.ts"],
       "@activepieces/piece-rss": ["packages/pieces/rss/src/index.ts"],
       "@activepieces/piece-salesforce": [
         "packages/pieces/salesforce/src/index.ts"
       ],
-      "@activepieces/piece-salsa": ["packages/pieces/salsa/src/index.ts"],
       "@activepieces/piece-schedule": ["packages/pieces/schedule/src/index.ts"],
+      "@activepieces/piece-sendfox": ["packages/pieces/sendfox/src/index.ts"],
       "@activepieces/piece-sendgrid": ["packages/pieces/sendgrid/src/index.ts"],
       "@activepieces/piece-sendinblue": [
         "packages/pieces/sendinblue/src/index.ts"
       ],
       "@activepieces/piece-sftp": ["packages/pieces/sftp/src/index.ts"],
       "@activepieces/piece-shopify": ["packages/pieces/shopify/src/index.ts"],
+      "@activepieces/piece-simplepdf": [
+        "packages/pieces/simplepdf/src/index.ts"
+      ],
       "@activepieces/piece-slack": ["packages/pieces/slack/src/index.ts"],
       "@activepieces/piece-smtp": ["packages/pieces/smtp/src/index.ts"],
       "@activepieces/piece-soap": ["packages/pieces/soap/src/index.ts"],
@@ -177,13 +184,12 @@
         "packages/pieces/surveymonkey/src/index.ts"
       ],
       "@activepieces/piece-tags": ["packages/pieces/tags/src/index.ts"],
+      "@activepieces/piece-tally": ["packages/pieces/tally/src/index.ts"],
       "@activepieces/piece-telegram-bot": [
         "packages/pieces/telegram-bot/src/index.ts"
       ],
+      "@activepieces/piece-tidycal": ["packages/pieces/tidycal/src/index.ts"],
       "@activepieces/piece-todoist": ["packages/pieces/todoist/src/index.ts"],
-      "@tookey-io/piece-wallet": [
-          "packages/pieces/tookey-wallet/src/index.ts"
-      ],
       "@activepieces/piece-trello": ["packages/pieces/trello/src/index.ts"],
       "@activepieces/piece-twilio": ["packages/pieces/twilio/src/index.ts"],
       "@activepieces/piece-twitter": ["packages/pieces/twitter/src/index.ts"],
@@ -207,6 +213,15 @@
       "@activepieces/pieces-common": ["packages/pieces/common/src/index.ts"],
       "@activepieces/pieces-framework": [
         "packages/pieces/framework/src/index.ts"
+      ],
+      "@activepieces/pieces/date-helper": [
+        "packages/pieces/date-helper/src/index.ts"
+      ],
+      "@activepieces/pieces/google-my-business": [
+        "packages/pieces/google-my-business/src/index.ts"
+      ],
+      "@activepieces/pieces/text-helper": [
+        "packages/pieces/text-helper/src/index.ts"
       ],
       "@activepieces/shared": ["packages/shared/src/index.ts"],
       "@activepieces/ui/common": ["packages/ui/common/src/index.ts"],
@@ -243,7 +258,28 @@
       "@activepieces/ui/feature-templates": [
         "packages/ui/feature-templates/src/index.ts"
       ],
-      "@activepieces/ui/templates": ["packages/ui/templates/src/index.ts"]
+      "@activepieces/ui/templates": ["packages/ui/templates/src/index.ts"],
+
+      "@activepieces/piece-cloudinary": [
+        "packages/pieces/cloudinary/src/index.ts"
+      ],
+      "@tookey-io/piece-allbridge": [
+        "packages/pieces/allbridge/src/index.ts"
+      ],
+      "@tookey-io/piece-bitcoin": [
+        "packages/pieces/bitcoin/src/index.ts"
+      ],
+      "@tookey-io/piece-cryptoapi": [
+        "packages/pieces/cryptoapi/src/index.ts"
+      ],
+      "@tookey-io/piece-epn": ["packages/pieces/epn/src/index.ts"],
+      "@tookey-io/piece-ethereum": [
+        "packages/pieces/ethereum/src/index.ts"
+      ],
+      "@tookey-io/piece-tatum": ["packages/pieces/tatum/src/index.ts"],
+      "@tookey-io/piece-wallet": [
+        "packages/pieces/tookey-wallet/src/index.ts"
+      ]
     },
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,0 +1,4 @@
+# image variable injected by CLI
+image: 
+publicDomain: 'tookey.io'
+cloudDomain: 'tookey.cloud'

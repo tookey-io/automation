@@ -1,0 +1,89 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: automation
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    service: automation
+spec:
+  replicas: 1
+  minReadySeconds: 15
+  selector:
+    matchLabels:
+      service: automation
+  template:
+    metadata:
+      labels:
+        service: automation
+    spec:
+      containers:
+        - name: service
+          image: {{ $.Values.image }}
+          livenessProbe:
+            exec:
+              command: [ "/bin/true" ]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+          securityContext:
+            privileged: true
+          readinessProbe:
+            exec:
+              command: [ "/bin/true" ]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 400m
+              memory: 2048Mi
+            requests:
+              cpu: 200m
+              memory: 512Mi
+          ports:
+            - name: 'http'
+              containerPort: 80
+          envFrom:
+            - secretRef:
+                name: automation-env
+                optional: false
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ $.Release.Namespace }}
+  name: automation
+spec:
+  type: ClusterIP
+  selector:
+    service: automation
+  ports:
+    - port: 80
+      targetPort: 80
+      name: "http"
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: {{ $.Release.Namespace }}
+  name: automation
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: "Host(`automation.{{ $.Values.publicDomain }}`)"
+      kind: Rule
+      services:
+        - name: automation
+          port: 80
+    - match: "Host(`automation.{{ $.Release.Namespace }}.{{ $.Values.cloudDomain }}`)"
+      kind: Rule
+      services:
+        - name: automation
+          port: 80
+  tls:
+    secretName: traefik-cloudflare-cert

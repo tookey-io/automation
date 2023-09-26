@@ -1,12 +1,13 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { ApFlagId, PrincipalType, ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, SignInRequest, SignUpRequest } from '@activepieces/shared'
 import { StatusCodes } from 'http-status-codes'
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
 import { authenticationService } from './authentication.service'
 import { flagService } from '../flags/flag.service'
 import { system } from '../helper/system/system'
 import { SystemProp } from '../helper/system/system-prop'
+import { FastifyReply, FastifyRequest } from 'fastify'
 
-export const authenticationController = async (app: FastifyInstance) => {
+export const authenticationController: FastifyPluginAsyncTypebox = async (app) => {
     app.post(
         '/sign-up',
         {
@@ -17,14 +18,14 @@ export const authenticationController = async (app: FastifyInstance) => {
         async (request: FastifyRequest<{ Body: SignUpRequest }>, reply: FastifyReply) => {
             const userCreated = await flagService.getOne(ApFlagId.USER_CREATED)
             const signUpEnabled = system.getBoolean(SystemProp.SIGN_UP_ENABLED) ?? false
+
             if (userCreated && !signUpEnabled) {
-                reply.code(403).send({
+                return reply.code(403).send({
                     message: 'Sign up is disabled',
                 })
-                return
             }
-            const authenticationResponse = await authenticationService.signUp(request.body)
-            reply.send(authenticationResponse)
+
+            return authenticationService.signUp(request.body)
         },
     )
 
@@ -35,9 +36,8 @@ export const authenticationController = async (app: FastifyInstance) => {
                 body: SignInRequest,
             },
         },
-        async (request: FastifyRequest<{ Body: SignInRequest }>, reply: FastifyReply) => {
-            const authenticationResponse = await authenticationService.signIn(request.body)
-            reply.send(authenticationResponse)
+        async (request: FastifyRequest<{ Body: SignInRequest }>) => {
+            return authenticationService.signIn(request.body)
         },
     )
 
@@ -91,8 +91,8 @@ export const authenticationController = async (app: FastifyInstance) => {
 
     app.get(
         '/me',
-        async (request: FastifyRequest, reply: FastifyReply) => {
-            reply.send(request.principal)
+        async (request: FastifyRequest) => {
+            return request.principal
         },
     )
     app.get(

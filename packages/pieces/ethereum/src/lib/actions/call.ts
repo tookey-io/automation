@@ -10,8 +10,10 @@ import { CHAINS, CHAINS_EXPLORER_API } from '../../constants';
 import { serializeToHex } from '../serializeToHex';
 import { commonProps } from './common';
 import axios from 'axios';
+import { HttpMethod, httpClient } from '@activepieces/pieces-common';
 
 export const contractCall = createAction({
+    requireAuth: false,
     name: 'contractCall',
     displayName: 'Contract Call',
     description: 'Call a contract method with the given parameters',
@@ -30,16 +32,15 @@ export const contractCall = createAction({
         method: Property.Dropdown({
             displayName: 'Method',
             description: 'Method to call',
-            refreshers: ['abi', 'contract', 'chain'],
+            refreshers: ['contract', 'chain'],
             required: true,
             options: async ({ contract, abi, chain }) => {
                 const contractAbi = await collectAbi(
                     contract,
                     abi,
-                    chain,
-                    {}
-                ).catch(e => {
-                    return [] as Abi
+                    chain
+                ).catch((e) => {
+                    return [] as Abi;
                 });
 
                 return {
@@ -131,10 +132,14 @@ export const contractCall = createAction({
 async function collectAbi(
     contract: unknown,
     abi: unknown,
-    chainId: unknown,
-    network: undefined | { explorerApi?: string }
+    chainId: unknown
 ): Promise<Abi> {
-    if (typeof abi === 'string') {
+    console.log('collecting abi for ' + contract)
+
+    if (typeof contract !== 'string') {
+        throw new Error('Invalid contract');
+    }
+    if (typeof abi === 'string' && abi.length > 0) {
         try {
             console.log('abi', abi);
             return JSON.parse(abi) as Abi;
@@ -143,22 +148,70 @@ async function collectAbi(
         }
     }
 
-    const explorer =
-        network?.explorerApi ||
-        (typeof chainId === 'number'
-            ? CHAINS_EXPLORER_API[chainId]
-            : undefined);
-    if (explorer) {
-        console.log('explorer', explorer);
-        try {
-            // TODO: prevent API overuse! Ask for etherscan API key.
-            const response = await axios.get(
-                `${explorer}?module=contract&action=getabi&address=${contract}`
-            );
-            return JSON.parse(response.data.result) as Abi;
-        } catch (e: unknown) {
-            console.log(e);
+    if (typeof chainId === 'number') {
+        const network = CHAINS[chainId as number];
+
+        if (!network) {
+            throw new Error('Invalid chain');
         }
+
+        const explorer =
+            typeof chainId === 'number'
+                ? CHAINS_EXPLORER_API[chainId]
+                : undefined;
+
+        if (!explorer) {
+            throw new Error(
+                'Ensure configuration of explorer API for chain ' + chainId
+            );
+        }
+
+        const provider = new ethers.JsonRpcProvider(
+            network.rpcUrls.default.http[0]
+        );
+
+        const implementantion = await provider
+            .getStorage(
+                contract,
+                // bytes32 private constant _IMPLEMENTATION_SLOT;
+                '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'
+            )
+            .then(
+                (res) =>
+                    ethers.AbiCoder.defaultAbiCoder().decode(
+                        ['address'],
+                        res
+                    )[0] as string
+            )
+            .then((res) => (res === ethers.ZeroAddress ? undefined : res));
+
+        const fetchAbi = (explorerUrl: string, address?: string) =>
+            address
+                ? httpClient
+                      .sendRequest<{ result: string }>({
+                          method: HttpMethod.GET,
+                          url: `${explorerUrl}?module=contract&action=getabi&address=${address}`,
+                      })
+                      .then((res) => JSON.parse(res.body.result) as Abi)
+                : Promise.resolve([] as Abi);
+
+        const abis = await Promise.all([
+            fetchAbi(explorer, contract).catch(
+                (e) => (
+                    console.error(`Failed to fetch ${contract} (contract) abi`),
+                    [] as Abi
+                )
+            ),
+            fetchAbi(explorer, implementantion).catch(
+                (e) => (
+                    console.error(
+                        `Failed to fetch ${implementantion} (implementantion) abi`
+                    ),
+                    [] as Abi
+                )
+            ),
+        ]);
+        return abis.flat();
     }
 
     throw new Error('Invalid ABI');

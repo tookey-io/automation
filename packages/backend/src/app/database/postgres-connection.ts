@@ -35,13 +35,18 @@ import { AddTasksToRun1689351564290 } from './migration/postgres/1689351564290-A
 import { commonProperties } from './database-connection'
 import { AddAppConnectionTypeToTopLevel1691703023866 } from './migration/postgres/1691703023866-add-app-connection-type-to-top-level'
 import { AddTagsToRun1692106375081 } from './migration/postgres/1692106375081-AddTagsToRun'
+import { AddFileToPostgres1693004806926 } from './migration/postgres/1693004806926-AddFileToPostgres'
+import { AddStatusToConnections1693402930301 } from './migration/postgres/1693402930301-AddStatusToConnections'
+import { AddUserMetaInformation1693850082449 } from './migration/postgres/1693850082449-AddUserMetaInformation'
+import { FixPieceMetadataOrderBug1694367186954 } from './migration/postgres/1694367186954-fix-piece-metadata-order-bug'
+import { FileTypeCompression1694691554696 } from './migration/postgres/1694691554696-file-type-compression'
 
 const getSslConfig = (): boolean | TlsOptions => {
     const useSsl = system.get(SystemProp.POSTGRES_USE_SSL)
 
     if (useSsl === 'true') {
         return {
-            ca: system.get(SystemProp.POSTGRES_SSL_CA),
+            ca: system.get(SystemProp.POSTGRES_SSL_CA)?.replace(/\\n/g, '\n'),
         }
     }
 
@@ -100,6 +105,11 @@ export const createPostgresDataSource = () => {
             AddTasksToRun1689351564290,
             AddAppConnectionTypeToTopLevel1691703023866,
             AddTagsToRun1692106375081,
+            AddFileToPostgres1693004806926,
+            AddStatusToConnections1693402930301,
+            AddUserMetaInformation1693850082449,
+            FixPieceMetadataOrderBug1694367186954,
+            FileTypeCompression1694691554696,
         ],
         ...commonProperties,
     })

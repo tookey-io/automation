@@ -97,6 +97,9 @@ export function checkboxIsTrue(): ValidatorFn {
 export function jsonValidator(
   control: AbstractControl
 ): ValidationErrors | null {
+  if (!control.value) {
+    return null;
+  }
   try {
     JSON.parse(control.value);
   } catch (e) {
@@ -113,4 +116,34 @@ export function cronJobValidator(
     return null;
   }
   return { 'invalid-cron-job': true };
+}
+
+export function validateFileControl(
+  extensions: string[],
+  fileSizeLimit: number
+) {
+  return (formControl: AbstractControl) => {
+    const file = formControl.value;
+    if (file) {
+      const parts = file.name.split('.');
+      if (parts.length === 0) {
+        return { emptyFile: true };
+      }
+      const extension = '.' + parts[parts.length - 1].toLowerCase();
+      if (
+        !extensions.find(
+          (allowedExtension) =>
+            allowedExtension.toLocaleLowerCase() ==
+            extension.toLocaleLowerCase()
+        )
+      ) {
+        return { invalidExtenstion: true };
+      }
+      if (file.size > fileSizeLimit) {
+        return { sizeLimit: true };
+      }
+      return null;
+    }
+    return { emptyFile: true };
+  };
 }

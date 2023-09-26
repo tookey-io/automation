@@ -79,22 +79,22 @@ export function decodeByType(type: string, value: string): string | number | Dat
 const decode = (str: string): string => Buffer.from(str, 'base64').toString('binary')
 const encode = (str: string): string => Buffer.from(str, 'binary').toString('base64')
 
-function encodeNextCursor(cursor?: string | null) {
-    if (!cursor) {
+function encodeNextCursor(cursor: string | null | undefined) {
+    if (cursor === null) {
         return null
     }
     return encode('next_' + cursor)
 }
 
-function encodePreviousCursor(cursor?: string | null) {
-    if (!cursor) {
+function encodePreviousCursor(cursor: string | null | undefined) {
+    if (cursor === null) {
         return null
     }
     return encode('prev_' + cursor)
 }
 
 export const paginationHelper = {
-    createPage<T>(data: T[], cursor?: CursorResult | null): SeekPage<T> {
+    createPage<T>(data: T[], cursor: CursorResult | null): SeekPage<T> {
         return {
             next: encodeNextCursor(cursor?.afterCursor),
             previous: encodePreviousCursor(cursor?.beforeCursor),

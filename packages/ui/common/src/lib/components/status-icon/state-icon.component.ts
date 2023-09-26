@@ -37,13 +37,12 @@ export class StateIconComponent implements OnInit, OnChanges {
   }
   findIconUrl(
     status: ExecutionOutputStatus | StepOutputStatus | AppConnectionStatus
-  ) {
+  ): string {
     switch (status) {
       case ExecutionOutputStatus.STOPPED:
       case ExecutionOutputStatus.SUCCEEDED:
       case StepOutputStatus.SUCCEEDED:
       case StepOutputStatus.STOPPED:
-      case AppConnectionStatus.EXPIRED:
       case AppConnectionStatus.ACTIVE:
         return 'assets/img/custom/status/success.svg';
       case ExecutionOutputStatus.FAILED:
@@ -62,16 +61,18 @@ export class StateIconComponent implements OnInit, OnChanges {
   }
   findTextAfter(
     status: ExecutionOutputStatus | StepOutputStatus | AppConnectionStatus
-  ) {
+  ): string {
     switch (status) {
       case ExecutionOutputStatus.STOPPED:
       case ExecutionOutputStatus.SUCCEEDED:
       case StepOutputStatus.SUCCEEDED:
       case StepOutputStatus.STOPPED:
         return 'Succeeded';
-      case ExecutionOutputStatus.FAILED:
       case ExecutionOutputStatus.INTERNAL_ERROR:
+        return 'Internal Error';
       case ExecutionOutputStatus.TIMEOUT:
+        return 'Timed Out';
+      case ExecutionOutputStatus.FAILED:
       case StepOutputStatus.FAILED:
         return 'Failed';
       case ExecutionOutputStatus.PAUSED:
@@ -81,7 +82,6 @@ export class StateIconComponent implements OnInit, OnChanges {
       case StepOutputStatus.RUNNING:
         return 'Running';
       case AppConnectionStatus.ACTIVE:
-      case AppConnectionStatus.EXPIRED:
         return 'Active';
       case AppConnectionStatus.ERROR:
         return 'Error';

@@ -8,7 +8,7 @@
 
 [Website](https://tookey.io/product/automation), [Docs](https://tookey.gitbook.io/)
 
-Tookey is Web3 automation based on open-source Activepieces software. Tookey integrates EVM, The Graph, Covalent with incorporation with Google Sheets, OpenAI, Discord, and RSS, along with 80+ other integrations. [The list of supported integrations](https://www.activepieces.com/docs/pieces/overview) continues to grow rapidly, thanks to valuable contributions from the community.
+Tookey is Web3 automation based on open-source Activepieces software. Tookey integrates EVM, The Graph, Covalent with incorporation with Google Sheets, OpenAI, Discord, and RSS, along with 80+ other integrations. [The list of supported integrations](https://tookey.io/integrations) continues to grow rapidly, thanks to valuable contributions from the community.
 
 <table>
   

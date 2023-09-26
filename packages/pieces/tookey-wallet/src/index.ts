@@ -30,7 +30,7 @@ export const tookeyWallet = createPiece({
   tags: ["tookey", "web3"],
   displayName: "Tookey Wallets",
   description: "Tookey Wallets",
-  logoUrl: "https://tookey.io/images/logo-yellow-2k.png",
+  logoUrl: "https://raw.githubusercontent.com/tookey-io/icons/main/piece-wallet.png",
   authors: ['aler-denisov'],
   minimumSupportedRelease: '0.5.0',
   auth: TookeyAuth,

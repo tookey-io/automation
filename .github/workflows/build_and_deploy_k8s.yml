@@ -1,0 +1,117 @@
+name: Docker build
+
+on:
+    workflow_dispatch:
+
+    push:
+        branches:
+            - main
+            - develop
+    release:
+        types:
+            - published
+
+env:
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+    docker_build:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+
+        steps:
+            - uses: actions/checkout@v3
+            - name: Get version from package.json
+              id: package_version
+              run: echo "version=v$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+
+            - name: Login to GHCR
+              if: github.event_name != 'pull_request'
+              uses: docker/login-action@v2
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Docker meta
+              id: meta
+              uses: docker/metadata-action@v4
+              with:
+                  # generate Docker tags based on the following events/attributes
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                  tags: |
+                      type=ref,event=branch
+                      type=semver,pattern={{version}},value=${{ steps.package_version.outputs.version }}
+                      type=semver,pattern={{major}}.{{minor}},value=${{ steps.package_version.outputs.version }}
+                      type=semver,pattern={{major}},value=${{ steps.package_version.outputs.version }}
+                      type=sha
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v2
+
+            - name: Build, cache and push docker image
+              uses: docker/build-push-action@v3
+              with:
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+
+    deploy_do:
+        needs: docker_build
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                include:
+                    - namespace: production
+                      publicDomain: automation.tookey.io
+                    - namespace: develop
+                      publicDomain: automation.develop.tookey.io
+        permissions:
+            # The "id-token: write" permission is required or Machine ID will not be able to authenticate with the cluster.
+            id-token: write
+            contents: read
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set environment variables
+              run: |
+                  # Short name for current branch. For PRs, use target branch (base ref)
+                  GIT_BRANCH=${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}
+                  GIT_BRANCH=${GIT_BRANCH//\//-} # Replace / with -
+                  GIT_BRANCH=${GIT_BRANCH//_/-} # Replace _ with -
+                  GIT_BRANCH=${GIT_BRANCH,,} # Lower case
+                  HELM_SHORT=`echo "${{ github.event.repository.name }}" | cut -c -52`
+                  echo "GIT_BRANCH=$GIT_BRANCH" >> $GITHUB_ENV
+                  echo "HELM_SHORT=$HELM_SHORT" >> $GITHUB_ENV
+
+            - name: Install doctl and Authorize to Digital Ocean
+              uses: digitalocean/action-doctl@v2
+              with:
+                  token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+            - name: Login to registry
+              run: doctl registry login --expiry-seconds 3600
+
+            - name: Save DigitalOcean kubeconfig with short-lived credentials
+              run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.DIGITALOCEAN_K8S_CLUSTER_ID }}
+
+            - name: Docker Image Tag
+              id: meta
+              uses: docker/metadata-action@v4
+              with:
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                  tags: |
+                      type=sha
+
+            - name: Deploy
+              if: github.ref == 'refs/heads/main' || matrix.namespace != 'production'
+              run: |
+                  helm upgrade --install $HELM_SHORT ./.helm --namespace ${{ matrix.namespace }} --set image=${{ steps.meta.outputs.tags }} --set publicDomain=${{ matrix.publicDomain }} --set branch=$GIT_BRANCH --dry-run
+                  helm upgrade --install $HELM_SHORT ./.helm --namespace ${{ matrix.namespace }} --set image=${{ steps.meta.outputs.tags }} --set publicDomain=${{ matrix.publicDomain }} --set branch=$GIT_BRANCH --wait
