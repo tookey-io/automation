@@ -6,9 +6,8 @@ export const environment = {
   backendUrl: 'http://localhost:3001',
   userPropertyNameInLocalStorage: 'currentUser',
   //You need to edit index.html manually
-  activateBeamer: false,
-  showFeedbackButton: false,
-  showDocsButton: false,
+  activateBeamer: true,
+  showDocsButton: true,
   showUserProfile: true,
   websiteTitle: 'Tookey Automation',
   // BEGIN EE
