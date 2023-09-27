@@ -45,9 +45,8 @@ COPY --from=build /usr/src/app/packages/ /usr/src/app/packages/
 # Copy frontend files to Nginx document root directory from build stage
 COPY --from=build /usr/src/app/dist/packages/ui/core/ /usr/share/nginx/html/
 
-# Install backend production dependencies
-RUN cd dist/packages/backend && \
-    npm install --production
+# Temporary solution to install pg@8. TODO: force include in webpack
+RUN npm install --global pg@8.11.3
 
 # Set up entrypoint script
 COPY docker-entrypoint.sh /
