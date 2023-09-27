@@ -8,6 +8,10 @@ COPY . .
 ARG NPM_GITHUB_TOKEN
 ARG NPM_TOKEN
 
+# explicitly set tokens from NPM repositories
+RUN echo //npm.pkg.github.com/:_authToken=${NPM_GITHUB_TOKEN} >> .npmrc
+RUN echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} >> .npmrc
+
 # Install backend dependencies and build the projects
 RUN npm ci
 RUN npx nx run-many --target=build --projects=backend,ui-core --skip-nx-cache
