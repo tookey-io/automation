@@ -9,12 +9,12 @@ ARG NPM_GITHUB_TOKEN
 ARG NPM_TOKEN
 
 # explicitly set tokens from NPM repositories
-RUN cat .npmrc >> ${HOME}/.npmrc
-RUN echo //npm.pkg.github.com/:_authToken=${NPM_GITHUB_TOKEN} >> ${HOME}/.npmrc
-RUN echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} >> ${HOME}/.npmrc
+RUN cat .npmrc >> $HOME/.npmrc
+RUN echo //npm.pkg.github.com/:_authToken=$NPM_GITHUB_TOKEN >> $HOME/.npmrc
+RUN echo //registry.npmjs.org/:_authToken=$NPM_TOKEN >> $HOME/.npmrc
 
 # 
-RUN cat ${HOME}/.npmrc
+RUN cat $HOME/.npmrc
 
 # Install backend dependencies and build the projects
 RUN npm ci

@@ -61,7 +61,7 @@ jobs:
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
                   build-args: |
-                    NPM_GITHUB_TOKEN=${{ secrets.NPM_GITHUB_TOKEN }}}
+                    NPM_GITHUB_TOKEN=${{ secrets.NPM_GITHUB_TOKEN }}
                     NPM_TOKEN=${{ secrets.NPM_TOKEN }}
 
     deploy_do:
