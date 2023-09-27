@@ -17,8 +17,8 @@ export const environment ={
   backendUrl: isProductionEnv() ? 'https://backend.production.tookey.cloud' : 'https://backend.develop.tookey.cloud',
   userPropertyNameInLocalStorage: 'currentUser',
   websiteTitle: 'Tookey Automation',
-  activateBeamer: false,
-  showFeedbackButton: false,
+  activateBeamer: true,
+  showFeedbackButton: true,
   showDocsButton: false,
   showUserProfile: true,
 }
