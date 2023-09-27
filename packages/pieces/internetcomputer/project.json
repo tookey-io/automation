@@ -1,0 +1,42 @@
+{
+  "name": "pieces-internetcomputer",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/internetcomputer/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/internetcomputer",
+        "tsConfig": "packages/pieces/internetcomputer/tsconfig.lib.json",
+        "packageJson": "packages/pieces/internetcomputer/package.json",
+        "main": "packages/pieces/internetcomputer/src/index.ts",
+        "assets": [
+          "packages/pieces/internetcomputer/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-internetcomputer {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/internetcomputer/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": []
+}
