@@ -39,6 +39,49 @@
                 '.js?sv='
             );
         </script>
+        <!-- Yandex.Metrika counter -->
+        <script type="text/javascript">
+            (function (m, e, t, r, i, k, a) {
+                m[i] =
+                    m[i] ||
+                    function () {
+                        (m[i].a = m[i].a || []).push(arguments);
+                    };
+                m[i].l = 1 * new Date();
+                for (var j = 0; j < document.scripts.length; j++) {
+                    if (document.scripts[j].src === r) {
+                        return;
+                    }
+                }
+                (k = e.createElement(t)),
+                    (a = e.getElementsByTagName(t)[0]),
+                    (k.async = 1),
+                    (k.src = r),
+                    a.parentNode.insertBefore(k, a);
+            })(
+                window,
+                document,
+                'script',
+                'https://mc.yandex.ru/metrika/tag.js',
+                'ym'
+            );
+
+            ym(95078885, 'init', {
+                clickmap: true,
+                trackLinks: true,
+                accurateTrackBounce: true,
+                webvisor: true,
+            });
+        </script>
+        <noscript
+            ><div>
+                <img
+                    src="https://mc.yandex.ru/watch/95078885"
+                    style="position: absolute; left: -9999px"
+                    alt=""
+                /></div
+        ></noscript>
+        <!-- /Yandex.Metrika counter -->
     </head>
 
     <body class="mat-typography">
@@ -61,7 +104,7 @@
         //left: 0, /*Optional: Left position offset for the notification bubble*/
         //button_position: 'bottom-right', /*Optional: Position for the notification button that shows up when the selector parameter is not set*/
         //icon: 'bell_lines', /*Optional: Alternative icon to display in the notification button*/
-        language: 'EN', /*Optional: Bring news in the language of choice*/
+        language: 'EN' /*Optional: Bring news in the language of choice*/,
         //filter: 'admin', /*Optional : Bring the news for a certain role as well as all the public news*/
         lazy: true /*Optional : true if you want to manually start the script by calling Beamer.init()*/,
         //alert : true, /*Optional : false if you don't want to initialize the selector*/
