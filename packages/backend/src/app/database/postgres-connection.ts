@@ -1,3 +1,6 @@
+// inject to main.js
+import 'pg'
+
 import { DataSource } from 'typeorm'
 import { system } from '../helper/system/system'
 import { SystemProp } from '../helper/system/system-prop'
