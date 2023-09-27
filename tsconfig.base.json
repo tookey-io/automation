@@ -276,6 +276,9 @@
       "@tookey-io/piece-ethereum": [
         "packages/pieces/ethereum/src/index.ts"
       ],
+      "@tookey-io/piece-internetcomputer": [
+          "packages/pieces/internetcomputer/src/index.ts"
+      ],
       "@tookey-io/piece-tatum": ["packages/pieces/tatum/src/index.ts"],
       "@tookey-io/piece-wallet": [
         "packages/pieces/tookey-wallet/src/index.ts"
