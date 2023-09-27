@@ -5,6 +5,9 @@ FROM activepieces/ap-base:7 AS build
 WORKDIR /usr/src/app
 COPY . .
 
+ARG NPM_GITHUB_TOKEN
+ARG NPM_TOKEN
+
 # Install backend dependencies and build the projects
 RUN npm ci
 RUN npx nx run-many --target=build --projects=backend,ui-core --skip-nx-cache
