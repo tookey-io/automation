@@ -12,8 +12,6 @@ ARG NPM_TOKEN
 RUN cat .npmrc >> $HOME/.npmrc
 RUN echo //npm.pkg.github.com/:_authToken=$NPM_GITHUB_TOKEN >> $HOME/.npmrc
 RUN echo //registry.npmjs.org/:_authToken=$NPM_TOKEN >> $HOME/.npmrc
-
-# 
 RUN cat $HOME/.npmrc
 
 # Install backend dependencies and build the projects
@@ -46,6 +44,10 @@ COPY --from=build /usr/src/app/packages/ /usr/src/app/packages/
 
 # Copy frontend files to Nginx document root directory from build stage
 COPY --from=build /usr/src/app/dist/packages/ui/core/ /usr/share/nginx/html/
+
+# Install backend production dependencies
+RUN cd dist/packages/backend && \
+    npm install --production
 
 # Set up entrypoint script
 COPY docker-entrypoint.sh /
