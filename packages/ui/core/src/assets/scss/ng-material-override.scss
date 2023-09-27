@@ -696,3 +696,10 @@ mat-icon[data-mat-icon-name="custom_expand_less"] {
 .material-suffix-icon {
   padding-right:  max(16px, calc(var(--mdc-shape-small, 4px) + 4px));;
 }
+
+
+.cdk-global-overlay-wrapper {
+  overflow: auto;
+  scrollbar-gutter: stable;
+  padding-top: 4rem;
+}

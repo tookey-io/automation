@@ -1,0 +1,24 @@
+import { Property } from '@activepieces/pieces-framework';
+import { CHAINS } from '../constants';
+import { Chain } from 'viem';
+
+export const CHAIN_PROPERTIES = {
+    
+    chain: Property.StaticDropdown({
+        displayName: 'Chain',
+        description: 'Chain to use',
+        required: true,
+        options: {
+            disabled: false,
+            options: [
+                { value: CUSTOM_CHAIN_ID, label: CUSTOM_CHAIN_NAME },
+                ...Object.values(CHAINS)
+                    .filter((chain): chain is Chain => !!chain)
+                    .map((chain) => ({
+                        value: chain.id,
+                        label: chain.name,
+                    })),
+            ]
+        },
+    }),
+};

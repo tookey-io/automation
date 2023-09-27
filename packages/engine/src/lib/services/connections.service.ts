@@ -20,7 +20,7 @@ export const createConnectionManager = (state: ExecutionState) => {
 
 export const connectionService = {
     async obtain(connectionName: string): Promise<null | OAuth2ConnectionValueWithApp | CloudOAuth2ConnectionValue | BasicAuthConnectionValue | string | Record<string, unknown>> {
-        const url = globals.serverUrl + `/v1/worker/app-connections/${encodeURIComponent(connectionName)}?projectId=${globals.projectId}`;
+        const url = globals.serverUrl + `v1/worker/app-connections/${encodeURIComponent(connectionName)}?projectId=${globals.projectId}`;
         try {
             const response = await fetch(url, {
                 method: 'GET',
@@ -29,6 +29,7 @@ export const connectionService = {
                 }
             });
             if (!response.ok) {
+                console.debug(response)
                 throw new Error("Connection information failed to load. URL: " + url);
             }
             const result: AppConnection = await response.json();
@@ -43,7 +44,9 @@ export const connectionService = {
             }
             return result.value;
         } catch (e) {
+            console.debug(e)
             throw new Error("Connection information failed to load. URL: " + url + " Error: " + e);
         }
+        
     }
 }

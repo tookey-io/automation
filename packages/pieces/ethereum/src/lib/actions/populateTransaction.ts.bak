@@ -1,9 +1,9 @@
 import { Property, createAction } from "@activepieces/pieces-framework";
-import { commonProps } from "./common";
+import { commonProps } from "../properies/common";
 import { mainnet } from "viem/chains";
 import * as ethers from "ethers";
 import { serializeToHex } from "../serializeToHex";
-import { CHAINS } from "../../constants";
+import { CHAINS } from "../constants";
 
 export const populateTransaction = createAction({
     name: "populateTransaction",

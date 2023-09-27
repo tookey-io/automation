@@ -182,7 +182,10 @@ const executeCode = async (): Promise<void> => {
 
 const executeAction = async (): Promise<void> => {
   try {
+    console.log(globals)
+    console.log(globals.inputFile)
     const input: ExecuteActionOperation = Utils.parseJsonFile(globals.inputFile);
+    console.log(input)
 
     globals.workerToken = input.workerToken!;
     globals.projectId = input.projectId;
