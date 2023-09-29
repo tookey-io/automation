@@ -95,7 +95,7 @@ import {
     zoraTestnet,
 } from 'viem/chains';
 
-import { Chain } from 'viem/dist/types'
+import { Chain } from 'viem'
 
 export const CHAINS: Partial<Record<number, Chain>> = {
     [arbitrum.id]: arbitrum,

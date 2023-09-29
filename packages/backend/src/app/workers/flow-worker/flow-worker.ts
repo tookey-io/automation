@@ -158,9 +158,7 @@ const loadInputAndLogFileId = async ({
 }
 
 async function executeFlow(jobData: OneTimeJobData): Promise<void> {
-    logger.info(
-        `[FlowWorker#executeFlow] flowRunId=${jobData.runId} executionType=${jobData.executionType}`,
-    )
+    logger.info(`[FlowWorker#executeFlow] flowRunId=${jobData.runId} executionType=${jobData.executionType}`)
 
     const startTime = Date.now()
 

@@ -692,3 +692,14 @@ mat-icon[data-mat-icon-name="custom_expand_less"] {
 :root {
   --mdc-shape-small: 0px;
 }
+
+.material-suffix-icon {
+  padding-right:  max(16px, calc(var(--mdc-shape-small, 4px) + 4px));;
+}
+
+
+.cdk-global-overlay-wrapper {
+  overflow: auto;
+  scrollbar-gutter: stable;
+  padding-top: 4rem;
+}

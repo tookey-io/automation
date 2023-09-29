@@ -13,7 +13,9 @@ export const isThereAnyNewFeaturedTemplatesResolver: ResolveFn<
     switchMap((thereAreNewFeaturedTemplates) => {
       return telemetryService
         .isFeatureEnabled('FeaturedTemplates')
-        .pipe(map((res) => res && thereAreNewFeaturedTemplates));
+        .pipe(map((res) => {
+          return res && thereAreNewFeaturedTemplates
+        }));
     }),
     catchError((err) => {
       console.error(err);

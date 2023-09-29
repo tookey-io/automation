@@ -168,10 +168,3 @@ export interface RepositoryProp {
   repo: string;
   owner: string;
 }
-export interface GithubAssignee {
-  login: string;
-}
-export interface RepositoryProp {
-  repo: string;
-  owner: string;
-}

@@ -1,7 +1,7 @@
 import { Property, createAction } from '@activepieces/pieces-framework';
-import { commonProps } from './common';
+import { commonProps } from '../properies/common';
 import * as ethers from 'ethers';
-import { CHAINS } from '../../constants';
+import { CHAINS } from '../constants';
 
 export const sendNative = createAction({
     name: 'sendNative',
