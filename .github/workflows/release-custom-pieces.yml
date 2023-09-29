@@ -15,11 +15,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Configure ~/.npmrc
+      - name: Setup ~/.npmrc
         run: |
           cp .npmrc $HOME/.npmrc
-          echo //npm.pkg.github.com/:_authToken=$NPM_GITHUB_TOKEN >> $HOME/.npmrc
-          echo //registry.npmjs.org/:_authToken=$NPM_TOKEN >> $HOME/.npmrc
+          export NPM_GITHUB_TOKEN=${{ secrets.NPM_GITHUB_TOKEN }}
+          export NPM_TOKEN=${{ secrets.NPM_TOKEN }}
+
+      - name: Show ~/.npmrc
+        run: |
+          cat $HOME/.npmrc
 
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -38,4 +42,3 @@ jobs:
         run: npx ts-node tools/scripts/publish-pieces-to-npm.ts
         env:
           VENDOR_NAME: ${{ vars.VENDOR_NAME }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
