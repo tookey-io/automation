@@ -40,7 +40,8 @@ export const initialize = async (
         chain,
         transport: http(),
     });
-    const account = await resolveAddress(publicClient, from ?? auth.address ?? zeroAddress);
+
+    const account = await resolveAddress(publicClient, from ?? auth.address ?? zeroAddress).catch(() => zeroAddress);
 
     return {
         client: createExtendedClient(account, chain),

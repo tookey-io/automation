@@ -423,7 +423,7 @@ export const erc20balance = createAction({
         const tokenAddress = await resolveAddress(client, to);
         const ownerAddress = await resolveAddress(
             client,
-            account ?? auth.address
+            account || auth.address
         );
         const tokenInstance = getContract({
             address: tokenAddress,
