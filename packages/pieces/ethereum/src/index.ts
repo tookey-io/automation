@@ -2,6 +2,10 @@
 import { createPiece, PieceAuth, Property, Validators } from "@activepieces/pieces-framework";
 import { getNetwork } from "./lib/actions/populateNetwork";
 import { contractCall } from "./lib/actions/call";
+import { erc20allowance, erc20approve, erc20balance, erc20send } from "./lib/actions/erc20";
+import { contractRead } from "./lib/actions/read";
+
+(BigInt.prototype as any).toJSON = function () { return this.toString() }
 
 export const EthereumAuth = PieceAuth.CustomAuth({
   description: `
@@ -40,10 +44,10 @@ export const ethereum = createPiece({
 EVM based blockchains (Ethereum, Binance Smart Chain, Polygon, etc.) are supported by this piece.
 `,
   auth: EthereumAuth,
-  logoUrl: "/assets/img/custom/piece/ethereum_mention.png",
+  logoUrl: "https://raw.githubusercontent.com/tookey-io/icons/main/piece-ethereum.png",
   minimumSupportedRelease: "0.8.0",
   authors: [],
-  actions: [getNetwork, contractCall],
+  actions: [getNetwork, contractCall, contractRead, erc20send, erc20approve, erc20balance, erc20allowance],
   // actions: [getNetwork, sendNative, contractCall, populateTransaction, broadcastTransaction],
   triggers: [],
 });

@@ -98,6 +98,9 @@ export class FileSandbox extends AbstractSandbox {
             })
 
             process.on('close', async (code: number) => {
+                console.debug(stderr)
+                console.debug(stdout)
+                
                 if (code !== 0) {
                     reject(new Error(`Command failed with code ${code}: ${cmd}`))
                     return

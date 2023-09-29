@@ -1,9 +1,9 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/v1',
+  apiUrl: 'http://127.0.0.1:3000/v1',
   jwtTokenName: 'token',
-  redirectUrl: 'http://localhost:4200/redirect',
-  backendUrl: 'http://localhost:3001',
+  redirectUrl: 'http://127.0.0.1:4200/redirect',
+  backendUrl: 'http://127.0.0.1:3001',
   userPropertyNameInLocalStorage: 'currentUser',
   //You need to edit index.html manually
   activateBeamer: true,
