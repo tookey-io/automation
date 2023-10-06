@@ -40,7 +40,8 @@ export const initialize = async (
         chain,
         transport: http(),
     });
-    const account = await resolveAddress(publicClient, from ?? auth.address ?? zeroAddress);
+
+    const account = await resolveAddress(publicClient, from ?? auth.address ?? zeroAddress).catch(() => zeroAddress);
 
     return {
         client: createExtendedClient(account, chain),
@@ -58,6 +59,45 @@ export const createExtendedClient = (account: Address, chain: Chain) =>
     })
         .extend(publicActions)
         .extend((client) => ({
+            async populate(args: CallParameters, failOnRevert?: boolean, callData?: { args: unknown, functionName: string }) {
+                try {
+                    const tx = await client.prepareTransactionRequest({
+                        ...args,
+                        account,
+                    });
+                    const chainId = client.chain.id;
+
+                    const signHash = keccak256(
+                        serializeTransaction({
+                            chainId,
+                            ...tx,
+                        })
+                    );
+
+                    return {
+                        chainId,
+                        ...tx,
+                        account: undefined,
+                        signHash,
+                        callData,
+                    };
+                } catch (e) {
+                    if (
+                        !failOnRevert &&
+                        e instanceof EstimateGasExecutionError
+                    ) {
+                        return {
+                            ...e,
+                            tx: {
+                                ...args,
+                                callData,
+                            },
+                        };
+                    } else {
+                        throw e;
+                    }
+                }
+            },
             async safeCall(
                 abi: Abi,
                 args: CallParameters,
@@ -78,43 +118,7 @@ export const createExtendedClient = (account: Address, chain: Chain) =>
                         callData,
                     };
                 } else {
-                    try {
-                        const tx = await client.prepareTransactionRequest({
-                            ...args,
-                            account,
-                        });
-                        const chainId = client.chain.id;
-
-                        const signHash = keccak256(
-                            serializeTransaction({
-                                chainId,
-                                ...tx,
-                            })
-                        );
-
-                        return {
-                            chainId,
-                            ...tx,
-                            account: undefined,
-                            signHash,
-                            callData,
-                        };
-                    } catch (e) {
-                        if (
-                            !failOnRevert &&
-                            e instanceof EstimateGasExecutionError
-                        ) {
-                            return {
-                                ...e,
-                                tx: {
-                                    ...args,
-                                    callData,
-                                },
-                            };
-                        } else {
-                            throw e;
-                        }
-                    }
+                    return this.populate(args, failOnRevert, callData)
                 }
             },
         }));

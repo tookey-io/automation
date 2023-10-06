@@ -1,4 +1,5 @@
 import { NonAuthPieceProperty, Property } from '@activepieces/pieces-framework';
+import { AddressValidator } from '../../index';
 import { CallParameters } from 'viem';
 
 type PropsDef<T> = {
