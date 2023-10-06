@@ -1,4 +1,4 @@
-import { KeyringStorage } from "@psychedelic/plug-controller/dist/interfaces/storage";
+import { KeyringStorage } from "@funded-labs/plug-controller/dist/interfaces/storage";
 
 export class StorageMock implements KeyringStorage {
     private store: any;
