@@ -19,7 +19,7 @@ import { AngularSvgIconModule } from 'angular-svg-icon';
 import { CommonModule } from '@angular/common';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { MaterialLayoutModule } from './modules/common/common-layout.module';
-import { Route, Router } from '@angular/router';
+import { Route, Router, RouterEvent, Event } from '@angular/router';
 import { FlagService } from '@activepieces/ui/common';
 import { ApEdition } from '@activepieces/shared';
 import { UserLoggedIn } from './guards/user-logged-in.guard';
@@ -34,6 +34,7 @@ import {
 } from 'ngx-monaco-editor-v2';
 import { apMonacoTheme } from './modules/common/monaco-themes/ap-monaco-theme';
 import { cobalt2 } from './modules/common/monaco-themes/cobalt-2-theme';
+import { filter } from 'rxjs';
 
 const monacoConfig: NgxMonacoEditorConfig = {
   baseUrl: '/assets', // configure base path for monaco editor. Starting with version 8.0.0 it defaults to './assets'. Previous releases default to '/assets'
@@ -112,10 +113,31 @@ export function playerFactory() {
 })
 export class AppModule {}
 
+function inIframe () {
+  try {
+      return window.self !== window.top;
+  } catch (e) {
+      return true;
+  }
+}
+
 export function initializeAppCustomLogic(
   router: Router,
   flagService: FlagService
 ): () => Promise<void> {
+  router.events
+      .pipe(
+          filter(
+              (e: Event | RouterEvent): e is RouterEvent =>
+                  e instanceof RouterEvent
+          )
+      )
+      .subscribe((e: RouterEvent) => {
+        if (inIframe()) {
+          window.parent.postMessage({ type: 'routeChanged', url: e.url }, '*')
+        }
+      });
+
   return () =>
     new Promise((resolve) => {
       flagService.getEdition().subscribe((edition) => {
