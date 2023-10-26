@@ -272,6 +272,9 @@
       "@tookey-io/piece-bitcoin": [
         "packages/pieces/bitcoin/src/index.ts"
       ],
+      "@tookey-io/piece-coingecko": [
+        "packages/pieces/coingecko/src/index.ts"
+      ],
       "@tookey-io/piece-cryptoapi": [
         "packages/pieces/cryptoapi/src/index.ts"
       ],

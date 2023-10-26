@@ -19,6 +19,6 @@ export const environment ={
   websiteTitle: 'Tookey Automation',
   activateBeamer: true,
   showFeedbackButton: true,
-  showDocsButton: false,
-  showUserProfile: true,
+  showDocsButton: true,
+  showUserProfile: false,
 }

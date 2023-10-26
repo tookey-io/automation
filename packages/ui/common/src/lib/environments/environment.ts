@@ -5,10 +5,9 @@ export const environment = {
   redirectUrl: 'http://127.0.0.1:4200/redirect',
   backendUrl: 'http://127.0.0.1:3001',
   userPropertyNameInLocalStorage: 'currentUser',
-  //You need to edit index.html manually
   activateBeamer: true,
   showDocsButton: true,
-  showUserProfile: true,
+  showUserProfile: false,
   websiteTitle: 'Tookey Automation',
   // BEGIN EE
   firebase: {
