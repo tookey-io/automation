@@ -8,9 +8,16 @@ import { logger } from './logger'
 
 
 const telemetryEnabled = system.getBoolean(SystemProp.TELEMETRY_ENABLED)
+const telemetryId = system.getOrThrow<string>(SystemProp.TELEMETRY_ID)
+
+console.log({
+    telemetryEnabled,
+    telemetryId,
+})
 
 const client = new PostHog(
-    'phc_7F92HoXJPeGnTKmYv0eOw62FurPMRW9Aqr0TPrDzvHh',
+    telemetryId,
+    { host: 'https://eu.posthog.com' }
 )
 
 export const telemetry = {
@@ -41,6 +48,11 @@ export const telemetry = {
         if (!telemetryEnabled) {
             return
         }
+        console.log({
+            where: '--------- telemetry.trackUser ----------',
+            userId,
+            event,
+        })
         client.capture({
             distinctId: userId,
             event: event.name,
@@ -50,6 +62,7 @@ export const telemetry = {
                 datetime: new Date().toISOString(),
             },
         })
+        client.flush()
     },
 }
 
