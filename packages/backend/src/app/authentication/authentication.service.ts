@@ -55,6 +55,9 @@ export const authenticationService = {
         // Currently each user have exactly one project.
         const project = await projectService.getUserProject(user.id)
 
+        telemetry.identify(user, project.id)
+            .catch((e) => logger.error(e, '[AuthenticationService#signUp] telemetry.identify'))
+
         const token = await tokenUtils.encode({
             id: user.id,
             type: PrincipalType.USER,
