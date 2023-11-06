@@ -42,4 +42,5 @@ export enum SystemProp {
     WEBHOOK_URL = 'WEBHOOK_URL',
 
     TELEMETRY_ID = 'TELEMETRY_ID',
+    CLOUD_AUTH_URL = 'CLOUD_AUTH_URL',
 }
