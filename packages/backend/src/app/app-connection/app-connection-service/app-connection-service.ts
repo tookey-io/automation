@@ -34,6 +34,8 @@ import { engineHelper } from '../../helper/engine-helper'
 import { acquireLock } from '../../helper/lock'
 import { pieceMetadataService } from '../../pieces/piece-metadata-service'
 import { getServerUrl } from '../../helper/public-ip-utils'
+import { system } from '../../helper/system/system'
+import { SystemProp } from '../../helper/system/system-prop'
 
 const repo = databaseConnection.getRepository(AppConnectionEntity)
 
@@ -382,7 +384,7 @@ async function refreshCloud(
         authorizationMethod: connectionValue.authorization_method,
         tokenUrl: connectionValue.token_url,
     }
-    const response = (await axios.post('https://secrets.activepieces.com/refresh', requestBody, { timeout: 10000 })).data
+    const response = (await axios.post(system.getOrThrow(SystemProp.CLOUD_AUTH_URL) + '/refresh', requestBody, { timeout: 10000 })).data
     return {
         ...connectionValue,
         ...response,
@@ -522,7 +524,7 @@ async function claimWithCloud(
     request: claimWithCloudRequest,
 ): Promise<Record<string, unknown>> {
     try {
-        return (await axios.post('https://secrets.activepieces.com/claim', request))
+        return (await axios.post(system.getOrThrow(SystemProp.CLOUD_AUTH_URL) + '/claim', request))
             .data
     }
     catch (e: unknown) {

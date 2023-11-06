@@ -12,6 +12,10 @@ import {
     makeTransactionReadProps,
 } from '../properies/transaction';
 import { initialize, mapToArgs, resolveAddress } from '../utils';
+(BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+};
+
 
 const ABI = [
     {

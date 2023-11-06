@@ -35,7 +35,7 @@ async function getWebhookSecrets(): Promise<Record<string, string>> {
     try {
         const licenseKey = system.get(SystemProp.LICENSE_KEY)
         const response = await axios.post(
-            'https://secrets.activepieces.com/webhooks',
+            system.getOrThrow(SystemProp.CLOUD_AUTH_URL) + '/webhooks',
             { licenseKey },
         )
         return response.data

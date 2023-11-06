@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of, switchMap } from 'rxjs';
-import { FlagService } from '@activepieces/ui/common';
+import { FlagService, environment } from '@activepieces/ui/common';
 import { ApFlagId } from '@activepieces/shared';
 
 @Injectable({
@@ -19,7 +19,7 @@ export class CloudAuthConfigsService {
           return of(empty);
         }
         return this.http.get<{ [appName: string]: { clientId: string } }>(
-          'https://secrets.activepieces.com/apps?edition=' + edition
+          environment.secretsUrl + '/apps?edition=' + edition
         );
       })
     );

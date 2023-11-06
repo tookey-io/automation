@@ -1,0 +1,44 @@
+{
+  "name": "pieces-uniswap-v3",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/uniswap-v3/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/uniswap-v3",
+        "tsConfig": "packages/pieces/uniswap-v3/tsconfig.lib.json",
+        "packageJson": "packages/pieces/uniswap-v3/package.json",
+        "main": "packages/pieces/uniswap-v3/src/index.ts",
+        "assets": [
+          "packages/pieces/uniswap-v3/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-uniswap-v3 {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/uniswap-v3/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "@tookey-io"
+  ]
+}
