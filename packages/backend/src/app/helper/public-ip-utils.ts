@@ -42,7 +42,7 @@ export const getServerUrl = async (): Promise<string> => {
     }
 
     const slash = url.endsWith('/') ? '' : '/'
-    const redirect = environment === ApEnvironment.PRODUCTION ? '/api/' : ''
+    const redirect = environment === ApEnvironment.PRODUCTION ? 'api/' : ''
 
     return `${url}${slash}${redirect}`
 }

@@ -21,4 +21,6 @@ export const environment ={
   showFeedbackButton: true,
   showDocsButton: true,
   showUserProfile: false,
+
+  secretsUrl: 'https://backend.production.tookey.cloud/api/secrets'
 }

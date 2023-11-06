@@ -9,14 +9,7 @@ export const environment = {
   showDocsButton: true,
   showUserProfile: false,
   websiteTitle: 'Tookey Automation',
-  // BEGIN EE
-  firebase: {
-    apiKey: 'AIzaSyBik7RRZ6S8QIpG4GqzwoF_SCNn3Dr9PPw',
-    authDomain: 'activepieces-b3803.firebaseapp.com',
-    projectId: 'activepieces-b3803',
-    storageBucket: 'activepieces-b3803.appspot.com',
-    messagingSenderId: '89039225374',
-    appId: '1:89039225374:web:7e9279293327e02123640f',
-  },
+
+  secretsUrl: 'http://localhost:3001/api/secrets'
   // END EE
 } as const;

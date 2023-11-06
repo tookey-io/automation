@@ -1,0 +1,44 @@
+{
+  "name": "pieces-alchemy",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/alchemy/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/alchemy",
+        "tsConfig": "packages/pieces/alchemy/tsconfig.lib.json",
+        "packageJson": "packages/pieces/alchemy/package.json",
+        "main": "packages/pieces/alchemy/src/index.ts",
+        "assets": [
+          "packages/pieces/alchemy/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-alchemy {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/alchemy/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "@tookey-io"
+  ]
+}
