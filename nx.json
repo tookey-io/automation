@@ -2,12 +2,20 @@
     "$schema": "./node_modules/nx/schemas/nx-schema.json",
     "targetDefaults": {
         "build": {
-            "dependsOn": ["^build"],
-            "inputs": ["production", "^production"],
+            "dependsOn": [
+                "^build"
+            ],
+            "inputs": [
+                "production",
+                "^production"
+            ],
             "cache": true
         },
         "lint": {
-            "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
+            "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json"
+            ],
             "cache": true
         },
         "test": {
@@ -20,12 +28,18 @@
             "cache": true
         },
         "e2e": {
-            "inputs": ["default", "^production"],
+            "inputs": [
+                "default",
+                "^production"
+            ],
             "cache": true
         }
     },
     "namedInputs": {
-        "default": ["{projectRoot}/**/*", "sharedGlobals"],
+        "default": [
+            "{projectRoot}/**/*",
+            "sharedGlobals"
+        ],
         "production": [
             "default",
             "!{projectRoot}/.eslintrc.json",
@@ -56,6 +70,5 @@
         "@nx/angular:component": {
             "style": "scss"
         }
-    },
-    "nxCloudAccessToken": "OTEyMDUwNDUtMTg1NC00YzIzLTkzZjYtYzFkYzhmNjQ2MzY1fHJlYWQtd3JpdGU="
+    }
 }

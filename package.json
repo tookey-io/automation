@@ -1,5 +1,5 @@
 {
-  "name": "activepieces",
+  "name": "@tookey-io/automation",
   "version": "0.12.2",
   "scripts": {
     "prepare": "husky install",
@@ -260,18 +260,6 @@
     "verdaccio": "5.26.1",
     "wait-on": "7.0.1",
     "webpack-ignore-dynamic-require": "1.0.0"
-  },
-  "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "17.0.2",
-    "@nx/nx-darwin-x64": "17.0.2",
-    "@nx/nx-freebsd-x64": "17.0.2",
-    "@nx/nx-linux-arm-gnueabihf": "17.0.2",
-    "@nx/nx-linux-arm64-gnu": "17.0.2",
-    "@nx/nx-linux-arm64-musl": "17.0.2",
-    "@nx/nx-linux-x64-gnu": "17.0.2",
-    "@nx/nx-linux-x64-musl": "17.0.2",
-    "@nx/nx-win32-arm64-msvc": "17.0.2",
-    "@nx/nx-win32-x64-msvc": "17.0.2"
   },
   "nx": {
     "includedScripts": []
