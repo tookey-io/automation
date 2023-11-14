@@ -6,7 +6,6 @@ import { SidenavRoutesListComponent } from './components/sidenav-routes-list/sid
 import { RunsTableComponent } from './pages/runs-table/runs-table.component';
 import { FlowsTableComponent } from './pages/flows-table/flows-table.component';
 import { EmptyFlowsTableComponent } from './pages/flows-table/empty-flows-table/empty-flows-table.component';
-import { PageTitleComponent } from './components/page-title/page-title.component';
 import { ConnectionsTableComponent } from './pages/connections-table/connections-table.component';
 import { RouterModule } from '@angular/router';
 import { DashboardLayoutRouting } from './dashboard.routing';
@@ -20,6 +19,7 @@ import { MoveFlowToFolderDialogComponent } from './pages/flows-table/move-flow-t
 import { EffectsModule } from '@ngrx/effects';
 import { FoldersEffects } from './store/folders/folders.effects';
 import { RenameFolderDialogComponent } from './pages/flows-table/rename-folder-dialog/rename-folder-dialog.component';
+import { EeBillingUiModule } from '@activepieces/ee-billing-ui';
 import { UiFeatureTemplatesModule } from '@activepieces/ui/feature-templates';
 import { CommunityPiecesTableComponent } from './pages/community-pieces-table/community-pieces-table.component';
 import { InstallCommunityPieceModalComponent } from './pages/community-pieces-table/install-community-piece/install-community-piece-modal.component';
@@ -28,6 +28,7 @@ import { InstallCommunityPieceModalComponent } from './pages/community-pieces-ta
   imports: [
     CommonModule,
     UiCommonModule,
+    EeBillingUiModule,
     RouterModule.forChild(DashboardLayoutRouting),
     StoreModule.forFeature(FOLDERS_STATE_NAME, foldersReducer),
     EffectsModule.forFeature([FoldersEffects]),
@@ -40,7 +41,6 @@ import { InstallCommunityPieceModalComponent } from './pages/community-pieces-ta
     RunsTableComponent,
     FlowsTableComponent,
     EmptyFlowsTableComponent,
-    PageTitleComponent,
     ConnectionsTableComponent,
     FlowsTableTitleComponent,
     CommunityPiecesTableComponent,

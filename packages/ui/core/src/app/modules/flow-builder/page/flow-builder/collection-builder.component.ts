@@ -43,16 +43,15 @@ import {
   TelemetryEventName,
   TriggerType,
 } from '@activepieces/shared';
-import { Title } from '@angular/platform-browser';
 import {
   LeftSideBarType,
   RightSideBarType,
 } from '@activepieces/ui/feature-builder-store';
 import {
+  AppearanceService,
   FlagService,
   TelemetryService,
   TestStepService,
-  environment,
   isThereAnyNewFeaturedTemplatesResolverKey,
 } from '@activepieces/ui/common';
 import { PannerService } from '@activepieces/ui/feature-builder-canvas';
@@ -94,7 +93,6 @@ export class CollectionBuilderComponent implements OnInit, OnDestroy {
   TriggerType = TriggerType;
   testingStepSectionIsRendered$: Observable<boolean>;
   graphChanged$: Observable<FlowVersion>;
-  showGuessFlowComponent = true;
   importTemplate$: Observable<void>;
   dataInsertionPopupHidden$: Observable<boolean>;
   codeEditorOptions = {
@@ -104,13 +102,15 @@ export class CollectionBuilderComponent implements OnInit, OnDestroy {
     readOnly: false,
     automaticLayout: true,
   };
+  setTitle$: Observable<void>;
+  showPoweredByAp$: Observable<boolean>;
   constructor(
     private store: Store,
     private actRoute: ActivatedRoute,
     private ngZone: NgZone,
     private snackbar: MatSnackBar,
     private runDetailsService: RunDetailsService,
-    private titleService: Title,
+    private appearanceService: AppearanceService,
     private pannerService: PannerService,
     private testStepService: TestStepService,
     private flowRendererService: FlowRendererService,
@@ -120,6 +120,7 @@ export class CollectionBuilderComponent implements OnInit, OnDestroy {
     private telemetryService: TelemetryService,
     public builderAutocompleteService: BuilderAutocompleteMentionsDropdownService
   ) {
+    this.showPoweredByAp$ = this.flagService.getShowPoweredByAp();
     this.listenToGraphChanges();
     this.dataInsertionPopupHidden$ =
       this.builderAutocompleteService.currentAutocompleteInputId$.pipe(
@@ -202,15 +203,15 @@ export class CollectionBuilderComponent implements OnInit, OnDestroy {
               folder: routeData.runInformation.folder,
             })
           );
-          this.titleService.setTitle(
-            `${routeData.runInformation.flow.version.displayName} - ${environment.websiteTitle}`
+          this.setTitle$ = this.appearanceService.setTitle(
+            routeData.runInformation.flow.version.displayName
           );
           this.snackbar.openFromComponent(TestRunBarComponent, {
             duration: undefined,
           });
         } else {
-          this.titleService.setTitle(
-            `${routeData.flowAndFolder.flow.version.displayName} - ${environment.websiteTitle}`
+          this.setTitle$ = this.appearanceService.setTitle(
+            routeData.flowAndFolder.flow.version.displayName
           );
           this.store.dispatch(
             BuilderActions.loadInitial({

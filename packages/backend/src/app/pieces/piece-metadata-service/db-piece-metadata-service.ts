@@ -1,18 +1,18 @@
 import { Equal, FindOperator, IsNull, LessThan, LessThanOrEqual, MoreThanOrEqual } from 'typeorm'
 import { databaseConnection } from '../../database/database-connection'
-import { PieceMetadataEntity, PieceMetadataSchema } from '../piece-metadata-entity'
-import { GetParams, ListParams, PieceMetadataService } from './piece-metadata-service'
-import { PieceMetadata, PieceMetadataSummary } from '@activepieces/pieces-framework'
+import { PieceMetadataEntity, PieceMetadataModel, PieceMetadataModelSummary, PieceMetadataSchema } from '../piece-metadata-entity'
+import { PieceMetadataService } from './piece-metadata-service'
 import { EXACT_VERSION_PATTERN, isNil } from '@activepieces/shared'
 import { ActivepiecesError, ErrorCode, apId } from '@activepieces/shared'
 import { AllPiecesStats, pieceStatsService } from './piece-stats-service'
 import * as semver from 'semver'
+import { pieceMetadataServiceHooks as hooks } from './hooks'
 
 const repo = databaseConnection.getRepository(PieceMetadataEntity)
 
 export const DbPieceMetadataService = (): PieceMetadataService => {
     return {
-        async list({ release, projectId }: ListParams): Promise<PieceMetadataSummary[]> {
+        async list({ release, projectId, platformId, includeHidden }): Promise<PieceMetadataModelSummary[]> {
             const order = {
                 name: 'ASC',
                 version: 'DESC',
@@ -34,10 +34,17 @@ export const DbPieceMetadataService = (): PieceMetadataService => {
                 .distinctOn(['name'])
                 .orderBy(order)
                 .getMany()
-            return toPieceMetadataSummary(pieceMetadataEntityList)
+
+            const pieces = toPieceMetadataModelSummary(pieceMetadataEntityList)
+
+            return hooks.get().filterPieces({
+                includeHidden,
+                pieces,
+                platformId,
+            })
         },
 
-        async get({ name, version, projectId }: GetParams): Promise<PieceMetadata> {
+        async getOrThrow({ name, version, projectId }): Promise<PieceMetadataModel> {
             const projectPiece: Record<string, unknown> = {
                 name,
                 projectId: Equal(projectId),
@@ -71,15 +78,16 @@ export const DbPieceMetadataService = (): PieceMetadataService => {
                 })
             }
 
-            return toPieceMetadata(pieceMetadataEntity)
+            return toPieceMetadataModel(pieceMetadataEntity)
         },
 
-        async create({ projectId, pieceMetadata }): Promise<PieceMetadataSchema> {
+        async create({ pieceMetadata, projectId, packageType, pieceType, archiveId  }): Promise<PieceMetadataSchema> {
             const existingMetadata = await repo.findOneBy({
                 name: pieceMetadata.name,
                 version: pieceMetadata.version,
                 projectId: projectId ?? IsNull(),
             })
+
             if (!isNil(existingMetadata)) {
                 throw new ActivepiecesError({
                     code: ErrorCode.VALIDATION,
@@ -88,9 +96,13 @@ export const DbPieceMetadataService = (): PieceMetadataService => {
                     },
                 })
             }
+
             return await repo.save({
                 id: apId(),
-                projectId: projectId ?? undefined,
+                projectId,
+                packageType,
+                pieceType,
+                archiveId,
                 ...pieceMetadata,
             })
         },
@@ -125,7 +137,7 @@ export const DbPieceMetadataService = (): PieceMetadataService => {
                 return version
             }
 
-            const pieceMetadata = await this.get({
+            const pieceMetadata = await this.getOrThrow({
                 projectId,
                 name,
                 version,
@@ -136,7 +148,7 @@ export const DbPieceMetadataService = (): PieceMetadataService => {
     }
 }
 
-const toPieceMetadataSummary = (pieceMetadataEntityList: PieceMetadataSchema[]): PieceMetadataSummary[] => {
+const toPieceMetadataModelSummary = (pieceMetadataEntityList: PieceMetadataSchema[]): PieceMetadataModelSummary[] => {
     return pieceMetadataEntityList.map(pieceMetadataEntity => {
         return {
             ...pieceMetadataEntity,
@@ -146,7 +158,7 @@ const toPieceMetadataSummary = (pieceMetadataEntityList: PieceMetadataSchema[]):
     })
 }
 
-const toPieceMetadata = (pieceMetadataEntity: PieceMetadataSchema): PieceMetadata => {
+const toPieceMetadataModel = (pieceMetadataEntity: PieceMetadataSchema): PieceMetadataModel => {
     return {
         ...pieceMetadataEntity,
         actions: pieceMetadataEntity.actions,

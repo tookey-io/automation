@@ -1,7 +1,7 @@
-import { ApFlagId, PrincipalType, ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, SignInRequest, SignUpRequest } from '@activepieces/shared'
+import { ApFlagId, PrincipalType, ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, SignInRequest, SignUpRequest, UserStatus } from '@activepieces/shared'
 import { StatusCodes } from 'http-status-codes'
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
-import { authenticationService } from './authentication.service'
+import { authenticationService } from './authentication-service'
 import { flagService } from '../flags/flag.service'
 import { system } from '../helper/system/system'
 import { SystemProp } from '../helper/system/system-prop'
@@ -25,7 +25,10 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
                 })
             }
 
-            return authenticationService.signUp(request.body)
+            return authenticationService.signUp({
+                ...request.body,
+                status: UserStatus.VERIFIED,
+            })
         },
     )
 
@@ -41,64 +44,65 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
         },
     )
 
-    app.post(
-        '/external/user/inject',
-        {
-            schema: {
-                body: ExternalUserRequest,
-            },
-        },
-        async (request: FastifyRequest<{ Body: ExternalUserRequest }>, reply: FastifyReply) => {
-            if (request.principal.type !== PrincipalType.EXTERNAL) {
-                reply.status(StatusCodes.FORBIDDEN)
-                return
-            }
+    // TODO: Move to authentication service
+    // app.post(
+    //     '/external/user/inject',
+    //     {
+    //         schema: {
+    //             body: ExternalUserRequest,
+    //         },
+    //     },
+    //     async (request: FastifyRequest<{ Body: ExternalUserRequest }>, reply: FastifyReply) => {
+    //         if (request.principal.type !== PrincipalType.EXTERNAL) {
+    //             reply.status(StatusCodes.FORBIDDEN)
+    //             return
+    //         }
 
-            const authenticationResponse = await authenticationService.externalUserInject(request.body)
-            reply.send(authenticationResponse)
-        },
-    )
+    //         const authenticationResponse = await authenticationService.externalUserInject(request.body)
+    //         reply.send(authenticationResponse)
+    //     },
+    // )
 
-    app.post(
-        '/external/user/auth',
-        {
-            schema: {
-                body: ExternalUserAuthRequest,
-            },
-        },
-        async (request: FastifyRequest<{ Body: ExternalUserAuthRequest }>, reply: FastifyReply) => {
-            if (request.principal.type !== PrincipalType.EXTERNAL) {
-                reply.status(StatusCodes.FORBIDDEN)
-                return
-            }
+    // app.post(
+    //     '/external/user/auth',
+    //     {
+    //         schema: {
+    //             body: ExternalUserAuthRequest,
+    //         },
+    //     },
+    //     async (request: FastifyRequest<{ Body: ExternalUserAuthRequest }>, reply: FastifyReply) => {
+    //         if (request.principal.type !== PrincipalType.EXTERNAL) {
+    //             reply.status(StatusCodes.FORBIDDEN)
+    //             return
+    //         }
 
-            const authenticationResponse = await authenticationService.externalUserAuth(request.body)
-            reply.send(authenticationResponse)
-        },
-    )
-    app.post(
-        '/external/service/auth',
-        {
-            schema: {
-                body: ExternalServiceAuthRequest,
-            },
-        },
-        async (request: FastifyRequest<{ Body: ExternalServiceAuthRequest }>, reply: FastifyReply) => {
-            const authenticationResponse = await authenticationService.externalServiceAuth(request.body)
-            reply.send(authenticationResponse)
-        },
-    )
+    //         const authenticationResponse = await authenticationService.externalUserAuth(request.body)
+    //         reply.send(authenticationResponse)
+    //     },
+    // )
+    // app.post(
+    //     '/external/service/auth',
+    //     {
+    //         schema: {
+    //             body: ExternalServiceAuthRequest,
+    //         },
+    //     },
+    //     async (request: FastifyRequest<{ Body: ExternalServiceAuthRequest }>, reply: FastifyReply) => {
+    //         const authenticationResponse = await authenticationService.externalServiceAuth(request.body)
+    //         reply.send(authenticationResponse)
+    //     },
+    // )
 
-    app.get(
-        '/me',
-        async (request: FastifyRequest) => {
-            return request.principal
-        },
-    )
-    app.get(
-        '/me/full',
-        async (request: FastifyRequest, reply: FastifyReply) => {
-            reply.send(await authenticationService.user(request.principal.id))
-        },
-    )
+    // app.get(
+    //     '/me',
+    //     async (request: FastifyRequest) => {
+    //         return request.principal
+    //     },
+    // )
+    // app.get(
+    //     '/me/full',
+    //     async (request: FastifyRequest, reply: FastifyReply) => {
+    //         reply.send(await authenticationService.user(request.principal.id))
+    //     },
+    // )
 }

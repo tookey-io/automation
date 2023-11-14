@@ -1,6 +1,8 @@
 import {
   ActionType,
   FlowVersionTemplate,
+  PackageType,
+  PieceType,
   TriggerType,
 } from '@activepieces/shared';
 
@@ -9,7 +11,7 @@ export const demoTemplate: FlowVersionTemplate = {
   trigger: {
     name: 'trigger',
     valid: true,
-    displayName: 'Every 1 Minute',
+    displayName: 'Every One Minute',
     nextAction: {
       name: 'step_1',
       type: ActionType.PIECE,
@@ -19,12 +21,15 @@ export const demoTemplate: FlowVersionTemplate = {
           url: 'https://cloud.activepieces.com/api/v1/webhooks/fw0LEaZuylYKl3dOmUik5/sync',
           method: 'GET',
           headers: {},
+          failsafe: false,
           queryParams: {},
         },
         pieceName: '@activepieces/piece-http',
         actionName: 'send_request',
         inputUiInfo: {},
-        pieceVersion: '0.2.4',
+        pieceType: PieceType.OFFICIAL,
+        packageType: PackageType.REGISTRY,
+        pieceVersion: '~0.3.9',
       },
       nextAction: {
         name: 'step_2',
@@ -32,15 +37,20 @@ export const demoTemplate: FlowVersionTemplate = {
         valid: true,
         settings: {
           input: {
-            subject: "Hooray! {{step_1['body']['gelato']}} has been invented",
-            receiver: [''],
+            cc: [],
+            bcc: [],
+            subject: "Hooray! ﻿{{step_1['body']['gelato']}} has been invented",
+            receiver: [],
+            reply_to: [],
             body_text:
-              "BREAKTHROUGH!\n\nAn unprecedented type of Gelato has just been invented, the {{step_1['body']['gelato']}}.\n\nCome on and taste it, it's out of this world!",
+              "BREAKTHROUGH!\n\nAn unprecedented type of Gelato has just been invented, the ﻿{{step_1['body']['gelato']}}\n\nCome on and taste it, it's out of this world!",
           },
           pieceName: '@activepieces/piece-gmail',
           actionName: 'send_email',
           inputUiInfo: {},
-          pieceVersion: '0.2.10',
+          pieceType: PieceType.OFFICIAL,
+          packageType: PackageType.REGISTRY,
+          pieceVersion: '~0.4.4',
         },
         displayName: 'Email the Gelato',
       },
@@ -49,10 +59,12 @@ export const demoTemplate: FlowVersionTemplate = {
     type: TriggerType.PIECE,
     settings: {
       pieceName: '@activepieces/piece-schedule',
-      pieceVersion: '0.0.4',
-      triggerName: 'cron_expression',
+      pieceVersion: '~0.1.2',
+      pieceType: PieceType.OFFICIAL,
+      packageType: PackageType.REGISTRY,
+      triggerName: 'every_x_minutes',
       input: {
-        cronExpression: '0/1 * * * *',
+        minutes: '1',
       },
       inputUiInfo: {},
     },

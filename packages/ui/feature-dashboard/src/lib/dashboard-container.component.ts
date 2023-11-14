@@ -1,5 +1,14 @@
 import { Component } from '@angular/core';
-import { environment, initialiseBeamer } from '@activepieces/ui/common';
+import { EmbeddingService } from '@activepieces/ui/common';
+import {
+  DashboardService,
+  FlagService,
+  ProjectSelectors,
+  environment,
+} from '@activepieces/ui/common';
+import { Observable, map } from 'rxjs';
+import { ApFlagId, Project } from '@activepieces/shared';
+import { Store } from '@ngrx/store';
 
 @Component({
   templateUrl: './dashboard-container.component.html',
@@ -7,13 +16,38 @@ import { environment, initialiseBeamer } from '@activepieces/ui/common';
   selector: 'app-dashboard-container',
 })
 export class DashboardContainerComponent {
-  constructor() {
-    if (environment.activateBeamer) {
-      initialiseBeamer();
-    }
-  }
+  environment = environment;
+  showCommunity$: Observable<boolean>;
+  isEmbedded$: Observable<boolean>;
+  showSidnav$: Observable<boolean>;
+  isInPlatformRoute$: Observable<boolean>;
+  currentProject$: Observable<Project>;
+  showPoweredByAp$: Observable<boolean>;
+  constructor(
+    private flagService: FlagService,
+    private embeddedService: EmbeddingService,
+    private dashboardService: DashboardService,
+    private store: Store
+  ) {
+    this.showPoweredByAp$ = this.flagService.getShowPoweredByAp();
+    this.isEmbedded$ = this.embeddedService.getIsInEmbedding$();
+    this.showSidnav$ = this.embeddedService
+      .getState$()
+      .pipe(map((state) => !state.hideSideNav));
 
-  get environment() {
-    return environment;
+    this.showCommunity$ = this.flagService.isFlagEnabled(
+      ApFlagId.SHOW_COMMUNITY
+    );
+    this.isInPlatformRoute$ = this.dashboardService.getIsInPlatformRoute();
+    this.currentProject$ = this.store.select(
+      ProjectSelectors.selectCurrentProject
+    );
+  }
+  showWhatIsNew() {
+    window.open(
+      'https://community.activepieces.com/c/announcements',
+      '_blank',
+      'noopener'
+    );
   }
 }

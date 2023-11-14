@@ -42,7 +42,7 @@ export const newMessage = createTrigger({
         type: TriggerStrategy.APP_WEBHOOK,
         sampleData: sampleData,
         onEnable: async (context) => {
-            context.app.createListeners({ events: ['message'], identifierValue: context.auth.data['team_id'] })
+            await context.app.createListeners({ events: ['message'], identifierValue: context.auth.data['team_id'] })
         },
         onDisable: async (context) => {
             // Ignored
@@ -51,10 +51,17 @@ export const newMessage = createTrigger({
             return [sampleData];
         },
         run: async (context) => {
-            if (context.payload.body.event.channel === context.propsValue.channel) {
-                return [context.payload.body.event]
+            const payloadBody = context.payload.body as PayloadBody;
+            if (payloadBody.event.channel === context.propsValue.channel) {
+                return [payloadBody.event]
             }
 
             return []
         }
 });
+
+type PayloadBody = {
+    event: {
+        channel: string
+    }
+}

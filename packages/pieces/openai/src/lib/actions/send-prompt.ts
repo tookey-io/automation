@@ -221,10 +221,11 @@ export const askOpenAI = createAction({
               },
             }
           };
-          throw {
+          const error_data = {
             token: new_error.response.status,
             error: new_error.response.data.error
           };
+          throw new Error(JSON.stringify(error_data));
         }
         // Calculate the time delay for the next retry using exponential backoff
         const delay = Math.pow(6, retries) * 1000;
