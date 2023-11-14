@@ -262,16 +262,16 @@
     "webpack-ignore-dynamic-require": "1.0.0"
   },
   "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "16.5.2",
-    "@nx/nx-darwin-x64": "16.5.2",
-    "@nx/nx-freebsd-x64": "16.5.2",
-    "@nx/nx-linux-arm-gnueabihf": "16.5.2",
-    "@nx/nx-linux-arm64-gnu": "16.5.2",
-    "@nx/nx-linux-arm64-musl": "16.5.2",
-    "@nx/nx-linux-x64-gnu": "16.5.2",
-    "@nx/nx-linux-x64-musl": "16.5.2",
-    "@nx/nx-win32-arm64-msvc": "16.5.2",
-    "@nx/nx-win32-x64-msvc": "16.5.2"
+    "@nx/nx-darwin-arm64": "17.0.2",
+    "@nx/nx-darwin-x64": "17.0.2",
+    "@nx/nx-freebsd-x64": "17.0.2",
+    "@nx/nx-linux-arm-gnueabihf": "17.0.2",
+    "@nx/nx-linux-arm64-gnu": "17.0.2",
+    "@nx/nx-linux-arm64-musl": "17.0.2",
+    "@nx/nx-linux-x64-gnu": "17.0.2",
+    "@nx/nx-linux-x64-musl": "17.0.2",
+    "@nx/nx-win32-arm64-msvc": "17.0.2",
+    "@nx/nx-win32-x64-msvc": "17.0.2"
   },
   "nx": {
     "includedScripts": []
