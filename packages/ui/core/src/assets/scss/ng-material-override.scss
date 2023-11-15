@@ -2,117 +2,97 @@
 @use "material-theme-helper.scss";
 @import "@angular/material/theming";
 @include mat.core();
-$ap-typography: mat.define-typography-config(
-  $font-family: $font-family,
-  $headline-1:
-    mat.define-typography-level(
-      $font-weight: 300,
+$ap-typography: mat.define-typography-config($font-family: $font-family,
+    $headline-1: mat.define-typography-level($font-weight: 300,
       $font-size: 6rem,
       $line-height: 112px,
       $letter-spacing: -1.5px,
     ),
-  $headline-2:
-    mat.define-typography-level(
-      $font-family: $font-family,
+    $headline-2: mat.define-typography-level($font-family: $font-family,
       $font-weight: 300,
       $font-size: 3.75rem,
       $line-height: 72px,
       $letter-spacing: -0.5px,
     ),
-  $headline-3:
-    mat.define-typography-level(
-      $font-family: $font-family,
+    $headline-3: mat.define-typography-level($font-family: $font-family,
       $font-weight: 400,
       $font-size: 2.8125rem,
       $line-height: 3.5rem,
       $letter-spacing: normal,
     ),
-  $headline-4:
-    mat.define-typography-level(
-      $font-family: $font-family,
+    $headline-4: mat.define-typography-level($font-family: $font-family,
       $font-weight: 400,
       $font-size: 2.125rem,
       $line-height: 2.25rem,
       $letter-spacing: normal,
     ),
-  $headline-5:
-    mat.define-typography-level(
-      $font-family: $font-family,
+    $headline-5: mat.define-typography-level($font-family: $font-family,
       $font-weight: 400,
       $font-size: 1.5rem,
       $line-height: 1.5rem,
       $letter-spacing: 0.18px,
     ),
-  $headline-6:
-    mat.define-typography-level(
-      $font-family: $font-family,
+    $headline-6: mat.define-typography-level($font-family: $font-family,
       $font-weight: 400,
       $font-size: 1.25rem,
       $line-height: 2.25rem,
       $letter-spacing: 0.15px,
     ),
-  $body-1:
-    mat.define-typography-level(
-      $font-family: $font-family,
+    $body-1: mat.define-typography-level($font-family: $font-family,
       $font-weight: 400,
       $font-size: 1rem,
       $line-height: 1.5rem,
       $letter-spacing: 0.5px,
     ),
-  $body-2:
-    mat.define-typography-level(
-      $font-family: $font-family,
+    $body-2: mat.define-typography-level($font-family: $font-family,
       $font-weight: 400,
       $font-size: 0.875rem,
       $line-height: 1.25rem,
       $letter-spacing: 0.25px,
     ),
-  $subtitle-1:
-    mat.define-typography-level(
-      $font-family: $font-family,
+    $subtitle-1: mat.define-typography-level($font-family: $font-family,
       $font-weight: 400,
       $font-size: 1rem,
       $line-height: 1.5rem,
       $letter-spacing: 0.15px,
     ),
-  $subtitle-2:
-    mat.define-typography-level(
-      $font-family: $font-family,
+    $subtitle-2: mat.define-typography-level($font-family: $font-family,
       $font-weight: 500,
       $font-size: 0.875rem,
       $line-height: 1.25rem,
       $letter-spacing: 0.1px,
     ),
-  $caption:
-    mat.define-typography-level(
-      $font-family: $font-family,
+    $caption: mat.define-typography-level($font-family: $font-family,
       $font-weight: 400,
       $font-size: 0.75rem,
       $line-height: 1rem,
       $letter-spacing: 0.4px,
     ),
-  $button:
-    mat.define-typography-level(
-      $font-family: $font-family,
+    $button: mat.define-typography-level($font-family: $font-family,
       $font-weight: 500,
       $font-size: 0.875rem,
       $line-height: 1.375rem,
       $letter-spacing: 0.5px,
     ),
-);
+  );
+
 @layer utilities {
   .ap-typography-headline-1 {
     @include mat.typography-level($ap-typography, "headline-1");
   }
+
   .ap-typography-headline-2 {
     @include mat.typography-level($ap-typography, "headline-2");
   }
+
   .ap-typography-headline-3 {
     @include mat.typography-level($ap-typography, "headline-3");
   }
+
   .ap-typography-headline-4 {
     @include mat.typography-level($ap-typography, "headline-4");
   }
+
   .ap-typography-headline-5 {
     @include mat.typography-level($ap-typography, "headline-5");
   }
@@ -124,34 +104,44 @@ $ap-typography: mat.define-typography-config(
   .ap-typography-subtitle-1 {
     @include mat.typography-level($ap-typography, "subtitle-1");
   }
+
   .ap-typography-subtitle-2 {
     @include mat.typography-level($ap-typography, "subtitle-2");
   }
+
   .ap-typography-body-1 {
     @include mat.typography-level($ap-typography, "body-1");
   }
+
   .ap-typography-body-2 {
     @include mat.typography-level($ap-typography, "body-2");
   }
+
   .ap-typography-caption {
     @include mat.typography-level($ap-typography, "caption");
   }
+
   .ap-typography-button {
     @include mat.typography-level($ap-typography, "button");
   }
 }
+
 .ap-typography-headline-1 {
   @include mat.typography-level($ap-typography, "headline-1");
 }
+
 .ap-typography-headline-2 {
   @include mat.typography-level($ap-typography, "headline-2");
 }
+
 .ap-typography-headline-3 {
   @include mat.typography-level($ap-typography, "headline-3");
 }
+
 .ap-typography-headline-4 {
   @include mat.typography-level($ap-typography, "headline-4");
 }
+
 .ap-typography-headline-5 {
   @include mat.typography-level($ap-typography, "headline-5");
 }
@@ -163,21 +153,27 @@ $ap-typography: mat.define-typography-config(
 .ap-typography-subtitle-1 {
   @include mat.typography-level($ap-typography, "subtitle-1");
 }
+
 .ap-typography-subtitle-2 {
   @include mat.typography-level($ap-typography, "subtitle-2");
 }
+
 .ap-typography-body-1 {
   @include mat.typography-level($ap-typography, "body-1");
 }
+
 .ap-typography-body-2 {
   @include mat.typography-level($ap-typography, "body-2");
 }
+
 .ap-typography-caption {
   @include mat.typography-level($ap-typography, "caption");
 }
+
 .ap-typography-button {
   @include mat.typography-level($ap-typography, "button");
 }
+
 $ap-primary-palette: (
   50 : #e7e7e8,
   100 : #c2c3c6,
@@ -193,21 +189,20 @@ $ap-primary-palette: (
   A200 : #3075ff,
   A400 : #0054fc,
   A700 : #004be2,
-  contrast: (
-      50 : #000000,
-      100 : #000000,
-      200 : #000000,
-      300 : #ffffff,
-      400 : #ffffff,
-      500 : #ffffff,
-      600 : #ffffff,
-      700 : #ffffff,
-      800 : #ffffff,
-      900 : #ffffff,
-      A100 : #000000,
-      A200 : #ffffff,
-      A400 : #ffffff,
-      A700 : #ffffff,
+  contrast: (50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #ffffff,
+    400 : #ffffff,
+    500 : #ffffff,
+    600 : #ffffff,
+    700 : #ffffff,
+    800 : #ffffff,
+    900 : #ffffff,
+    A100 : #000000,
+    A200 : #ffffff,
+    A400 : #ffffff,
+    A700 : #ffffff,
   )
 );
 $ap-warn-palette: (
@@ -225,8 +220,7 @@ $ap-warn-palette: (
   A200: var(--warn-palette-A200),
   A400: var(--warn-palette-A400),
   A700: var(--warn-palette-A700),
-  contrast: (
-    50:  var(--warn-palette-contrast-50),
+  contrast: (50: var(--warn-palette-contrast-50),
     100: var(--warn-palette-contrast-100),
     200: var(--warn-palette-contrast-200),
     300: var(--warn-palette-contrast-300),
@@ -261,28 +255,21 @@ $ap-warn-palette: (
 
 $ap-primary: mat.define-palette($ap-primary-palette);
 $ap-danger: mat.define-palette($ap-warn-palette);
-$ap-theme-light: mat.define-light-theme(
-  (
-    color: (
-      primary: $ap-primary,
-      warn: $ap-danger,
-      accent: $ap-danger,
-    ),
-    typography: $ap-typography,
-  )
-);
-$ap-theme-dark: mat.define-dark-theme(
-  (
-    color: (
-      primary: $ap-primary,
-      warn: $ap-danger,
-      accent: $ap-danger,
-    ),
-    typography: $ap-typography,
-  )
-);
+$ap-theme-light: mat.define-light-theme((color: (primary: $ap-primary,
+        warn: $ap-danger,
+        accent: $ap-danger,
+      ),
+      typography: $ap-typography,
+    ));
+$ap-theme-dark: mat.define-dark-theme((color: (primary: $ap-primary,
+        warn: $ap-danger,
+        accent: $ap-danger,
+      ),
+      typography: $ap-typography,
+    ));
 $main-theme: material-theme-helper.modify-background($ap-theme-light, $white, $white, $dividers, $body, $body);
 @include mat.all-component-themes($main-theme);
+
 .mat-tab-group {
   font-family: inherit !important;
 }
@@ -373,6 +360,7 @@ $main-theme: material-theme-helper.modify-background($ap-theme-light, $white, $w
       line-height: unset;
     }
   }
+
   &.error {
     .mdc-snackbar__surface {
       background-color: rgba($danger, 0.85);
@@ -404,6 +392,7 @@ $main-theme: material-theme-helper.modify-background($ap-theme-light, $white, $w
 .mat-tab-body-content,
 .mat-drawer-inner-container {
   scrollbar-width: thin;
+
   &::-webkit-scrollbar {
     width: 4px;
   }
@@ -412,10 +401,12 @@ $main-theme: material-theme-helper.modify-background($ap-theme-light, $white, $w
 .cdk-overlay-container {
   z-index: calc($appended-to-body-z-index + 1);
 }
+
 .center-before {
   &.center-above {
     transform: translate(50%, -16px);
   }
+
   &.center-below {
     transform: translate(50%, 16px);
   }
@@ -424,6 +415,7 @@ $main-theme: material-theme-helper.modify-background($ap-theme-light, $white, $w
 .mat-menu-content:not(:empty) {
   padding: 8px !important;
 }
+
 .mat-menu-item {
   padding: 5px !important;
   height: unset !important;
@@ -437,35 +429,44 @@ $main-theme: material-theme-helper.modify-background($ap-theme-light, $white, $w
 .mat-tooltip {
   white-space: pre-line !important;
 }
+
 .mat-form-field-appearance-outline .mat-form-field-infix {
   padding: 0.625rem 0px 0.8rem !important;
 }
+
 .mat-form-field-appearance-outline .mat-form-fielap-flex {
   padding: 0px 0.625rem !important;
 }
+
 .mat-form-field-label-wrapper {
   top: -1.2rem !important;
 }
+
 .sign-in-form .mat-placeholder-required {
   display: none;
 }
+
 .mat-form-field-appearance-outline .mat-form-field-subscript-wrapper {
   padding: 0 0.625rem;
 }
+
 .auth-card {
   box-shadow: none !important;
   border-radius: 0 !important;
   padding: 1.5rem !important;
 }
+
 tr.mat-header-row {
   height: initial;
   padding: 14px 0px;
 }
+
 th.mat-header-cell:last-of-type,
 td.mat-cell:last-of-type,
 td.mat-footer-cell:last-of-type {
   padding-right: 10px !important;
 }
+
 th.mat-header-cell:first-of-type,
 td.mat-cell:first-of-type,
 td.mat-footer-cell:first-of-type {
@@ -475,6 +476,7 @@ td.mat-footer-cell:first-of-type {
 th[mat-cell] {
   @include mat.typography-level($ap-typography, "body-2");
 }
+
 th[mat-header-cell] {
   @include mat.typography-level($ap-typography, "body-2");
   font-weight: 500;
@@ -483,6 +485,7 @@ th[mat-header-cell] {
 tr[mat-header-row] {
   background: $gray-card;
 }
+
 tr.mat-header-row {
   height: 50px !important;
 }
@@ -499,19 +502,23 @@ mat-form-field {
   .mat-mdc-text-field-wrapper {
     background-color: $white !important;
   }
+
   .mat-mdc-form-field-focus-overlay {
     opacity: 0 !important;
   }
 }
+
 .fullscreen-dialog {
   max-width: 100% !important;
   max-height: 100% !important;
   width: 100%;
   height: 100%;
+
   .mat-mdc-dialog-surface.mdc-dialog__surface {
     border-radius: 0px;
   }
 }
+
 mat-option.add-auth {
   .mdc-list-item__primary-text {
     flex-grow: 1 !important;
@@ -529,10 +536,11 @@ mat-option.add-auth {
 }
 
 app-mentions-list {
-.mat-mdc-menu-item-text{
+  .mat-mdc-menu-item-text {
     display: flex;
     align-items: center;
     width: 100%;
+
     div {
       flex-grow: 1;
     }
@@ -553,6 +561,7 @@ mat-form-field.\!ap-bg-white {
   .mat-mdc-form-field-focus-overlay {
     background-color: $white !important;
   }
+
   .mdc-text-field--filled:not(.mdc-text-field--disabled) {
     background-color: $white !important;
   }
@@ -561,20 +570,25 @@ mat-form-field.\!ap-bg-white {
 .mdc-linear-progress__bar-inner {
   left: 0;
 }
+
 .mdc-list-item__primary-text {
   width: 100%;
 }
+
 .no-check-bg .mat-button-toggle-checked {
   background-color: $white;
 }
+
 .mat-button-toggle-appearance-standard .mat-button-toggle-label-content {
   line-height: unset;
 }
+
 .mat-button-toggle-button {
   display: flex;
   padding-top: 0.3125rem !important;
   padding-bottom: 0.3125rem !important;
 }
+
 .mat-drawer-inner-container {
   overflow: hidden !important;
 }
@@ -583,6 +597,7 @@ mat-form-field.\!ap-bg-white {
   word-wrap: break-word;
   @include mat.typography-level($ap-typography, "body-1");
 }
+
 .mdc-switch--disabled .mdc-switch__icons {
   cursor: not-allowed !important;
 }
@@ -598,9 +613,11 @@ app-dashboard-container .mat-drawer {
 .mat-placeholder-icon {
   fill: $placeholder !important;
 }
+
 .mat-body-icon {
   fill: $body !important;
 }
+
 .mat-expansion-panel-content {
   overflow: hidden !important;
 }
@@ -611,16 +628,18 @@ app-dashboard-container .mat-drawer {
   }
 }
 
-.mat-mdc-form-field-icon-prefix > .mat-icon,
-.mat-mdc-form-field-icon-suffix > .mat-icon {
+.mat-mdc-form-field-icon-prefix>.mat-icon,
+.mat-mdc-form-field-icon-suffix>.mat-icon {
   padding: 12px 9px 12px 12px !important;
   transform: scale(0.84);
 }
+
 mat-icon[data-mat-icon-name="custom_expand_more"],
 mat-icon[data-mat-icon-name="custom_expand_less"] {
   width: 10px;
   height: 10px;
 }
+
 .mat-mdc-dialog-content {
   max-height: 1150px !important;
 }
@@ -628,40 +647,48 @@ mat-icon[data-mat-icon-name="custom_expand_less"] {
 .progress-success circle {
   stroke: #209E34 !important;
 }
+
 .progress-success-bg circle {
   stroke: #F0F0F0 !important;
 }
 
 .material-suffix-icon {
-  padding-right:  max(16px, calc(var(--mdc-shape-small, 4px) + 4px));;
+  padding-right: max(16px, calc(var(--mdc-shape-small, 4px) + 4px));
+  ;
 }
+
 :root {
   --mdc-shape-small: 0px;
+}
+
 //Material bug https://github.com/angular/components/issues/26056
 .mat-mdc-unelevated-button.mat-primary {
-  --mdc-filled-button-label-text-color: var(--primary-palette-contrast-500) ;
- }
- 
- .mat-mdc-unelevated-button.mat-warn {
-   --mdc-filled-button-label-text-color: var(--warn-palette-contrast-500) ;
- }
- 
- .mat-mdc-raised-button.mat-primary {
-   --mdc-protected-button-label-text-color: var(--primary-palette-contrast-500) ;
- }
- 
- .mat-mdc-raised-button.mat-warn {
-   --mdc-protected-button-label-text-color: var(--warn-palette-contrast-300) ;
- }
- .mat-mdc-checkbox.mat-primary {
-  --mdc-checkbox-selected-checkmark-color:  var(--primary-palette-contrast-500);
+  --mdc-filled-button-label-text-color: var(--primary-palette-contrast-500);
 }
+
+.mat-mdc-unelevated-button.mat-warn {
+  --mdc-filled-button-label-text-color: var(--warn-palette-contrast-500);
+}
+
+.mat-mdc-raised-button.mat-primary {
+  --mdc-protected-button-label-text-color: var(--primary-palette-contrast-500);
+}
+
+.mat-mdc-raised-button.mat-warn {
+  --mdc-protected-button-label-text-color: var(--warn-palette-contrast-300);
+}
+
+.mat-mdc-checkbox.mat-primary {
+  --mdc-checkbox-selected-checkmark-color: var(--primary-palette-contrast-500);
+}
+
 .mat-mdc-checkbox.mat-warn {
-  --mdc-checkbox-selected-checkmark-color:  var(--primary-palette-contrast-500);
+  --mdc-checkbox-selected-checkmark-color: var(--primary-palette-contrast-500);
 }
 
 .material-suffix-icon {
-  padding-right:  max(16px, calc(var(--mdc-shape-small, 4px) + 4px));;
+  padding-right: max(16px, calc(var(--mdc-shape-small, 4px) + 4px));
+  ;
 }
 
 
@@ -671,15 +698,17 @@ mat-icon[data-mat-icon-name="custom_expand_less"] {
   padding-top: 4rem;
 }
 
-ngx-colors-panel { 
-  .manual-input-wrapper{
-    font-family: $font-family  !important;
+ngx-colors-panel {
+  .manual-input-wrapper {
+    font-family: $font-family !important;
     @apply ap-typography-body-2 #{!important};
-    p{
+
+    p {
       @apply ap-cursor-pointer;
     }
-    input{
-      font-family: $font-family  !important;
+
+    input {
+      font-family: $font-family !important;
       @apply ap-typography-body-2 #{!important};
     }
   }

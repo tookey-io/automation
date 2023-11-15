@@ -38,6 +38,7 @@ export class StepTypeItemComponent {
   stepIconUrl = '';
   faInfo = faInfoCircle;
   hover = false;
+  showDocsLink = true;
   constructor(private cd: ChangeDetectorRef) {}
 
   loadStepIcon(url: string) {
