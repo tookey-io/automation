@@ -83,6 +83,14 @@ export class AppComponent implements OnInit {
       tap(() => this.loadingTheme$.next(false)),
       map(() => void 0)
     );
+
+    // Hack embedded service
+    this.embeddedService.setState({
+      hideSideNav: false,
+      isEmbedded: true,
+      prefix: ''
+    });
+
     this.embeddedRouteListener$ = this.router.events.pipe(
       switchMap((routingEvent) => {
         return this.embeddedService.getIsInEmbedding$().pipe(

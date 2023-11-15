@@ -14,7 +14,7 @@ module.exports = {
       fontFamily: {
         sans: [`Mulish,sans-serif`, ...defaultTheme.fontFamily.sans]
       },
-      boxShadow:{
+      boxShadow: {
         // 'step-container-ds':'0px 0px 22px rgba(186, 186, 191, 0.3)',
         // 'portal-ds' : '0px 0px 90px rgba(0, 0, 0, 0.14)'
       },
@@ -27,8 +27,8 @@ module.exports = {
         15: '3.75rem'
       },
       colors: {
-        title:'var(--title)',
-        line:'var(--line)',
+        title: 'var(--title)',
+        line: 'var(--line)',
         header: 'var(--header)',
         dividers: 'var(--dividers)',
         body: 'var(--body)',
@@ -40,7 +40,7 @@ module.exports = {
         black: 'var(--black)',
         disable: 'var(--disable)',
         sidebar: 'var(--sidebar)',
-        hover:'var(--hover)',
+        hover: 'var(--hover)',
         avatar: 'var(--avatar)',
         'blue-link': 'var(--blue-link)',
         'gray-select': 'var(--gray-select)',
@@ -48,21 +48,24 @@ module.exports = {
         outline: 'var(--outline)',
         description: 'var(--description)',
         danger: 'var(--danger)',
-        primary: { DEFAULT: 'var(--primary-default)',
-        medium:'var(--primary-medium)',
-         light: 'var(--primary-light)', 
-         dark: 'var(--primary-dark)' },
-        warn: {
-         DEFAULT:'var(--warn-default)',
-         light:"var(--warn-light)",
-         dark:"var(--warn-dark)",
-         medium:"var(--warn-medium)"},
-        success: {
-          DEFAULT:'var(--success-default)',
-          light:'var(--success-light)'
+        primary: {
+          DEFAULT: 'var(--primary-default)',
+          medium: 'var(--primary-medium)',
+          light: 'var(--primary-light)',
+          dark: 'var(--primary-dark)'
         },
-       'bleached-gray':'var(--bleached-gray)',
-       'selection': 'var(--selection)'
+        warn: {
+          DEFAULT: 'var(--warn-default)',
+          light: "var(--warn-light)",
+          dark: "var(--warn-dark)",
+          medium: "var(--warn-medium)"
+        },
+        success: {
+          DEFAULT: 'var(--success-default)',
+          light: 'var(--success-light)'
+        },
+        'bleached-gray': 'var(--bleached-gray)',
+        'selection': 'var(--selection)'
       },
     },
     borderRadius: {

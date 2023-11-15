@@ -133,12 +133,12 @@ export function generateTheme({ primaryColor, fullLogoUrl, favIconUrl, logoIconU
 }
 
 export const defaultTheme = generateTheme({
-    primaryColor: '#6e41e2',
-    websiteName: 'Activepieces',
+    primaryColor: '#000000',
+    websiteName: 'Tookey',
     fullLogoUrl:
         'https://cdn.activepieces.com/brand/full-logo.png',
     favIconUrl:
-        'https://cdn.activepieces.com/brand/favicon.ico',
+        'https://tookey.io/favicon-32x32.png',
     logoIconUrl:
         'https://cdn.activepieces.com/brand/logo.svg',
 })

@@ -3,7 +3,7 @@
         <app-sidenav-routes-list></app-sidenav-routes-list>
     </mat-sidenav>
     <mat-sidenav-content class="thin-scrollbars ">
-        <div *ngIf="(isEmbedded$ | async) === undefined || (isEmbedded$ | async) === false"
+        <div class="ap-hidden" *ngIf="(isEmbedded$ | async) === undefined || (isEmbedded$ | async) === false"
             class="ap-absolute  ap-w-full ap-border-b " [class.!ap-border-none]="isInPlatformRoute$ | async">
             <div class="ap-flex ap-items-center  ap-my-5 ap-mx-[1.875rem]">
                 <div class="ap-font-semibold ap-border-solid  ap-typography-headline-5 !ap-font-semibold"
