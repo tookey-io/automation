@@ -1,11 +1,12 @@
 import { QueryFailedError } from 'typeorm'
-import { AuthenticationResponse, SignInRequest, UserStatus, ActivepiecesError, ErrorCode, apId, ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, PrincipalType, isNil, User, generateRandomPassword } from '@activepieces/shared'
+import { AuthenticationResponse, SignInRequest, UserStatus, ActivepiecesError, ErrorCode, apId, ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, PrincipalType, isNil, User } from '@activepieces/shared'
 import { userService } from '../../user/user-service'
 import { passwordHasher } from '../lib/password-hasher'
 import { authenticationServiceHooks as hooks } from './hooks'
 import { system } from '../../helper/system/system'
 import { SystemProp } from '../../helper/system/system-prop'
 import { accessTokenManager } from '../lib/access-token-manager'
+import { generateRandomPassword } from '../../helper/crypto'
 
 export const authenticationService = {
     // TODO: Move to authentication service
@@ -37,7 +38,7 @@ export const authenticationService = {
         })
     },
     externalUserAuth: async (request: ExternalUserAuthRequest): Promise<AuthenticationResponse> => {
-        const user = await userService.getOneByEmail({
+        const user = await userService.getbyEmail({
             email: request.id,
         })
 
