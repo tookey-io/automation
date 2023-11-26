@@ -5,7 +5,6 @@ import { Store } from '@ngrx/store';
 import { BuilderActions } from '../builder.action';
 import { canvasActions } from './canvas.action';
 import { EMPTY, of } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { BuilderSelectors } from '../builder.selector';
 import { LeftSideBarType, RightSideBarType } from '../../../model';
 import { RunDetailsService } from '../../../service/run-details.service';
@@ -51,17 +50,6 @@ export class CanvasEffects {
       })
     );
   });
-  openGenerateFlowComponent$ = createEffect(
-    () => {
-      return this.actions$.pipe(
-        ofType(canvasActions.openGenerateFlowComponent),
-        tap(() => {
-          this.snackBar.dismiss();
-        })
-      );
-    },
-    { dispatch: false }
-  );
   exitRun$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(canvasActions.exitRun),
@@ -106,7 +94,6 @@ export class CanvasEffects {
   constructor(
     private actions$: Actions,
     private store: Store,
-    private snackBar: MatSnackBar,
     private runDetailsService: RunDetailsService
   ) {}
 }

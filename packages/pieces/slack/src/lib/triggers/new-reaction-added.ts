@@ -45,7 +45,7 @@ export const newReactionAdded = createTrigger({
     type: TriggerStrategy.APP_WEBHOOK,
     sampleData: sampleData,
     onEnable: async (context) => {
-        context.app.createListeners({ events: ['reaction_added'], identifierValue: context.auth.data['team_id'] })
+        await context.app.createListeners({ events: ['reaction_added'], identifierValue: context.auth.data['team_id'] })
     },
     onDisable: async (context) => {
         // Ignored
@@ -54,11 +54,12 @@ export const newReactionAdded = createTrigger({
         return [sampleData]
     },
     run: async (context) => {
+        const payloadBody = context.payload.body as Record<string, unknown>;
         if (context.propsValue.emoj) {
-            if (context.propsValue.emoj.includes(context.payload.body.reaction)) {
+            if (context.propsValue.emoj.includes(payloadBody.reaction)) {
                 return [];
             }
         }
-        return [context.payload.body.event]
+        return [payloadBody.event]
     }
 });

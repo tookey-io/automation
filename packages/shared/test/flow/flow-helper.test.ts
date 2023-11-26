@@ -1,4 +1,18 @@
-import { Action, ActionType, BranchOperator, FlowOperationRequest, FlowOperationType, FlowVersion, FlowVersionState, PieceTrigger, StepLocationRelativeToParent, Trigger, TriggerType, flowHelper } from "../../src";
+import {
+    Action,
+    ActionType,
+    BranchOperator,
+    FlowOperationRequest,
+    FlowOperationType,
+    FlowVersion,
+    FlowVersionState,
+    PackageType,
+    PieceType,
+    StepLocationRelativeToParent,
+    Trigger,
+    TriggerType,
+    flowHelper,
+} from '../../src'
 
 const flowVersionWithBranching: FlowVersion = {
     'id': 'pj0KQ7Aypoa9OQGHzmKDl',
@@ -15,12 +29,14 @@ const flowVersionWithBranching: FlowVersion = {
             'input': {
                 'cronExpression': '25 10 * * 0,1,2,3,4',
             },
+            'packageType': PackageType.REGISTRY,
+            'pieceType': PieceType.OFFICIAL,
             'pieceName': 'schedule',
+            'pieceVersion': '0.0.2',
             'inputUiInfo': {
 
             },
             'triggerName': 'cron_expression',
-            'pieceVersion': '0.0.2',
         },
         'nextAction': {
             'name': 'step_1',
@@ -33,7 +49,7 @@ const flowVersionWithBranching: FlowVersion = {
                             'operator': 'TEXT_CONTAINS',
                             'firstValue': '1',
                             'secondValue': '1',
-                            caseSensitive: true
+                            caseSensitive: true,
                         },
                     ],
                 ],
@@ -46,14 +62,16 @@ const flowVersionWithBranching: FlowVersion = {
                     'input': {
                         'key': '1',
                     },
+                    'packageType': PackageType.REGISTRY,
+                    'pieceType': PieceType.OFFICIAL,
                     'pieceName': 'store',
+                    'pieceVersion': '0.2.6',
                     'actionName': 'get',
                     'inputUiInfo': {
                         'customizedInputs': {
 
                         },
                     },
-                    'pieceVersion': '0.2.6',
                 },
                 'displayName': 'Get',
             },
@@ -66,7 +84,10 @@ const flowVersionWithBranching: FlowVersion = {
                     'input': {
 
                     },
-                    'artifactSourceId': 'pJskIPz1ZL3RYiyUX1HPm',
+                    'sourceCode': {
+                        'code': 'test',
+                        'packageJson': '{}',
+                    },
                 },
                 'displayName': 'Code',
             },
@@ -79,14 +100,16 @@ const flowVersionWithBranching: FlowVersion = {
                         'content': 'MESSAGE',
                         'webhook_url': 'WEBHOOK_URL',
                     },
+                    'packageType': PackageType.REGISTRY,
+                    'pieceType': PieceType.OFFICIAL,
                     'pieceName': 'discord',
+                    'pieceVersion': '0.2.1',
                     'actionName': 'send_message_webhook',
                     'inputUiInfo': {
                         'customizedInputs': {
 
                         },
                     },
-                    'pieceVersion': '0.2.1',
                 },
                 'displayName': 'Send Message Webhook',
             },
@@ -96,17 +119,22 @@ const flowVersionWithBranching: FlowVersion = {
     'valid': true,
     'state': FlowVersionState.DRAFT,
 }
+
 function createCodeAction(name: string): Action {
     return {
-        'name': name,
+        name,
         'displayName': 'Code',
         'type': ActionType.CODE,
         'valid': true,
         'settings': {
+            'sourceCode': {
+                'code': 'test',
+                'packageJson': '{}',
+            },
             'input': {
-            }
-        }
-    };;
+            },
+        },
+    }
 }
 const emptyScheduleFlowVersion: FlowVersion = {
     'id': 'pj0KQ7Aypoa9OQGHzmKDl',
@@ -123,12 +151,14 @@ const emptyScheduleFlowVersion: FlowVersion = {
             'input': {
                 'cronExpression': '25 10 * * 0,1,2,3,4',
             },
+            'packageType': PackageType.REGISTRY,
+            'pieceType': PieceType.OFFICIAL,
             'pieceName': 'schedule',
+            'pieceVersion': '0.0.2',
             'inputUiInfo': {
 
             },
             'triggerName': 'cron_expression',
-            'pieceVersion': '0.0.2',
         },
         'displayName': 'Cron Expression',
     },
@@ -144,10 +174,10 @@ describe('Flow Helper', () => {
             request: {
                 flowId: flowVersionWithBranching.flowId,
             },
-        };
-        const result = flowHelper.apply(flowVersionWithBranching, operation);
-        expect(result.state).toEqual(FlowVersionState.LOCKED);
-    });
+        }
+        const result = flowHelper.apply(flowVersionWithBranching, operation)
+        expect(result.state).toEqual(FlowVersionState.LOCKED)
+    })
 
     it('should delete branch', () => {
         const operation: FlowOperationRequest = {
@@ -155,29 +185,31 @@ describe('Flow Helper', () => {
             request: {
                 name: flowVersionWithBranching.trigger.nextAction.name,
             },
-        };
-        const result = flowHelper.apply(flowVersionWithBranching, operation);
+        }
+        const result = flowHelper.apply(flowVersionWithBranching, operation)
         const expectedFlowVersion: FlowVersion = {
-            "id": "pj0KQ7Aypoa9OQGHzmKDl",
+            'id': 'pj0KQ7Aypoa9OQGHzmKDl',
             'updatedBy': '',
-            "created": "2023-05-24T00:16:41.353Z",
-            "updated": "2023-05-24T00:16:41.353Z",
-            "flowId": "lod6JEdKyPlvrnErdnrGa",
-            "displayName": "Standup Reminder",
-            "trigger": {
-                "name": "trigger",
+            'created': '2023-05-24T00:16:41.353Z',
+            'updated': '2023-05-24T00:16:41.353Z',
+            'flowId': 'lod6JEdKyPlvrnErdnrGa',
+            'displayName': 'Standup Reminder',
+            'trigger': {
+                'name': 'trigger',
                 'type': TriggerType.PIECE,
-                "valid": true,
-                "settings": {
-                    "input": {
-                        "cronExpression": "25 10 * * 0,1,2,3,4"
+                'valid': true,
+                'settings': {
+                    'input': {
+                        'cronExpression': '25 10 * * 0,1,2,3,4',
                     },
-                    "pieceName": "schedule",
-                    "inputUiInfo": {},
-                    "triggerName": "cron_expression",
-                    "pieceVersion": "0.0.2"
+                    'packageType': PackageType.REGISTRY,
+                    'pieceType': PieceType.OFFICIAL,
+                    'pieceName': 'schedule',
+                    'pieceVersion': '0.0.2',
+                    'inputUiInfo': {},
+                    'triggerName': 'cron_expression',
                 },
-                "displayName": "Cron Expression",
+                'displayName': 'Cron Expression',
                 'nextAction': {
                     'name': 'step_4',
                     'type': 'PIECE',
@@ -186,23 +218,25 @@ describe('Flow Helper', () => {
                         'input': {
                             'key': '1',
                         },
+                        'packageType': PackageType.REGISTRY,
+                        'pieceType': PieceType.OFFICIAL,
                         'pieceName': 'store',
+                        'pieceVersion': '0.2.6',
                         'actionName': 'get',
                         'inputUiInfo': {
                             'customizedInputs': {
 
                             },
                         },
-                        'pieceVersion': '0.2.6',
                     },
                     'displayName': 'Get',
-                }
+                },
             },
-            "valid": true,
+            'valid': true,
             'state': FlowVersionState.DRAFT,
         }
-        expect(result).toEqual(expectedFlowVersion);
-    });
+        expect(result).toEqual(expectedFlowVersion)
+    })
 
     it('should update branch', () => {
         const updateRequest: FlowOperationRequest = {
@@ -220,101 +254,110 @@ describe('Flow Helper', () => {
                                 firstValue: '1',
                                 secondValue: '1',
                                 caseSensitive: true,
-                            }
-                        ]
+                            },
+                        ],
                     ],
                     inputUiInfo: {},
-                }
-            }
-        }
-        const updateFlowVersion = flowHelper.apply(flowVersionWithBranching, updateRequest);
-        const expectedFlowTrigger: Trigger = {
-            "name": "trigger",
-            'type': TriggerType.PIECE,
-            "valid": true,
-            "settings": {
-                "input": {
-                    "cronExpression": "25 10 * * 0,1,2,3,4"
                 },
-                "pieceName": "schedule",
-                "inputUiInfo": {},
-                "triggerName": "cron_expression",
-                "pieceVersion": "0.0.2"
             },
-            "nextAction": {
-                "displayName": "Branch",
-                "name": "step_1",
-                "valid": true,
-                "nextAction": {
-                    "name": "step_4",
-                    "type": "PIECE",
-                    "valid": true,
-                    "settings": {
-                        "input": {
-                            "key": "1"
-                        },
-                        "pieceName": "store",
-                        "actionName": "get",
-                        "inputUiInfo": {
-                            "customizedInputs": {}
-                        },
-                        "pieceVersion": "0.2.6"
-                    },
-                    "displayName": "Get"
+        }
+        const updateFlowVersion = flowHelper.apply(flowVersionWithBranching, updateRequest)
+        const expectedFlowTrigger: Trigger = {
+            'name': 'trigger',
+            'type': TriggerType.PIECE,
+            'valid': true,
+            'settings': {
+                'input': {
+                    'cronExpression': '25 10 * * 0,1,2,3,4',
                 },
-                "onFailureAction": {
-                    "name": "step_3",
-                    "type": "CODE",
-                    "valid": true,
-                    "settings": {
-                        "input": {},
-                        "artifactSourceId": "pJskIPz1ZL3RYiyUX1HPm"
-                    },
-                    "displayName": "Code"
-                },
-                "onSuccessAction": {
-                    "name": "step_2",
-                    "type": "PIECE",
-                    "valid": true,
-                    "settings": {
-                        "input": {
-                            "content": "MESSAGE",
-                            "webhook_url": "WEBHOOK_URL"
+                'packageType': PackageType.REGISTRY,
+                'pieceType': PieceType.OFFICIAL,
+                'pieceName': 'schedule',
+                'pieceVersion': '0.0.2',
+                'inputUiInfo': {},
+                'triggerName': 'cron_expression',
+            },
+            'nextAction': {
+                'displayName': 'Branch',
+                'name': 'step_1',
+                'valid': true,
+                'nextAction': {
+                    'name': 'step_4',
+                    'type': 'PIECE',
+                    'valid': true,
+                    'settings': {
+                        'input': {
+                            'key': '1',
                         },
-                        "pieceName": "discord",
-                        "actionName": "send_message_webhook",
-                        "inputUiInfo": {
-                            "customizedInputs": {}
+                        'packageType': PackageType.REGISTRY,
+                        'pieceType': PieceType.OFFICIAL,
+                        'pieceName': 'store',
+                        'pieceVersion': '0.2.6',
+                        'actionName': 'get',
+                        'inputUiInfo': {
+                            'customizedInputs': {},
                         },
-                        "pieceVersion": "0.2.1"
                     },
-                    "displayName": "Send Message Webhook"
+                    'displayName': 'Get',
                 },
-                "type": "BRANCH",
-                "settings": {
-                    "conditions": [
+                'onFailureAction': {
+                    'name': 'step_3',
+                    'type': 'CODE',
+                    'valid': true,
+                    'settings': {
+                        'input': {},
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
+                        },
+                    },
+                    'displayName': 'Code',
+                },
+                'onSuccessAction': {
+                    'name': 'step_2',
+                    'type': 'PIECE',
+                    'valid': true,
+                    'settings': {
+                        'input': {
+                            'content': 'MESSAGE',
+                            'webhook_url': 'WEBHOOK_URL',
+                        },
+                        'packageType': PackageType.REGISTRY,
+                        'pieceType': PieceType.OFFICIAL,
+                        'pieceName': 'discord',
+                        'pieceVersion': '0.2.1',
+                        'actionName': 'send_message_webhook',
+                        'inputUiInfo': {
+                            'customizedInputs': {},
+                        },
+                    },
+                    'displayName': 'Send Message Webhook',
+                },
+                'type': 'BRANCH',
+                'settings': {
+                    'conditions': [
                         [
                             {
-                                "operator": "TEXT_CONTAINS",
-                                "firstValue": "1",
-                                "secondValue": "1",
-                                caseSensitive: true
-                            }
-                        ]
+                                'operator': 'TEXT_CONTAINS',
+                                'firstValue': '1',
+                                'secondValue': '1',
+                                caseSensitive: true,
+                            },
+                        ],
                     ],
-                    "inputUiInfo": {}
-                }
+                    'inputUiInfo': {},
+                },
             },
-            "displayName": "Cron Expression"
-        };
-        expect(updateFlowVersion.trigger).toEqual(expectedFlowTrigger);
-    });
+            'displayName': 'Cron Expression',
+        }
+        expect(updateFlowVersion.trigger).toEqual(expectedFlowTrigger)
+    })
 
     it('should add branch step with actions', () => {
         const addBranchRequest: FlowOperationRequest = {
             type: FlowOperationType.ADD_ACTION,
             request: {
-                parentStep: "trigger",
+                parentStep: 'trigger',
                 action: {
                     name: 'step_1',
                     type: ActionType.BRANCH,
@@ -328,285 +371,318 @@ describe('Flow Helper', () => {
                                     firstValue: '1',
                                     secondValue: '1',
                                     caseSensitive: true,
-                                }
-                            ]
+                                },
+                            ],
                         ],
                         inputUiInfo: {},
-                    }
-                }
-            }
+                    },
+                },
+            },
         }
         const addCodeActionOnTrue: FlowOperationRequest = {
             type: FlowOperationType.ADD_ACTION,
             request: {
-                parentStep: "step_1",
+                parentStep: 'step_1',
                 stepLocationRelativeToParent: StepLocationRelativeToParent.INSIDE_TRUE_BRANCH,
-                action: createCodeAction('step_2')
-            }
+                action: createCodeAction('step_2'),
+            },
         }
         const addCodeActionOnFalse: FlowOperationRequest = {
             type: FlowOperationType.ADD_ACTION,
             request: {
-                parentStep: "step_1",
+                parentStep: 'step_1',
                 stepLocationRelativeToParent: StepLocationRelativeToParent.INSIDE_FALSE_BRANCH,
-                action: createCodeAction('step_3')
-            }
+                action: createCodeAction('step_3'),
+            },
         }
         const addCodeActionOnAfter: FlowOperationRequest = {
             type: FlowOperationType.ADD_ACTION,
             request: {
-                parentStep: "step_1",
+                parentStep: 'step_1',
                 stepLocationRelativeToParent: StepLocationRelativeToParent.AFTER,
-                action: createCodeAction('step_4')
-            }
-        }
-        let resultFlow = emptyScheduleFlowVersion;
-        resultFlow = flowHelper.apply(resultFlow, addBranchRequest);
-        resultFlow = flowHelper.apply(resultFlow, addCodeActionOnTrue);
-        resultFlow = flowHelper.apply(resultFlow, addCodeActionOnFalse);
-        resultFlow = flowHelper.apply(resultFlow, addCodeActionOnAfter);
-        const expectedTrigger: Trigger = {
-            "name": "trigger",
-            "type": TriggerType.PIECE,
-            "valid": true,
-            "settings": {
-                "input": {
-                    "cronExpression": "25 10 * * 0,1,2,3,4"
-                },
-                "pieceName": "schedule",
-                "inputUiInfo": {},
-                "triggerName": "cron_expression",
-                "pieceVersion": "0.0.2"
+                action: createCodeAction('step_4'),
             },
-            "displayName": "Cron Expression",
-            "nextAction": {
-                "displayName": "Branch",
-                "name": "step_1",
-                "valid": true,
-                "type": "BRANCH",
-                "settings": {
-                    "conditions": [
+        }
+        let resultFlow = emptyScheduleFlowVersion
+        resultFlow = flowHelper.apply(resultFlow, addBranchRequest)
+        resultFlow = flowHelper.apply(resultFlow, addCodeActionOnTrue)
+        resultFlow = flowHelper.apply(resultFlow, addCodeActionOnFalse)
+        resultFlow = flowHelper.apply(resultFlow, addCodeActionOnAfter)
+        const expectedTrigger: Trigger = {
+            'name': 'trigger',
+            'type': TriggerType.PIECE,
+            'valid': true,
+            'settings': {
+                'input': {
+                    'cronExpression': '25 10 * * 0,1,2,3,4',
+                },
+                'packageType': PackageType.REGISTRY,
+                'pieceType': PieceType.OFFICIAL,
+                'pieceName': 'schedule',
+                'pieceVersion': '0.0.2',
+                'inputUiInfo': {},
+                'triggerName': 'cron_expression',
+            },
+            'displayName': 'Cron Expression',
+            'nextAction': {
+                'displayName': 'Branch',
+                'name': 'step_1',
+                'valid': true,
+                'type': 'BRANCH',
+                'settings': {
+                    'conditions': [
                         [
                             {
-                                "operator": "TEXT_CONTAINS",
-                                "firstValue": "1",
-                                "secondValue": "1",
-                                caseSensitive: true
-                            }
-                        ]
+                                'operator': 'TEXT_CONTAINS',
+                                'firstValue': '1',
+                                'secondValue': '1',
+                                caseSensitive: true,
+                            },
+                        ],
                     ],
-                    "inputUiInfo": {}
+                    'inputUiInfo': {},
                 },
-                "onSuccessAction": {
-                    "displayName": "Code",
-                    "name": "step_2",
-                    "valid": true,
-                    "type": "CODE",
-                    "settings": {
-                        "input": {}
-                    }
+                'onSuccessAction': {
+                    'displayName': 'Code',
+                    'name': 'step_2',
+                    'valid': true,
+                    'type': 'CODE',
+                    'settings': {
+                        'input': {},
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
+                        },
+                    },
                 },
-                "onFailureAction": {
-                    "displayName": "Code",
-                    "name": "step_3",
-                    "valid": true,
-                    "type": "CODE",
-                    "settings": {
-                        "input": {}
-                    }
+                'onFailureAction': {
+                    'displayName': 'Code',
+                    'name': 'step_3',
+                    'valid': true,
+                    'type': 'CODE',
+                    'settings': {
+                        'input': {},
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
+                        },
+                    },
                 },
-                "nextAction": {
-                    "displayName": "Code",
-                    "name": "step_4",
-                    "valid": true,
-                    "type": "CODE",
-                    "settings": {
-                        "input": {}
-                    }
-                }
-            }
+                'nextAction': {
+                    'displayName': 'Code',
+                    'name': 'step_4',
+                    'valid': true,
+                    'type': 'CODE',
+                    'settings': {
+                        'input': {},
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
+                        },
+                    },
+                },
+            },
         }
-        expect(resultFlow.trigger).toEqual(expectedTrigger);
-    });
+        expect(resultFlow.trigger).toEqual(expectedTrigger)
+    })
 
     it('should add loop step with actions', () => {
         const addBranchRequest: FlowOperationRequest = {
             type: FlowOperationType.ADD_ACTION,
             request: {
-                parentStep: "trigger",
+                parentStep: 'trigger',
                 action: {
                     name: 'step_1',
                     type: ActionType.LOOP_ON_ITEMS,
                     displayName: 'Loop',
                     valid: true,
                     settings: {
-                        items: "items",
-                    }
-                }
-            }
+                        items: 'items',
+                    },
+                },
+            },
         }
         const addCodeActionInside: FlowOperationRequest = {
             type: FlowOperationType.ADD_ACTION,
             request: {
-                parentStep: "step_1",
+                parentStep: 'step_1',
                 stepLocationRelativeToParent: StepLocationRelativeToParent.INSIDE_LOOP,
-                action: createCodeAction('step_3')
-            }
+                action: createCodeAction('step_3'),
+            },
         }
         const addCodeActionOnAfter: FlowOperationRequest = {
             type: FlowOperationType.ADD_ACTION,
             request: {
-                parentStep: "step_1",
+                parentStep: 'step_1',
                 stepLocationRelativeToParent: StepLocationRelativeToParent.AFTER,
-                action: createCodeAction('step_4')
-            }
+                action: createCodeAction('step_4'),
+            },
         }
-        let resultFlow = emptyScheduleFlowVersion;
-        resultFlow = flowHelper.apply(resultFlow, addBranchRequest);
-        resultFlow = flowHelper.apply(resultFlow, addCodeActionInside);
-        resultFlow = flowHelper.apply(resultFlow, addCodeActionOnAfter);
+        let resultFlow = emptyScheduleFlowVersion
+        resultFlow = flowHelper.apply(resultFlow, addBranchRequest)
+        resultFlow = flowHelper.apply(resultFlow, addCodeActionInside)
+        resultFlow = flowHelper.apply(resultFlow, addCodeActionOnAfter)
 
         const expectedTrigger: Trigger = {
-            "name": "trigger",
-            "type": TriggerType.PIECE,
-            "valid": true,
-            "settings": {
-                "input": {
-                    "cronExpression": "25 10 * * 0,1,2,3,4"
+            'name': 'trigger',
+            'type': TriggerType.PIECE,
+            'valid': true,
+            'settings': {
+                'input': {
+                    'cronExpression': '25 10 * * 0,1,2,3,4',
                 },
-                "pieceName": "schedule",
-                "inputUiInfo": {},
-                "triggerName": "cron_expression",
-                "pieceVersion": "0.0.2"
+                'packageType': PackageType.REGISTRY,
+                'pieceType': PieceType.OFFICIAL,
+                'pieceName': 'schedule',
+                'pieceVersion': '0.0.2',
+                'inputUiInfo': {},
+                'triggerName': 'cron_expression',
             },
-            "displayName": "Cron Expression",
-            "nextAction": {
-                "displayName": "Loop",
-                "name": "step_1",
-                "valid": true,
-                "type": "LOOP_ON_ITEMS",
-                "settings": {
-                    "items": "items"
+            'displayName': 'Cron Expression',
+            'nextAction': {
+                'displayName': 'Loop',
+                'name': 'step_1',
+                'valid': true,
+                'type': 'LOOP_ON_ITEMS',
+                'settings': {
+                    'items': 'items',
                 },
-                "firstLoopAction": {
-                    "displayName": "Code",
-                    "name": "step_3",
-                    "valid": true,
-                    "type": "CODE",
-                    "settings": {
-                        "input": {}
-                    }
+                'firstLoopAction': {
+                    'displayName': 'Code',
+                    'name': 'step_3',
+                    'valid': true,
+                    'type': 'CODE',
+                    'settings': {
+                        'input': {},
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
+                        },
+                    },
                 },
-                "nextAction": {
-                    "displayName": "Code",
-                    "name": "step_4",
-                    "valid": true,
-                    "type": "CODE",
-                    "settings": {
-                        "input": {}
-                    }
-                }
-            }
-        };
-        expect(resultFlow.trigger).toEqual(expectedTrigger);
-    });
-});
+                'nextAction': {
+                    'displayName': 'Code',
+                    'name': 'step_4',
+                    'valid': true,
+                    'type': 'CODE',
+                    'settings': {
+                        'input': {},
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
+                        },
+                    },
+                },
+            },
+        }
+        expect(resultFlow.trigger).toEqual(expectedTrigger)
+    })
+})
 
 
 test('Duplicate Flow With Branch', () => {
     const flowVersion: FlowVersion = {
-        'id':'pj0KQ7Aypoa9OQGHzmKDl',
-        'created':'2023-05-24T00:16:41.353Z',
-        'updated':'2023-05-24T00:16:41.353Z',
-        'flowId':'lod6JEdKyPlvrnErdnrGa',
+        'id': 'pj0KQ7Aypoa9OQGHzmKDl',
+        'created': '2023-05-24T00:16:41.353Z',
+        'updated': '2023-05-24T00:16:41.353Z',
+        'flowId': 'lod6JEdKyPlvrnErdnrGa',
         'updatedBy': '',
-        'displayName':'Standup Reminder',
-        'trigger':{
-            'name':'trigger',
+        'displayName': 'Standup Reminder',
+        'trigger': {
+            'name': 'trigger',
             'type': TriggerType.PIECE,
-            'valid':true,
-            'settings':{
-                'input':{
-                    'cronExpression':'25 10 * * 0,1,2,3,4',
+            'valid': true,
+            'settings': {
+                'input': {
+                    'cronExpression': '25 10 * * 0,1,2,3,4',
                 },
-                'pieceName':'schedule',
-                'inputUiInfo':{},
-                'triggerName':'cron_expression',
-                'pieceVersion':'0.0.2',
+                'packageType': PackageType.REGISTRY,
+                'pieceType': PieceType.OFFICIAL,
+                'pieceName': 'schedule',
+                'pieceVersion': '0.0.2',
+                'inputUiInfo': {},
+                'triggerName': 'cron_expression',
             },
-            'nextAction':{
-                'name':'step_1',
-                'type':'BRANCH',
-                'valid':true,
-                'settings':{
-                    'conditions':[
+            'nextAction': {
+                'name': 'step_1',
+                'type': 'BRANCH',
+                'valid': true,
+                'settings': {
+                    'conditions': [
                         [
                             {
-                                'operator':'TEXT_CONTAINS',
-                                'firstValue':'1',
-                                'secondValue':'1',
-                                caseSensitive: true
+                                'operator': 'TEXT_CONTAINS',
+                                'firstValue': '1',
+                                'secondValue': '1',
+                                caseSensitive: true,
                             },
                         ],
                     ],
-                    'inputUiInfo': {}
+                    'inputUiInfo': {},
                 },
-                'nextAction':{
-                    'name':'step_4',
-                    'type':'PIECE',
-                    'valid':true,
-                    'settings':{
-                        'input':{
-                            'key':'1',
+                'nextAction': {
+                    'name': 'step_4',
+                    'type': 'PIECE',
+                    'valid': true,
+                    'settings': {
+                        'input': {
+                            'key': '1',
                         },
-                        'pieceName':'store',
-                        'actionName':'get',
-                        'inputUiInfo':{
-                            'customizedInputs':{
+                        'packageType': PackageType.REGISTRY,
+                        'pieceType': PieceType.OFFICIAL,
+                        'pieceName': 'store',
+                        'pieceVersion': '0.2.6',
+                        'actionName': 'get',
+                        'inputUiInfo': {
+                            'customizedInputs': {
 
                             },
                         },
-                        'pieceVersion':'0.2.6',
                     },
-                    'displayName':'Get',
+                    'displayName': 'Get',
                 },
-                'displayName':'Branch',
-                'onFailureAction':{
-                    'name':'step_3',
-                    'type':'CODE',
-                    'valid':true,
-                    'settings':{
-                        'input':{
+                'displayName': 'Branch',
+                'onFailureAction': {
+                    'name': 'step_3',
+                    'type': 'CODE',
+                    'valid': true,
+                    'settings': {
+                        'input': {
 
                         },
-                        'artifactSourceId':'pJskIPz1ZL3RYiyUX1HPm',
-                    },
-                    'displayName':'Code',
-                },
-                'onSuccessAction':{
-                    'name':'step_2',
-                    'type':'PIECE',
-                    'valid':true,
-                    'settings':{
-                        'input':{
-                            'content':'MESSAGE',
-                            'webhook_url':'WEBHOOK_URL',
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
                         },
-                        'pieceName':'discord',
-                        'actionName':'send_message_webhook',
-                        'inputUiInfo':{
-                            'customizedInputs':{
+                    },
+                    'displayName': 'Code',
+                },
+                'onSuccessAction': {
+                    'name': 'step_2',
+                    'type': 'PIECE',
+                    'valid': true,
+                    'settings': {
+                        'input': {
+                            'content': 'MESSAGE',
+                            'webhook_url': 'WEBHOOK_URL',
+                        },
+                        'packageType': PackageType.REGISTRY,
+                        'pieceType': PieceType.OFFICIAL,
+                        'pieceName': 'discord',
+                        'pieceVersion': '0.2.1',
+                        'actionName': 'send_message_webhook',
+                        'inputUiInfo': {
+                            'customizedInputs': {
 
                             },
                         },
-                        'pieceVersion':'0.2.1',
                     },
-                    'displayName':'Send Message Webhook',
+                    'displayName': 'Send Message Webhook',
                 },
             },
-            'displayName':'Cron Expression',
+            'displayName': 'Cron Expression',
         },
-        'valid':true,
+        'valid': true,
         'state': FlowVersionState.DRAFT,
     }
     const expectedImportOperations: FlowOperationRequest[] =  [
@@ -625,7 +701,7 @@ test('Duplicate Flow With Branch', () => {
                                     'operator': BranchOperator.TEXT_CONTAINS,
                                     'firstValue': '1',
                                     'secondValue': '1',
-                                    caseSensitive: true
+                                    caseSensitive: true,
                                 },
                             ],
                         ],
@@ -647,12 +723,14 @@ test('Duplicate Flow With Branch', () => {
                         'input': {
                             'key': '1',
                         },
+                        'packageType': PackageType.REGISTRY,
+                        'pieceType': PieceType.OFFICIAL,
                         'pieceName': 'store',
+                        'pieceVersion': '0.2.6',
                         'actionName': 'get',
                         'inputUiInfo': {
                             'customizedInputs': {},
                         },
-                        'pieceVersion': '0.2.6',
                     },
                     'valid': true,
                 },
@@ -669,7 +747,10 @@ test('Duplicate Flow With Branch', () => {
                     'displayName': 'Code',
                     'settings': {
                         'input': {},
-                        'artifactSourceId': undefined,
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
+                        },
                     },
                     'valid': true,
                 },
@@ -689,12 +770,14 @@ test('Duplicate Flow With Branch', () => {
                             'content': 'MESSAGE',
                             'webhook_url': 'WEBHOOK_URL',
                         },
+                        'packageType': PackageType.REGISTRY,
+                        'pieceType': PieceType.OFFICIAL,
                         'pieceName': 'discord',
+                        'pieceVersion': '0.2.1',
                         'actionName': 'send_message_webhook',
                         'inputUiInfo': {
                             'customizedInputs': {},
                         },
-                        'pieceVersion': '0.2.1',
                     },
                     'valid': true,
                 },
@@ -724,12 +807,14 @@ test('Duplicate Flow With Loops using Import', () => {
                     },
                     'authentication': '{{connections.github}}',
                 },
+                'packageType': PackageType.REGISTRY,
+                'pieceType': PieceType.OFFICIAL,
                 'pieceName': 'github',
+                'pieceVersion': '0.1.3',
                 'inputUiInfo': {
 
                 },
                 'triggerName': 'trigger_star',
-                'pieceVersion': '0.1.3',
             },
             'nextAction': {
                 'name': 'step_1',
@@ -746,7 +831,10 @@ test('Duplicate Flow With Loops using Import', () => {
                         'input': {
 
                         },
-                        'artifact': 'BASE64',
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
+                        },
                     },
                     'displayName': 'Code',
                 },
@@ -759,7 +847,10 @@ test('Duplicate Flow With Loops using Import', () => {
                         'input': {
 
                         },
-                        'artifact': 'BASE64',
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
+                        },
                     },
                     'displayName': 'Code',
                 },
@@ -795,7 +886,10 @@ test('Duplicate Flow With Loops using Import', () => {
                     valid: true,
                     settings: {
                         input: {},
-                        artifact: 'BASE64',
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
+                        },
                     },
                     displayName: 'Code',
                 },
@@ -812,7 +906,10 @@ test('Duplicate Flow With Loops using Import', () => {
                     valid: true,
                     settings: {
                         input: {},
-                        artifact: 'BASE64',
+                        'sourceCode': {
+                            'code': 'test',
+                            'packageJson': '{}',
+                        },
                     },
                     displayName: 'Code',
                 },

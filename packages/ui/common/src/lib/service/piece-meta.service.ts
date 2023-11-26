@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   ActionType,
   ApEdition,
-  InstallPieceRequest,
+  AddPieceRequestBody,
   PieceOptionRequest,
   TriggerType,
 } from '@activepieces/shared';
@@ -11,7 +11,6 @@ import {
   Observable,
   shareReplay,
   map,
-  forkJoin,
   switchMap,
   Subject,
   combineLatest,
@@ -26,11 +25,13 @@ import {
   DropdownState,
   PiecePropertyMap,
   TriggerBase,
-  PieceMetadata,
-  PieceMetadataSummary,
   TriggerStrategy,
 } from '@activepieces/pieces-framework';
 import { isNil } from '@activepieces/shared';
+import {
+  PieceMetadataModel,
+  PieceMetadataModelSummary,
+} from '../models/piece-metadata-model';
 
 type TriggersMetadata = Record<string, TriggerBase>;
 
@@ -45,6 +46,11 @@ export const CORE_PIECES_ACTIONS_NAMES = [
   '@activepieces/piece-sftp',
   '@activepieces/piece-approval',
   '@activepieces/piece-tags',
+  '@activepieces/piece-text-helper',
+  '@activepieces/piece-date-helper',
+  '@activepieces/piece-file-helper',
+  '@activepieces/piece-math-helper',
+  '@activepieces/piece-chatbots',
 ];
 export const corePieceIconUrl = (pieceName: string) =>
   `assets/img/custom/piece/${pieceName.replace(
@@ -59,21 +65,11 @@ export const CORE_PIECES_TRIGGERS = [CORE_SCHEDULE];
 export class PieceMetadataService {
   private release$ = this.flagsService.getRelease().pipe(shareReplay(1));
   private clearCache$ = new Subject<void>();
-  private piecesManifest$ = combineLatest([
-    this.release$,
-    this.clearCache$.asObservable().pipe(startWith(void 0)),
-  ]).pipe(
-    switchMap(([release]) => {
-      return this.http.get<PieceMetadataSummary[]>(
-        `${environment.apiUrl}/pieces?release=${release}`
-      );
-    }),
-    shareReplay(1)
-  );
-
-  private piecesCache = new Map<string, Observable<PieceMetadata>>();
-
   private edition$ = this.flagsService.getEdition();
+  private piecesManifest$ = this.getPiecesMetadataIncludeHidden({
+    includeHidden: false,
+  });
+  private piecesCache = new Map<string, Observable<PieceMetadataModel>>();
 
   public coreFlowItemsDetails: FlowItemDetails[] = [
     {
@@ -138,21 +134,40 @@ export class PieceMetadataService {
     return Object.fromEntries(filteredTriggersList);
   }
 
-  private fetchPieceMetadata(
-    pieceName: string,
-    pieceVersion: string
-  ): Observable<PieceMetadata> {
-    return this.http.get<PieceMetadata>(
-      `${environment.apiUrl}/pieces/${encodeURIComponent(
-        pieceName
-      )}?version=${pieceVersion}`
+  private fetchPieceMetadata({
+    pieceName,
+    pieceVersion,
+    edition,
+  }: {
+    pieceName: string;
+    pieceVersion: string;
+    edition: ApEdition;
+  }): Observable<PieceMetadataModel> {
+    return this.http.get<PieceMetadataModel>(
+      `${environment.apiUrl}/pieces/${encodeURIComponent(pieceName)}`,
+      {
+        params: {
+          version: pieceVersion,
+          edition,
+        },
+      }
     );
   }
 
-  installCommunityPiece(req: InstallPieceRequest) {
-    return this.http.post<PieceMetadataSummary>(
+  installCommunityPiece(params: AddPieceParams) {
+    const formData = new FormData();
+
+    formData.set('packageType', params.packageType);
+    formData.set('pieceName', params.pieceName);
+    formData.set('pieceVersion', params.pieceVersion);
+
+    if (params.pieceArchive) {
+      formData.set('pieceArchive', params.pieceArchive);
+    }
+
+    return this.http.post<PieceMetadataModel>(
       `${environment.apiUrl}/pieces`,
-      req
+      formData
     );
   }
 
@@ -164,13 +179,13 @@ export class PieceMetadataService {
     this.clearCache$.next();
   }
 
-  getCommunityPieces(): Observable<PieceMetadataSummary[]> {
+  getCommunityPieces(): Observable<PieceMetadataModelSummary[]> {
     return this.piecesManifest$.pipe(
       map((pieces) => pieces.filter((p) => !isNil(p.projectId)))
     );
   }
 
-  getPiecesManifest(): Observable<PieceMetadataSummary[]> {
+  getPiecesManifest(): Observable<PieceMetadataModelSummary[]> {
     return this.piecesManifest$.pipe(take(1));
   }
 
@@ -200,22 +215,29 @@ export class PieceMetadataService {
   getPieceMetadata(
     pieceName: string,
     pieceVersion: string
-  ): Observable<PieceMetadata> {
+  ): Observable<PieceMetadataModel> {
     const cacheKey = this.getCacheKey(pieceName, pieceVersion);
 
     if (this.piecesCache.has(cacheKey)) {
       return this.piecesCache.get(cacheKey)!;
     }
-    const pieceMetadata$ = forkJoin({
-      pieceMetadata: this.fetchPieceMetadata(pieceName, pieceVersion),
-      edition: this.edition$,
-    }).pipe(
-      map(({ pieceMetadata, edition }) => {
-        pieceMetadata.triggers = this.filterAppWebhooks(
-          pieceMetadata.triggers,
-          edition
+
+    const pieceMetadata$ = this.edition$.pipe(
+      take(1),
+      switchMap((edition) => {
+        return this.fetchPieceMetadata({
+          pieceName,
+          pieceVersion,
+          edition,
+        }).pipe(
+          take(1),
+          map((pieceMetadata) => {
+            return {
+              ...pieceMetadata,
+              triggers: this.filterAppWebhooks(pieceMetadata.triggers, edition),
+            };
+          })
         );
-        return pieceMetadata;
       }),
       shareReplay(1)
     );
@@ -252,4 +274,34 @@ export class PieceMetadataService {
 
     throw new Error("Step type isn't accounted for");
   }
+
+  getPiecesMetadataIncludeHidden({
+    includeHidden,
+  }: {
+    includeHidden: boolean;
+  }) {
+    return combineLatest([
+      this.edition$,
+      this.release$,
+      this.clearCache$.asObservable().pipe(startWith(void 0)),
+    ]).pipe(
+      switchMap(([edition, release]) => {
+        return this.http.get<PieceMetadataModelSummary[]>(
+          `${environment.apiUrl}/pieces`,
+          {
+            params: {
+              includeHidden,
+              release,
+              edition,
+            },
+          }
+        );
+      }),
+      shareReplay(1)
+    );
+  }
 }
+
+type AddPieceParams = Omit<AddPieceRequestBody, 'pieceArchive'> & {
+  pieceArchive: File | null;
+};

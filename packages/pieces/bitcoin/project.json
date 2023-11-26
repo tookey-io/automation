@@ -17,7 +17,8 @@
         "assets": [
           "packages/pieces/bitcoin/*.md"
         ],
-        "buildableProjectDepsInPackageJsonType": "dependencies"
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true
       }
     },
     "publish": {
@@ -27,7 +28,7 @@
       ]
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": [
         "{options.outputFile}"
       ],

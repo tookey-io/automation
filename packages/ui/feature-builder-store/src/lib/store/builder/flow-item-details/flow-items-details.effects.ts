@@ -9,7 +9,7 @@ import {
   CORE_PIECES_TRIGGERS,
   FlowItemDetails,
 } from '@activepieces/ui/common';
-import { PieceMetadataSummary } from '@activepieces/pieces-framework';
+import { PieceMetadataModelSummary } from '@activepieces/ui/common';
 
 @Injectable()
 export class FlowItemsDetailsEffects {
@@ -41,18 +41,30 @@ export class FlowItemsDetailsEffects {
         });
       }),
       map((res) => {
-        res.coreFlowItemsDetails = this.moveCorePiecesToCoreFlowItemDetails(
+        let coreFlowItemsDetails = [...res.coreFlowItemsDetails];
+        let coreTriggerFlowItemsDetails = [...res.coreTriggerFlowItemsDetails];
+        const customPiecesActionsFlowItemDetails = [
+          ...res.customPiecesActionsFlowItemDetails,
+        ];
+        const customPiecesTriggersFlowItemDetails = [
+          ...res.customPiecesTriggersFlowItemDetails,
+        ];
+        coreFlowItemsDetails = this.moveCorePiecesToCoreFlowItemDetails(
           CORE_PIECES_ACTIONS_NAMES,
-          res.customPiecesActionsFlowItemDetails,
-          res.coreFlowItemsDetails
+          customPiecesActionsFlowItemDetails,
+          coreFlowItemsDetails
         );
-        res.coreTriggerFlowItemsDetails =
-          this.moveCorePiecesToCoreFlowItemDetails(
-            CORE_PIECES_TRIGGERS,
-            res.customPiecesTriggersFlowItemDetails,
-            res.coreTriggerFlowItemsDetails
-          );
-        return res;
+        coreTriggerFlowItemsDetails = this.moveCorePiecesToCoreFlowItemDetails(
+          CORE_PIECES_TRIGGERS,
+          customPiecesTriggersFlowItemDetails,
+          coreTriggerFlowItemsDetails
+        );
+        return {
+          coreFlowItemsDetails,
+          coreTriggerFlowItemsDetails,
+          customPiecesActionsFlowItemDetails,
+          customPiecesTriggersFlowItemDetails,
+        };
       }),
       switchMap((res) => {
         return of(
@@ -71,7 +83,7 @@ export class FlowItemsDetailsEffects {
   ) {
     const indicesOfPiecesInSource = piecesNamesToMove
       .map((n) => {
-        const index = source.findIndex((p) => p.extra?.appName === n);
+        const index = source.findIndex((p) => p.extra?.pieceName === n);
 
         if (index < 0) {
           console.warn(`piece ${n} is not found`);
@@ -83,7 +95,7 @@ export class FlowItemsDetailsEffects {
       target = [...target, { ...source[idx] }];
     });
     piecesNamesToMove.forEach((pieceName) => {
-      const index = source.findIndex((p) => p.extra?.appName === pieceName);
+      const index = source.findIndex((p) => p.extra?.pieceName === pieceName);
       // Remove the piece from the source if it is found
       if (index > 0) {
         source.splice(index, 1);
@@ -95,7 +107,7 @@ export class FlowItemsDetailsEffects {
   }
 
   createFlowItemDetailsForComponents(forTriggers: boolean) {
-    return (piecesManifest: PieceMetadataSummary[]) => {
+    return (piecesManifest: PieceMetadataModelSummary[]) => {
       return piecesManifest
         .map((piece) => {
           if (piece.actions > 0 && !forTriggers) {
@@ -106,8 +118,10 @@ export class FlowItemsDetailsEffects {
               piece.tags,
               piece.logoUrl,
               {
-                appName: piece.name,
-                appVersion: piece.version,
+                packageType: piece.packageType,
+                pieceType: piece.pieceType,
+                pieceName: piece.name,
+                pieceVersion: piece.version,
               }
             );
           } else if (piece.triggers > 0 && forTriggers) {
@@ -118,8 +132,10 @@ export class FlowItemsDetailsEffects {
               piece.tags,
               piece.logoUrl,
               {
-                appName: piece.name,
-                appVersion: piece.version,
+                packageType: piece.packageType,
+                pieceType: piece.pieceType,
+                pieceName: piece.name,
+                pieceVersion: piece.version,
               }
             );
           } else {

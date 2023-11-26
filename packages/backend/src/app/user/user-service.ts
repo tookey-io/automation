@@ -2,6 +2,7 @@ import { apId, ExternalUserRequest, SignUpRequest, User, UserId, UserMeta, UserS
 import { passwordHasher } from '../authentication/lib/password-hasher'
 import { databaseConnection } from '../database/database-connection'
 import { UserEntity } from './user-entity'
+import { isNil } from 'lodash'
 
 const userRepo = databaseConnection.getRepository(UserEntity)
 
@@ -10,35 +11,58 @@ type GetOneQuery = {
 }
 
 export const userService = {
-    async inject(request: ExternalUserRequest): Promise<User> {
-        const hashedPassword = await passwordHasher.hash(apId())
-        const user = {
+    // TODO: Move to authentication service
+    // async inject(request: ExternalUserRequest): Promise<User> {
+    //     const hashedPassword = await passwordHasher.hash(apId())
+    //     const user = {
+    //         id: apId(),
+    //         email: request.id,
+    //         password: hashedPassword,
+    //         firstName: request.firstName,
+    //         lastName: request.lastName,
+    //         trackEvents: request.trackEvents,
+    //         newsLetter: request.newsLetter,
+    //         status: UserStatus.VERIFIED,
+    //     }
+    //     return await userRepo.save(user)
+    // },
+
+    async create(params: CreateParams): Promise<User> {
+        const { email, password } = params
+        const hashedPassword = await passwordHasher.hash(password)
+
+        const user: NewUser = {
             id: apId(),
-            email: request.id,
+            ...params,
             password: hashedPassword,
-            firstName: request.firstName,
-            lastName: request.lastName,
-            trackEvents: request.trackEvents,
-            newsLetter: request.newsLetter,
-            status: UserStatus.VERIFIED,
         }
-        return await userRepo.save(user)
+
+        const existingUser = await userRepo.findOneBy({
+            email,
+        })
+
+        if (!isNil(existingUser) && existingUser.status === UserStatus.SHADOW) {
+            user.id = existingUser.id
+            await userRepo.update(user.id, user)
+            return userRepo.findOneByOrFail({
+                email,
+            })
+        }
+
+        return userRepo.save(user)
     },
+    async verify({ userId }: { userId: string }): Promise<User> {
+        const user = await userRepo.findOneByOrFail({ id: userId })
     
-    async create(request: SignUpRequest, status: UserStatus): Promise<User> {
-        const hashedPassword = await passwordHasher.hash(request.password)
-        const user = {
-            id: apId(),
-            email: request.email,
-            password: hashedPassword,
-            firstName: request.firstName,
-            lastName: request.lastName,
-            trackEvents: request.trackEvents,
-            newsLetter: request.newsLetter,
-            status,
+        if (user.status === UserStatus.SHADOW) {
+            await userRepo.update(userId, { status: UserStatus.VERIFIED })
         }
-        return await userRepo.save(user)
-    },
+    
+        return {
+            ...user,
+            status: UserStatus.VERIFIED,
+        }  
+    },    
     async getMetaInfo({ id }: { id: UserId }): Promise<UserMeta | null> {
         const user = await userRepo.findOneBy({ id })
         if (!user) {
@@ -53,12 +77,22 @@ export const userService = {
             title: user.title,
         }
     },
-    getOneById(id: UserId): Promise<User | null> {
-        return userRepo.findOneBy({ id })
-    },
     async getOneByEmail(query: GetOneQuery): Promise<User | null> {
         const { email } = query
         const user = await userRepo.createQueryBuilder().where('LOWER(email) LIKE LOWER(:email)', { email: `${email}` }).getOne()
         return user || null
     },
+
+    async getByExternalId(externalId: string): Promise<User | null> {
+        return userRepo.findOneBy({
+            externalId,
+        })
+    },
 }
+
+type CreateParams = SignUpRequest & {
+    status: UserStatus
+    externalId?: string
+}
+
+type NewUser = Omit<User, 'created' | 'updated'>

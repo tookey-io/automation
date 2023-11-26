@@ -22,10 +22,9 @@ import {
     ExecuteValidateAuthOperation,
     ExecuteValidateAuthResponse,
     EngineTestOperation,
-    CodeActionSettings,
 } from '@activepieces/shared'
 import { Sandbox } from '../workers/sandbox'
-import { tokenUtils } from '../authentication/lib/token-utils'
+import { accessTokenManager } from '../authentication/lib/access-token-manager'
 import {
     DropdownState,
     DynamicPropsValue,
@@ -37,9 +36,9 @@ import { getEdition, getWebhookSecret } from './secret-helper'
 import { appEventRoutingService } from '../app-event-routing/app-event-routing.service'
 import { pieceMetadataService } from '../pieces/piece-metadata-service'
 import { flowVersionService } from '../flows/flow-version/flow-version.service'
-import { fileService } from '../file/file.service'
 import { sandboxProvisioner } from '../workers/sandbox/provisioner/sandbox-provisioner'
-import { SandBoxCacheType } from '../workers/sandbox/provisioner/sandbox-cache-type'
+import { SandBoxCacheType } from '../workers/sandbox/provisioner/sandbox-cache-key'
+import { hashObject } from './encryption'
 
 type GenerateWorkerTokenParams = {
     projectId: ProjectId
@@ -52,8 +51,8 @@ export type EngineHelperTriggerResult<
 > = ExecuteTriggerResponse<T>
 
 export type EngineHelperPropResult =
-  | DropdownState<unknown>
-  | Record<string, DynamicPropsValue>
+    | DropdownState<unknown>
+    | Record<string, DynamicPropsValue>
 
 export type EngineHelperActionResult = ExecuteActionResponse
 
@@ -66,13 +65,13 @@ PieceMetadata,
 >
 
 export type EngineHelperResult =
-  | EngineHelperFlowResult
-  | EngineHelperTriggerResult
-  | EngineHelperPropResult
-  | EngineHelperCodeResult
-  | EngineHelperExtractPieceInformation
-  | EngineHelperActionResult
-  | EngineHelperValidateAuthResult
+    | EngineHelperFlowResult
+    | EngineHelperTriggerResult
+    | EngineHelperPropResult
+    | EngineHelperCodeResult
+    | EngineHelperExtractPieceInformation
+    | EngineHelperActionResult
+    | EngineHelperValidateAuthResult
 
 export type EngineHelperResponse<Result extends EngineHelperResult> = {
     status: EngineResponseStatus
@@ -81,17 +80,15 @@ export type EngineHelperResponse<Result extends EngineHelperResult> = {
     standardOutput: string
 }
 
-const generateWorkerToken = (
-    request: GenerateWorkerTokenParams,
-): Promise<string> => {
-    return tokenUtils.encode({
-        type: PrincipalType.WORKER,
+const generateWorkerToken = ({ projectId }: GenerateWorkerTokenParams): Promise<string> => {
+    return accessTokenManager.generateToken({
         id: apId(),
-        projectId: request.projectId,
+        type: PrincipalType.WORKER,
+        projectId,
     })
 }
 
-function tryParseJson(value: unknown) {
+function tryParseJson(value: unknown): unknown {
     try {
         return JSON.parse(value as string)
     }
@@ -109,12 +106,8 @@ const execute = async <Result extends EngineHelperResult>(
 
     const sandboxPath = sandbox.getSandboxFolderPath()
 
-    const serializedInput = JSON.stringify({
-        ...input,
-        apiUrl: 'http://127.0.0.1:3000',
-    })
 
-    await fs.writeFile(`${sandboxPath}/input.json`, serializedInput)
+    await fs.writeFile(`${sandboxPath}/input.json`, JSON.stringify(input))
     const sandboxResponse = await sandbox.runOperation(operation)
 
     sandboxResponse.standardOutput.split('\n').forEach((f) => {
@@ -132,7 +125,7 @@ const execute = async <Result extends EngineHelperResult>(
         })
     }
 
-    const result: Result = tryParseJson(sandboxResponse.output)
+    const result = tryParseJson(sandboxResponse.output) as Result
 
     const response = {
         status: sandboxResponse.verdict,
@@ -176,7 +169,8 @@ export const engineHelper = {
             operation.flowVersion,
         )
 
-        const { pieceName, pieceVersion } = (lockedFlowVersion.trigger as PieceTrigger).settings
+        const triggerSettings = (lockedFlowVersion.trigger as PieceTrigger).settings
+        const { packageType, pieceType, pieceName, pieceVersion } = triggerSettings
 
         const exactPieceVersion = await pieceMetadataService.getExactPieceVersion({
             name: pieceName,
@@ -190,8 +184,11 @@ export const engineHelper = {
             pieceVersion: exactPieceVersion,
             pieces: [
                 {
-                    name: pieceName,
-                    version: exactPieceVersion,
+                    packageType,
+                    pieceType,
+                    pieceName,
+                    pieceVersion: exactPieceVersion,
+                    projectId: operation.projectId,
                 },
             ],
         })
@@ -224,36 +221,29 @@ export const engineHelper = {
         operation: ExecutePropsOptions,
     ): Promise<EngineHelperResponse<EngineHelperPropResult>> {
         logger.debug({
-            pieceName: operation.pieceName,
-            pieceVersion: operation.pieceVersion,
+            piece: operation.piece,
             projectId: operation.projectId,
             stepName: operation.stepName,
         }, '[EngineHelper#executeProp]')
 
-        const { pieceName, pieceVersion } = operation
+        const { piece } = operation
 
-        const exactPieceVersion = await pieceMetadataService.getExactPieceVersion({
-            name: pieceName,
-            version: pieceVersion,
-            projectId: operation.projectId,
+        piece.pieceVersion = await pieceMetadataService.getExactPieceVersion({
+            name: piece.pieceName,
+            version: piece.pieceVersion,
+            projectId: piece.projectId,
         })
 
         const sandbox = await sandboxProvisioner.provision({
             type: SandBoxCacheType.PIECE,
-            pieceName,
-            pieceVersion: exactPieceVersion,
-            pieces: [
-                {
-                    name: pieceName,
-                    version: exactPieceVersion,
-                },
-            ],
+            pieceName: piece.pieceName,
+            pieceVersion: piece.pieceVersion,
+            pieces: [piece],
         })
 
         try {
             const input = {
                 ...operation,
-                pieceVersion: exactPieceVersion,
                 workerToken: await generateWorkerToken({ projectId: operation.projectId }),
             }
 
@@ -276,20 +266,13 @@ export const engineHelper = {
             stepName: operation.step.name,
         }, '[EngineHelper#executeCode]')
 
-        const sourceId = (operation.step.settings as CodeActionSettings).artifactSourceId!
-
-        const fileEntity = await fileService.getOneOrThrow({
-            projectId: operation.projectId,
-            fileId: sourceId,
-        })
-
         const sandbox = await sandboxProvisioner.provision({
             type: SandBoxCacheType.CODE,
-            artifactSourceId: sourceId,
-            codeArchives: [
+            sourceCodeHash: hashObject(operation.step.settings.sourceCode),
+            codeSteps: [
                 {
-                    id: sourceId,
-                    content: fileEntity.data,
+                    name: operation.step.name,
+                    sourceCode: operation.step.settings.sourceCode,
                 },
             ],
         })
@@ -309,23 +292,16 @@ export const engineHelper = {
     async extractPieceMetadata(
         operation: ExecuteExtractPieceMetadata,
     ): Promise<EngineHelperResponse<EngineHelperExtractPieceInformation>> {
-        logger.debug({
-            pieceName: operation.pieceName,
-            pieceVersion: operation.pieceVersion,
-        }, '[EngineHelper#extractPieceMetadata]')
+        logger.debug({ operation }, '[EngineHelper#extractPieceMetadata]')
 
         const { pieceName, pieceVersion } = operation
+        const piece = operation
 
         const sandbox = await sandboxProvisioner.provision({
             type: SandBoxCacheType.PIECE,
             pieceName,
             pieceVersion,
-            pieces: [
-                {
-                    name: pieceName,
-                    version: pieceVersion,
-                },
-            ],
+            pieces: [piece],
         })
 
         try {
@@ -343,35 +319,28 @@ export const engineHelper = {
     async executeAction(operation: ExecuteActionOperation): Promise<EngineHelperResponse<EngineHelperActionResult>> {
         logger.debug({
             flowVersionId: operation.flowVersion.id,
-            pieceName: operation.pieceName,
-            pieceVersion: operation.pieceVersion,
+            piece: operation.piece,
             actionName: operation.actionName,
         }, '[EngineHelper#executeAction]')
 
-        const { pieceName, pieceVersion } = operation
+        const { piece } = operation
 
-        const exactPieceVersion = await pieceMetadataService.getExactPieceVersion({
-            name: pieceName,
-            version: pieceVersion,
-            projectId: operation.projectId,
+        piece.pieceVersion = await pieceMetadataService.getExactPieceVersion({
+            name: piece.pieceName,
+            version: piece.pieceVersion,
+            projectId: piece.projectId,
         })
 
         const sandbox = await sandboxProvisioner.provision({
             type: SandBoxCacheType.PIECE,
-            pieceName,
-            pieceVersion: exactPieceVersion,
-            pieces: [
-                {
-                    name: pieceName,
-                    version: exactPieceVersion,
-                },
-            ],
+            pieceName: piece.pieceName,
+            pieceVersion: piece.pieceVersion,
+            pieces: [piece],
         })
 
         try {
             const input = {
                 ...operation,
-                pieceVersion: exactPieceVersion,
                 workerToken: await generateWorkerToken({ projectId: operation.projectId }),
             }
 
@@ -387,35 +356,26 @@ export const engineHelper = {
     async executeValidateAuth(
         operation: ExecuteValidateAuthOperation,
     ): Promise<EngineHelperResponse<EngineHelperValidateAuthResult>> {
-        logger.debug({
-            pieceName: operation.pieceName,
-            pieceVersion: operation.pieceVersion,
-        }, '[EngineHelper#executeValidateAuth]')
+        logger.debug({ piece: operation.piece }, '[EngineHelper#executeValidateAuth]')
 
-        const { pieceName, pieceVersion } = operation
+        const { piece } = operation
 
-        const exactPieceVersion = await pieceMetadataService.getExactPieceVersion({
-            name: pieceName,
-            version: pieceVersion,
+        piece.pieceVersion = await pieceMetadataService.getExactPieceVersion({
+            name: piece.pieceName,
+            version: piece.pieceVersion,
             projectId: operation.projectId,
         })
 
         const sandbox = await sandboxProvisioner.provision({
             type: SandBoxCacheType.PIECE,
-            pieceName,
-            pieceVersion: exactPieceVersion,
-            pieces: [
-                {
-                    name: pieceName,
-                    version: exactPieceVersion,
-                },
-            ],
+            pieceName: piece.pieceName,
+            pieceVersion: piece.pieceVersion,
+            pieces: [piece],
         })
 
         try {
             const input = {
                 ...operation,
-                pieceVersion: exactPieceVersion,
                 workerToken: await generateWorkerToken({ projectId: operation.projectId }),
             }
 

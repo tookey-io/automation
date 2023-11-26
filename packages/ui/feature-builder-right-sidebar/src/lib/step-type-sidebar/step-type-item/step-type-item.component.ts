@@ -19,7 +19,6 @@ export class StepTypeItemComponent {
   _flowItemDetails: FlowItemDetails;
   _flowItemDetails$: Observable<FlowItemDetails | undefined>;
   @Input() clickable = true;
-  @Input() showDocsLink = false;
   @Input() set flowItemDetails(value: FlowItemDetails) {
     this._flowItemDetails = value;
     this.loadStepIcon(this._flowItemDetails.logoUrl || '');
@@ -39,6 +38,7 @@ export class StepTypeItemComponent {
   stepIconUrl = '';
   faInfo = faInfoCircle;
   hover = false;
+  showDocsLink = true;
   constructor(private cd: ChangeDetectorRef) {}
 
   loadStepIcon(url: string) {

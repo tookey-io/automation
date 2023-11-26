@@ -1,27 +1,9 @@
 import { Trigger } from './trigger/trigger'
 import { Action } from './action/action'
-import { EventPayload, ParseEventResponse } from '@activepieces/shared'
+import { EventPayload, ParseEventResponse, PieceCategory } from '@activepieces/shared'
 import { PieceBase, PieceMetadata } from './piece-metadata'
 import { PieceAuthProperty } from './property'
 
-type CreatePieceParams<PieceAuth extends PieceAuthProperty = PieceAuthProperty> = {
-  displayName: string
-  tags?: string[]
-  logoUrl: string
-  authors?: string[]
-  description?: string
-  auth: PieceAuth  | undefined
-  events?: PieceEventProcessors
-  minimumSupportedRelease?: string
-  maximumSupportedRelease?: string
-  actions: Action<PieceAuth>[]
-  triggers: Trigger<PieceAuth>[]
-}
-
-type PieceEventProcessors = {
-  parseAndReply: (ctx: { payload: EventPayload }) => ParseEventResponse
-  verify: (ctx: { webhookSecret: string, payload: EventPayload, appWebhookUrl: string }) => boolean
-}
 export class Piece<PieceAuth extends PieceAuthProperty = PieceAuthProperty> implements Omit<PieceBase, "version" | "name"> {
   private readonly _actions: Record<string, Action> = {}
   private readonly _triggers: Record<string, Trigger> = {}
@@ -38,6 +20,7 @@ export class Piece<PieceAuth extends PieceAuthProperty = PieceAuthProperty> impl
     public readonly minimumSupportedRelease?: string,
     public readonly maximumSupportedRelease?: string,
     public readonly description: string = '',
+    public readonly categories?:PieceCategory[]
   ) {
     actions.forEach(action => this._actions[action.name] = action)
     triggers.forEach(trigger => this._triggers[trigger.name] = trigger)
@@ -87,5 +70,28 @@ export const createPiece = <PieceAuth extends PieceAuthProperty>(params: CreateP
     params.minimumSupportedRelease,
     params.maximumSupportedRelease,
     params.description,
+    params.categories
   )
+}
+
+type CreatePieceParams<PieceAuth extends PieceAuthProperty = PieceAuthProperty> = {
+  displayName: string
+  logoUrl: string
+  authors?: string[]
+  description?: string
+  auth: PieceAuth | undefined
+  events?: PieceEventProcessors
+  minimumSupportedRelease?: string
+  maximumSupportedRelease?: string
+  actions: Action<PieceAuth>[]
+  triggers: Trigger<PieceAuth>[],
+  categories?: PieceCategory[],
+
+  // TOOKEY: custom field
+  tags?: string[]
+}
+
+type PieceEventProcessors = {
+  parseAndReply: (ctx: { payload: EventPayload }) => ParseEventResponse
+  verify: (ctx: { webhookSecret: string, payload: EventPayload, appWebhookUrl: string }) => boolean
 }

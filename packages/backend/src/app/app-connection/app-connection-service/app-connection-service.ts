@@ -6,13 +6,10 @@ import {
     AppConnectionStatus,
     AppConnectionType,
     AppConnectionValue,
-    BaseOAuth2ConnectionValue,
-    CloudOAuth2ConnectionValue,
     Cursor,
     EngineResponseStatus,
     ErrorCode,
     ExecuteValidateAuthOperation,
-    OAuth2ConnectionValueWithApp,
     ProjectId,
     SeekPage,
     UpsertAppConnectionRequestBody,
@@ -24,28 +21,22 @@ import {
     AppConnectionEntity,
     AppConnectionSchema,
 } from '../app-connection.entity'
-import axios from 'axios'
 import { decryptObject, encryptObject } from '../../helper/encryption'
-import { getEdition } from '../../helper/secret-helper'
-import { logger } from '../../helper/logger'
-import { OAuth2AuthorizationMethod } from '@activepieces/pieces-framework'
+import { captureException, logger } from '../../helper/logger'
 import { isNil } from '@activepieces/shared'
 import { engineHelper } from '../../helper/engine-helper'
 import { acquireLock } from '../../helper/lock'
 import { pieceMetadataService } from '../../pieces/piece-metadata-service'
 import { getServerUrl } from '../../helper/public-ip-utils'
-import { system } from '../../helper/system/system'
-import { SystemProp } from '../../helper/system/system-prop'
+import { appConnectionsHooks } from './app-connection-hooks'
+import { oauth2Util } from './oauth2/oauth2-util'
+import { oauth2Handler } from './oauth2'
 
 const repo = databaseConnection.getRepository(AppConnectionEntity)
 
-export class AppConnectionService {
-    protected async preUpsertHook(_params: UpsertParams): Promise<void> {
-        return Promise.resolve()
-    }
-
+export const appConnectionService = {
     async upsert(params: UpsertParams): Promise<AppConnection> {
-        await this.preUpsertHook(params)
+        await appConnectionsHooks.getHooks().preUpsert({ projectId: params.projectId })
 
         const { projectId, request } = params
 
@@ -79,7 +70,7 @@ export class AppConnectionService {
             projectId,
         })
         return decryptConnection(updatedConnection)
-    }
+    },
 
     async getOne({
         projectId,
@@ -101,7 +92,7 @@ export class AppConnectionService {
         }
 
         return lockAndRefreshConnection({ projectId, name })
-    }
+    },
 
     async getOneOrThrow(params: GetOneParams): Promise<AppConnection> {
         const connectionById = await repo.findOneBy({
@@ -120,11 +111,11 @@ export class AppConnectionService {
             projectId: params.projectId,
             name: connectionById.name,
         }))!
-    }
+    },
 
     async delete(params: DeleteParams): Promise<void> {
         await repo.delete(params)
-    }
+    },
 
     async list({
         projectId,
@@ -172,39 +163,57 @@ export class AppConnectionService {
             refreshConnections,
             cursor,
         )
-    }
+    },
 
     async countByProject({ projectId }: CountByProjectParams): Promise<number> {
         return await repo.countBy({ projectId })
-    }
+    },
 }
 
 const validateConnectionValue = async (
     params: ValidateConnectionValueParams,
-): Promise<Record<string, unknown>> => {
+): Promise<AppConnectionValue> => {
     const { connection, projectId } = params
 
     switch (connection.value.type) {
-        case AppConnectionType.CLOUD_OAUTH2:
-            return claimWithCloud({
+        case AppConnectionType.PLATFORM_OAUTH2:
+            return oauth2Handler[connection.value.type].claim({
+                projectId,
                 pieceName: connection.appName,
-                code: connection.value.code,
-                clientId: connection.value.client_id,
-                tokenUrl: connection.value.token_url!,
-                edition: getEdition(),
-                authorizationMethod: connection.value.authorization_method!,
-                codeVerifier: connection.value.code_challenge!,
+                request: {
+                    code: connection.value.code,
+                    clientId: connection.value.client_id,
+                    tokenUrl: connection.value.token_url!,
+                    authorizationMethod: connection.value.authorization_method,
+                    codeVerifier: connection.value.code_challenge,
+                    redirectUrl: connection.value.redirect_url,
+                },
             })
-
+        case AppConnectionType.CLOUD_OAUTH2:
+            return oauth2Handler[connection.value.type].claim({
+                projectId,
+                pieceName: connection.appName,
+                request: {
+                    code: connection.value.code,
+                    clientId: connection.value.client_id,
+                    tokenUrl: connection.value.token_url!,
+                    authorizationMethod: connection.value.authorization_method,
+                    codeVerifier: connection.value.code_challenge,
+                },
+            })
         case AppConnectionType.OAUTH2:
-            return claim({
-                clientSecret: connection.value.client_secret,
-                clientId: connection.value.client_id,
-                tokenUrl: connection.value.token_url,
-                redirectUrl: connection.value.redirect_url,
-                code: connection.value.code,
-                authorizationMethod: connection.value.authorization_method,
-                codeVerifier: connection.value.code_challenge!,
+            return oauth2Handler[connection.value.type].claim({
+                projectId,
+                pieceName: connection.appName,
+                request: {
+                    code: connection.value.code,
+                    clientId: connection.value.client_id,
+                    tokenUrl: connection.value.token_url!,
+                    redirectUrl: connection.value.redirect_url,
+                    clientSecret: connection.value.client_secret,
+                    authorizationMethod: connection.value.authorization_method,
+                    codeVerifier: connection.value.code_challenge,
+                },
             })
 
         case AppConnectionType.CUSTOM_AUTH:
@@ -236,15 +245,21 @@ const engineValidateAuth = async (
 ): Promise<void> => {
     const { pieceName, auth, projectId } = params
 
-    const pieceMatadata = await pieceMetadataService.get({
+    const pieceMetadata = await pieceMetadataService.getOrThrow({
         name: pieceName,
         projectId,
         version: undefined,
     })
+
     const engineInput: ExecuteValidateAuthOperation = {
-        pieceName,
         serverUrl: await getServerUrl(),
-        pieceVersion: pieceMatadata.version,
+        piece: {
+            packageType: pieceMetadata.packageType,
+            pieceType: pieceMetadata.pieceType,
+            pieceName: pieceMetadata.name,
+            pieceVersion: pieceMetadata.version,
+            projectId,
+        },
         auth,
         projectId,
     }
@@ -309,19 +324,18 @@ async function lockAndRefreshConnection({
         const refreshedAppConnection = await refresh(appConnection)
 
         await repo.update(refreshedAppConnection.id, {
-            id: refreshedAppConnection.id,
-            name: refreshedAppConnection.name,
-            appName: refreshedAppConnection.appName,
-            status: refreshedAppConnection.status,
-            projectId: refreshedAppConnection.projectId,
+            status: AppConnectionStatus.ACTIVE,
             value: encryptObject(refreshedAppConnection.value),
         })
         return refreshedAppConnection
     }
     catch (e) {
-        logger.error(e)
+        captureException(e)
         if (!isNil(appConnection)) {
             appConnection.status = AppConnectionStatus.ERROR
+            await repo.update(appConnection.id, {
+                status: appConnection.status,
+            })
         }
     }
     finally {
@@ -332,38 +346,37 @@ async function lockAndRefreshConnection({
 
 function needRefresh(connection: AppConnection): boolean {
     switch (connection.value.type) {
+        case AppConnectionType.PLATFORM_OAUTH2:
         case AppConnectionType.CLOUD_OAUTH2:
         case AppConnectionType.OAUTH2:
-            return isExpired(connection.value)
+            return oauth2Util.isExpired(connection.value)
         default:
             return false
     }
 }
 
-function isExpired(connection: BaseOAuth2ConnectionValue) {
-    const secondsSinceEpoch = Math.round(Date.now() / 1000)
-    if (!connection.refresh_token) {
-        return false
-    }
-    // Salesforce doesn't provide an 'expires_in' field, as it is dynamic per organization; therefore, it's necessary for us to establish a low threshold and consistently refresh it.
-    const expiresIn = connection.expires_in ?? 60 * 60
-    const refreshThreshold = 15 * 60 // Refresh if there is less than 15 minutes to expire
-    return (
-        secondsSinceEpoch + refreshThreshold >= connection.claimed_at + expiresIn
-    )
-}
-
-
 async function refresh(connection: AppConnection): Promise<AppConnection> {
     switch (connection.value.type) {
+        case AppConnectionType.PLATFORM_OAUTH2:
+            connection.value = await oauth2Handler[connection.value.type].refresh({
+                pieceName: connection.appName,
+                projectId: connection.projectId,
+                connectionValue: connection.value,
+            })
+            break
         case AppConnectionType.CLOUD_OAUTH2:
-            connection.value = await refreshCloud(
-                connection.appName,
-                connection.value,
-            )
+            connection.value = await oauth2Handler[connection.value.type].refresh({
+                pieceName: connection.appName,
+                projectId: connection.projectId,
+                connectionValue: connection.value,
+            })
             break
         case AppConnectionType.OAUTH2:
-            connection.value = await refreshWithCredentials(connection.value)
+            connection.value = await oauth2Handler[connection.value.type].refresh({
+                pieceName: connection.appName,
+                projectId: connection.projectId,
+                connectionValue: connection.value,
+            })
             break
         default:
             break
@@ -371,200 +384,6 @@ async function refresh(connection: AppConnection): Promise<AppConnection> {
     return connection
 }
 
-
-async function refreshCloud(
-    appName: string,
-    connectionValue: CloudOAuth2ConnectionValue,
-): Promise<CloudOAuth2ConnectionValue> {
-    const requestBody = {
-        refreshToken: connectionValue.refresh_token,
-        pieceName: appName,
-        clientId: connectionValue.client_id,
-        edition: getEdition(),
-        authorizationMethod: connectionValue.authorization_method,
-        tokenUrl: connectionValue.token_url,
-    }
-    const response = (await axios.post(system.getOrThrow(SystemProp.CLOUD_AUTH_URL) + '/refresh', requestBody, { timeout: 10000 })).data
-    return {
-        ...connectionValue,
-        ...response,
-        type: AppConnectionType.CLOUD_OAUTH2,
-    }
-}
-
-async function refreshWithCredentials(
-    appConnection: OAuth2ConnectionValueWithApp,
-): Promise<OAuth2ConnectionValueWithApp> {
-    if (!isExpired(appConnection)) {
-        return appConnection
-    }
-    const body: Record<string, string> = {
-        redirect_uri: appConnection.redirect_url,
-        grant_type: 'refresh_token',
-        refresh_token: appConnection.refresh_token,
-    }
-    const headers: Record<string, string> = {
-        'content-type': 'application/x-www-form-urlencoded',
-        accept: 'application/json',
-    }
-    const authorizationMethod =
-        appConnection.authorization_method || OAuth2AuthorizationMethod.BODY
-    switch (authorizationMethod) {
-        case OAuth2AuthorizationMethod.BODY:
-            body.client_id = appConnection.client_id
-            body.client_secret = appConnection.client_secret
-            break
-        case OAuth2AuthorizationMethod.HEADER:
-            headers.authorization = `Basic ${Buffer.from(
-                `${appConnection.client_id}:${appConnection.client_secret}`,
-            ).toString('base64')}`
-            break
-        default:
-            throw new Error(`Unknown authorization method: ${authorizationMethod}`)
-    }
-    const response = (
-        await axios.post(appConnection.token_url, new URLSearchParams(body), {
-            headers,
-            timeout: 10000,
-        })
-    ).data
-    const mergedObject = mergeNonNull(
-        appConnection,
-        formatOAuth2Response({ ...response }),
-    )
-    return mergedObject
-}
-
-/**
- * When the refresh token is null or undefined, it indicates that the original connection's refresh token is also null
- * or undefined. Therefore, we only need to merge non-null values to avoid overwriting the original refresh token with a
- *  null or undefined value.
- */
-function mergeNonNull(
-    appConnection: OAuth2ConnectionValueWithApp,
-    oAuth2Response: BaseOAuth2ConnectionValue,
-): OAuth2ConnectionValueWithApp {
-    const formattedOAuth2Response: Partial<BaseOAuth2ConnectionValue> =
-        Object.entries(oAuth2Response)
-            .filter(([, value]) => value !== null && value !== undefined)
-            .reduce<Partial<BaseOAuth2ConnectionValue>>((obj, [key, value]) => {
-            obj[key as keyof BaseOAuth2ConnectionValue] = value
-            return obj
-        }, {})
-
-    return {
-        ...appConnection,
-        ...formattedOAuth2Response,
-    } as OAuth2ConnectionValueWithApp
-}
-
-async function claim(request: {
-    clientSecret: string
-    clientId: string
-    tokenUrl: string
-    redirectUrl: string
-    code: string
-    authorizationMethod?: OAuth2AuthorizationMethod
-    codeVerifier: string
-}): Promise<Record<string, unknown>> {
-    try {
-        const body: Record<string, string> = {
-            redirect_uri: request.redirectUrl,
-            grant_type: 'authorization_code',
-            code: request.code,
-        }
-        if (request.codeVerifier) {
-            body.code_verifier = request.codeVerifier
-        }
-        const headers: Record<string, string> = {
-            'content-type': 'application/x-www-form-urlencoded',
-            accept: 'application/json',
-        }
-        const authorizationMethod =
-            request.authorizationMethod || OAuth2AuthorizationMethod.BODY
-        switch (authorizationMethod) {
-            case OAuth2AuthorizationMethod.BODY:
-                body.client_id = request.clientId
-                body.client_secret = request.clientSecret
-                break
-            case OAuth2AuthorizationMethod.HEADER:
-                headers.authorization = `Basic ${Buffer.from(
-                    `${request.clientId}:${request.clientSecret}`,
-                ).toString('base64')}`
-                break
-            default:
-                throw new Error(`Unknown authorization method: ${authorizationMethod}`)
-        }
-        const response = (
-            await axios.post(request.tokenUrl, new URLSearchParams(body), {
-                headers,
-            })
-        ).data
-        return {
-            ...formatOAuth2Response(response),
-            client_id: request.clientId,
-            client_secret: request.clientSecret,
-            authorization_method: authorizationMethod,
-        }
-    }
-    catch (e: unknown) {
-        logger.error(e)
-        throw new ActivepiecesError({
-            code: ErrorCode.INVALID_CLAIM,
-            params: {
-                clientId: request.clientId,
-                tokenUrl: request.tokenUrl,
-                redirectUrl: request.redirectUrl,
-            },
-        })
-    }
-}
-
-async function claimWithCloud(
-    request: claimWithCloudRequest,
-): Promise<Record<string, unknown>> {
-    try {
-        return (await axios.post(system.getOrThrow(SystemProp.CLOUD_AUTH_URL) + '/claim', request))
-            .data
-    }
-    catch (e: unknown) {
-        logger.error(e)
-        throw new ActivepiecesError({
-            code: ErrorCode.INVALID_CLOUD_CLAIM,
-            params: {
-                appName: request.pieceName,
-            },
-        })
-    }
-}
-
-function formatOAuth2Response(response: UnformattedOauthResponse) {
-    const secondsSinceEpoch = Math.round(Date.now() / 1000)
-    const formattedResponse: BaseOAuth2ConnectionValue = {
-        access_token: response.access_token,
-        expires_in: response.expires_in,
-        claimed_at: secondsSinceEpoch,
-        refresh_token: response.refresh_token,
-        scope: response.scope,
-        token_type: response.token_type,
-        data: response,
-    }
-
-    deleteProps(formattedResponse.data, [
-        'access_token',
-        'expires_in',
-        'refresh_token',
-        'scope',
-        'token_type',
-    ])
-    return formattedResponse
-}
-
-function deleteProps(obj: Record<string, unknown>, prop: string[]) {
-    for (const p of prop) {
-        delete obj[p]
-    }
-}
 
 type UpsertParams = {
     projectId: ProjectId
@@ -597,16 +416,6 @@ type CountByProjectParams = {
     projectId: ProjectId
 }
 
-type claimWithCloudRequest = {
-    pieceName: string
-    code: string
-    codeVerifier: string
-    authorizationMethod: OAuth2AuthorizationMethod
-    edition: string
-    clientId: string
-    tokenUrl: string
-}
-
 type EngineValidateAuthParams = {
     pieceName: string
     projectId: ProjectId
@@ -616,12 +425,4 @@ type EngineValidateAuthParams = {
 type ValidateConnectionValueParams = {
     connection: UpsertAppConnectionRequestBody
     projectId: ProjectId
-}
-
-type UnformattedOauthResponse = {
-    access_token: string
-    expires_in: number
-    refresh_token: string
-    scope: string
-    token_type: string
 }

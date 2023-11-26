@@ -17,6 +17,7 @@ import {
     ErrorCode,
     ExecutionType,
     isNil,
+    RunTerminationReason,
 } from '@activepieces/shared'
 import { APArrayContains, databaseConnection } from '../../database/database-connection'
 import { flowVersionService } from '../../flows/flow-version/flow-version.service'
@@ -29,6 +30,7 @@ import { flowRunSideEffects } from './flow-run-side-effects'
 import { logger } from '../../helper/logger'
 import { flowService } from '../flow/flow.service'
 import { MoreThanOrEqual } from 'typeorm'
+import { flowRunHooks } from './flow-run-hooks'
 
 export const flowRunRepo = databaseConnection.getRepository(FlowRunEntity)
 
@@ -109,10 +111,11 @@ export const flowRunService = {
         })
     },
     async finish(
-        { flowRunId, status, tasks, logsFileId, tags }: {
+        { flowRunId, status, tasks, logsFileId, tags, terminationReason }: {
             flowRunId: FlowRunId
             status: ExecutionOutputStatus
             tasks: number
+            terminationReason?: RunTerminationReason
             tags: string[]
             logsFileId: FileId | null
         },
@@ -121,6 +124,7 @@ export const flowRunService = {
             ...spreadIfDefined('logsFileId', logsFileId),
             status,
             tasks,
+            terminationReason,
             tags,
             finishTime: new Date().toISOString(),
         })
@@ -138,6 +142,8 @@ export const flowRunService = {
             id: flowVersion.flowId,
             projectId,
         })
+
+        await flowRunHooks.getHooks().onPreStart({ projectId })
 
         const flowRun = await getFlowRunOrCreate({
             id: flowRunId,
@@ -159,8 +165,7 @@ export const flowRunService = {
                 flowId: savedFlowRun.flowId,
                 environment: savedFlowRun.environment,
             },
-        })
-            .catch((e) => logger.error(e, '[FlowRunService#Start] telemetry.trackProject'))
+        }).catch((e) => logger.error(e, '[FlowRunService#Start] telemetry.trackProject'))
 
         await flowRunSideEffects.start({
             flowRun: savedFlowRun,
