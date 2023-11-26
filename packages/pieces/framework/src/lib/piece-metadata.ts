@@ -10,6 +10,7 @@ export type PieceBase = {
   logoUrl: string;
   description: string;
   projectId?: ProjectId;
+  platformId?: string;
   directoryName?: string;
   auth?: PieceAuthProperty;
   version: string;
