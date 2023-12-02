@@ -1,32 +1,23 @@
 import { FlowPricingPlan } from "./plan"
 
 // TEST ENVIRONMENT
-// export const proUserPriceId = 'price_1O9o2PKZ0dZRqLEKtEV6Ae6Q'
-// export const platformUserPriceId = 'price_1O9uHWKZ0dZRqLEKAzuIB0Nc'
-// export const platformTasksPriceId = 'price_1O9uBMKZ0dZRqLEKp0YIeU2Z'
-// export const platformBasePriceId = 'price_1O9u1SKZ0dZRqLEKlKNONdSE'
-// export const proTasksPlan = [
-//     {
-//         pricePlanId: '',
-//         unitAmount: 1000,
-//         planPrice: 0,
-//     },
-//     {
-//         pricePlanId: 'price_1NBo8tKZ0dZRqLEKXLd8AQOW',
-//         unitAmount: 5000,
-//         planPrice: 15,
-//      
-//     },
-// ]
+/* export const proUserPriceId = 'price_1O9o2PKZ0dZRqLEKtEV6Ae6Q'
+export const platformUserPriceId = 'price_1O9uHWKZ0dZRqLEKAzuIB0Nc'
+export const platformTasksPriceId = 'price_1O9uBMKZ0dZRqLEKp0YIeU2Z'
+export const platformBasePriceId = 'price_1O9u1SKZ0dZRqLEKlKNONdSE'
+export const proTasksPlanProd = [
+    {
+        pricePlanId: '',
+        unitAmount: 1000,
+        planPrice: 0,
+    },
+    {
+        pricePlanId: 'price_1NBo8tKZ0dZRqLEKXLd8AQOW',
+        unitAmount: 5000,
+        planPrice: 15,
+    },
+]*/
 
-
-export const DEFAULT_PLATFORM_PLAN = {
-  tasks: 50000,
-  connections: 100,
-  nickname: 'platform',
-  minimumPollingInterval: 5,
-  teamMembers: 10,
-}
 
 // PRODUCTION VALUES
 export const proUserPriceId = 'price_1OFlnBKZ0dZRqLEK2nVlTICg'
@@ -77,6 +68,14 @@ export const proTasksPlanProd = [
   }
 ]
 
+export const DEFAULT_PLATFORM_PLAN = {
+  tasks: 50000,
+  connections: 100,
+  nickname: 'platform',
+  minimumPollingInterval: 5,
+  teamMembers: 10,
+}
+
 export const pricingPlans: FlowPricingPlan[] = [
   {
     name: 'Pro',
@@ -116,6 +115,10 @@ export const pricingPlans: FlowPricingPlan[] = [
         description: "Sync Time: 5 minutes"
       },
       {
+        tooltip:'',
+        description:'50,000 tasks per month then $1.5 per 1,000 tasks'
+      },
+      {
         tooltip: "Multiple projects for your customers under your platform",
         description: "Manage projects"
       },
@@ -135,6 +138,7 @@ export const pricingPlans: FlowPricingPlan[] = [
         tooltip: "Get support from our active community support forum or from our support team via email",
         description: "Email and community support"
       },
+
     ]
   },
   {

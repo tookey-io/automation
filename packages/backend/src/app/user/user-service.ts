@@ -100,6 +100,13 @@ export const userService = {
             password: hashedPassword,
         })
     },
+
+    async updatePlatformId({ id, platformId }: UpdatePlatformIdParams): Promise<void> {
+        await userRepo.update(id, {
+            updated: dayjs().toISOString(),
+            platformId,
+        })
+    },
 }
 
 const continueSignUpIfInvited = async (newUser: NewUser): Promise<void> => {
@@ -111,6 +118,7 @@ const continueSignUpIfInvited = async (newUser: NewUser): Promise<void> => {
     if (existingUser && existingUser.status === UserStatus.INVITED) {
         newUser.id = existingUser.id
         newUser.platformId = existingUser.platformId
+        newUser.status = UserStatus.VERIFIED
     }
 }
 
@@ -139,4 +147,9 @@ type IdParams = {
 type UpdatePasswordParams = {
     id: UserId
     newPassword: string
+}
+
+type UpdatePlatformIdParams = {
+    id: UserId
+    platformId: PlatformId
 }

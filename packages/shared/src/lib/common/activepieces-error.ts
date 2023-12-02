@@ -17,7 +17,7 @@ type ErrorParams =
     | AuthorizationErrorParams
     | PermissionDeniedErrorParams
     | ConfigNotFoundErrorParams
-    | EmailIsNotVerfiedErrorParams
+    | EmailIsNotVerifiedErrorParams
     | EngineOperationFailureParams
     | EntityNotFoundErrorParams
     | ExecutionTimeoutErrorParams
@@ -40,6 +40,9 @@ type ErrorParams =
     | PauseMetadataMissingErrorParams
     | PieceNotFoundErrorParams
     | PieceTriggerNotFoundErrorParams
+    | PlatformSignUpEnabledForInvitedUsersOnlyParams
+    | QuotaExceededParams
+    | SignUpDisabledParams
     | StepNotFoundErrorParams
     | SystemInvalidErrorParams
     | SystemPropNotDefinedErrorParams
@@ -52,7 +55,7 @@ type ErrorParams =
     | TriggerFailedErrorParams
     | ValidationErrorParams
     | UserNotFoundParams
-    | EmailIsNotVerfiedErrorParams;
+    | EmailIsNotVerifiedErrorParams;
 
 export type BaseErrorParams<T, V> = {
     code: T;
@@ -92,9 +95,11 @@ export type AppConnectionNotFoundErrorParams = BaseErrorParams<
 >;
 
 export type AuthorizationErrorParams = BaseErrorParams<
-    ErrorCode.AUTHORIZATION,
-    Record<string, never>
->;
+ErrorCode.AUTHORIZATION,
+{
+    message?: string
+}
+>
 
 export type PermissionDeniedErrorParams = BaseErrorParams<
     ErrorCode.PERMISSION_DENIED,
@@ -142,24 +147,23 @@ export type FlowVersionNotFoundErrorParams = BaseErrorParams<
 
 export type InvalidCredentialsErrorParams = BaseErrorParams<
 ErrorCode.INVALID_CREDENTIALS,
+null
+>
+
+export type EmailIsNotVerifiedErrorParams = BaseErrorParams<
+ErrorCode.EMAIL_IS_NOT_VERIFIED,
 {
-    email?: string
+    email: string
 }
 >
 
-export type EmailIsNotVerfiedErrorParams = BaseErrorParams<
-    ErrorCode.EMAIL_IS_NOT_VERFIED,
-    {
-        email: string;
-    }
->;
-
 export type ExistingUserErrorParams = BaseErrorParams<
-    ErrorCode.EXISTING_USER,
-    {
-        email: string;
-    }
->;
+ErrorCode.EXISTING_USER,
+{
+    email: string
+    platformId: string | null
+}
+>
 
 export type StepNotFoundErrorParams = BaseErrorParams<
     ErrorCode.STEP_NOT_FOUND,
@@ -317,13 +321,23 @@ export type QuotaExceededParams = BaseErrorParams<
     }
 >;
 
+export type SignUpDisabledParams = BaseErrorParams<
+ErrorCode.SIGN_UP_DISABLED,
+Record<string, never>
+>
+
 export type InvalidOtpParams = BaseErrorParams<ErrorCode.INVALID_OTP, Record<string, never>>
+
+export type PlatformSignUpEnabledForInvitedUsersOnlyParams = BaseErrorParams<
+ErrorCode.PLATFORM_SIGN_UP_ENABLED_FOR_INVITED_USERS_ONLY,
+Record<string, never>
+>
 
 export enum ErrorCode {
     APP_CONNECTION_NOT_FOUND = 'APP_CONNECTION_NOT_FOUND',
     AUTHORIZATION = 'AUTHORIZATION',
     CONFIG_NOT_FOUND = 'CONFIG_NOT_FOUND',
-    EMAIL_IS_NOT_VERFIED = 'EMAIL_IS_NOT_VERFIED',
+    EMAIL_IS_NOT_VERIFIED = 'EMAIL_IS_NOT_VERIFIED',
     ENGINE_OPERATION_FAILURE = 'ENGINE_OPERATION_FAILURE',
     ENTITY_NOT_FOUND = 'ENTITY_NOT_FOUND',
     EXECUTION_TIMEOUT = 'EXECUTION_TIMEOUT',
@@ -348,7 +362,9 @@ export enum ErrorCode {
     PERMISSION_DENIED = 'PERMISSION_DENIED',
     PIECE_NOT_FOUND = 'PIECE_NOT_FOUND',
     PIECE_TRIGGER_NOT_FOUND = 'PIECE_TRIGGER_NOT_FOUND',
+    PLATFORM_SIGN_UP_ENABLED_FOR_INVITED_USERS_ONLY = 'PLATFORM_SIGN_UP_ENABLED_FOR_INVITED_USERS_ONLY',
     QUOTA_EXCEEDED = 'QUOTA_EXCEEDED',
+    SIGN_UP_DISABLED = 'SIGN_UP_DISABLED',
     STEP_NOT_FOUND = 'STEP_NOT_FOUND',
     SYSTEM_PROP_INVALID = 'SYSTEM_PROP_INVALID',
     SYSTEM_PROP_NOT_DEFINED = 'SYSTEM_PROP_NOT_DEFINED',
