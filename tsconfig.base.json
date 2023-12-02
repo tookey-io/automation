@@ -26,7 +26,6 @@
       "@activepieces/ee-embed-sdk": ["packages/ee/embed-sdk/src/index.ts"],
       "@activepieces/ee-shared": ["packages/ee/shared/src/index.ts"],
       "@activepieces/ee/billing/ui": ["packages/ee/billing/ui/src/index.ts"],
-      "@activepieces/ee/components": ["packages/ee/components/src/index.ts"],
       "@activepieces/ee/project-members": [
         "packages/ee/project-members/src/index.ts"
       ],
@@ -70,9 +69,10 @@
       "@activepieces/piece-contiguity": [
         "packages/pieces/contiguity/src/index.ts"
       ],
-      "@activepieces/piece-csv": [
-        "packages/pieces/csv/src/index.ts"
+      "@activepieces/piece-convertkit": [
+        "packages/pieces/convertkit/src/index.ts"
       ],
+      "@activepieces/piece-csv": ["packages/pieces/csv/src/index.ts"],
       "@activepieces/piece-data-mapper": [
         "packages/pieces/data-mapper/src/index.ts"
       ],
@@ -178,12 +178,11 @@
       "@activepieces/piece-kizeo-forms": [
         "packages/pieces/kizeo-forms/src/index.ts"
       ],
-      "@activepieces/piece-linear": [
-        "packages/pieces/linear/src/index.ts"
+      "@activepieces/piece-lead-connector": [
+        "packages/pieces/lead-connector/src/index.ts"
       ],
-      "@activepieces/piece-linkedin": [
-        "packages/pieces/linkedin/src/index.ts"
-      ],
+      "@activepieces/piece-linear": ["packages/pieces/linear/src/index.ts"],
+      "@activepieces/piece-linkedin": ["packages/pieces/linkedin/src/index.ts"],
       "@activepieces/piece-mailchimp": [
         "packages/pieces/mailchimp/src/index.ts"
       ],
@@ -207,6 +206,7 @@
         "packages/pieces/microsoft-onedrive/src/index.ts"
       ],
       "@activepieces/piece-mindee": ["packages/pieces/mindee/src/index.ts"],
+      "@activepieces/piece-mixpanel": ["packages/pieces/mixpanel/src/index.ts"],
       "@activepieces/piece-monday": ["packages/pieces/monday/src/index.ts"],
       "@activepieces/piece-mysql": ["packages/pieces/mysql/src/index.ts"],
       "@activepieces/piece-nifty": ["packages/pieces/nifty/src/index.ts"],
@@ -253,6 +253,9 @@
         "packages/pieces/sendinblue/src/index.ts"
       ],
       "@activepieces/piece-sendy": ["packages/pieces/sendy/src/index.ts"],
+      "@activepieces/piece-sessions-us": [
+        "packages/pieces/sessions-us/src/index.ts"
+      ],
       "@activepieces/piece-sftp": ["packages/pieces/sftp/src/index.ts"],
       "@activepieces/piece-shopify": ["packages/pieces/shopify/src/index.ts"],
       "@activepieces/piece-simplepdf": [
@@ -371,6 +374,9 @@
       ],
       "@activepieces/shared": ["packages/shared/src/index.ts"],
       "@activepieces/ui-ee-platform": ["packages/ee/ui-platform/src/index.ts"],
+      "@activepieces/ui-feature-builder-header": [
+        "packages/ui/feature-builder-header/src/index.ts"
+      ],
       "@activepieces/ui/common": ["packages/ui/common/src/index.ts"],
       "@activepieces/ui/feature-authentication": [
         "packages/ui/feature-authentication/src/index.ts"
@@ -380,9 +386,6 @@
       ],
       "@activepieces/ui/feature-builder-form-controls": [
         "packages/ui/feature-builder-form-controls/src/index.ts"
-      ],
-      "@activepieces/ui/feature-builder-header": [
-        "packages/ui/feature-builder-header/src/index.ts"
       ],
       "@activepieces/ui/feature-builder-left-sidebar": [
         "packages/ui/feature-builder-left-sidebar/src/index.ts"
@@ -442,6 +445,9 @@
         "packages/pieces/tookey-wallet/src/index.ts"
       ],
       "@ee/*": ["packages/ee/*"],
+      "ui-feature-flow-builder": [
+        "packages/ui/feature-flow-builder/src/index.ts"
+      ],
       "ui-feature-pieces": ["packages/ui/feature-pieces/src/index.ts"]
     },
     "resolveJsonModule": true
