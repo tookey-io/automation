@@ -13,7 +13,7 @@ export class EmbeddingService {
   embeddingStateSubject: BehaviorSubject<EmbeddingState>;
   constructor() {
     this.embeddingStateSubject = new BehaviorSubject<EmbeddingState>({
-      isEmbedded: false,
+      isEmbedded: true,
       hideSideNav: false,
       prefix: '',
     });

@@ -9,10 +9,14 @@ import { CreateProjectDialogComponent } from './pages/projects-table/create-proj
 import { UpdateProjectDialogComponent } from './pages/projects-table/update-project-dialog/update-project-dialog.component';
 import { PlatformAppearanceComponent } from './pages/platform-appearance/platform-appearance.component';
 import { PlatformSettingsComponent } from './pages/platform-settings/platform-settings.component';
-import { SigningKeysTableComponent } from './pages/platform-settings/signing-keys-table/signing-keys-table.component';
-import { CreateSigningKeyDialogComponent } from './pages/platform-settings/signing-keys-table/create-signing-key-dialog/create-signing-key-dialog.component';
 import { PiecesTableComponent } from './pages/pieces-table/pieces-table.component';
 import { EditAddPieceOAuth2CredentialsDialogComponent } from './components/dialogs/edit-add-piece-oauth-2-credentials-dialog/edit-add-piece-oauth-2-credentials-dialog.component';
+import { SmtpSettingsComponent } from './components/smtp-settings/smtp-settings.component';
+import { SigningKeysTableComponent } from './components/signing-keys-table/signing-keys-table.component';
+import { CreateSigningKeyDialogComponent } from './components/dialogs/create-signing-key-dialog/create-signing-key-dialog.component';
+import { TermsAndServicesSettingsComponent } from './components/terms-and-services-settings/terms-and-services-settings.component';
+import { CustomDomainTableComponent } from './components/custom-domain-table/custom-domain-table.component';
+import { CreateCustomDomainDialogComponent } from './components/dialogs/create-custom-domain-dialog/create-custom-domain-dialog.component';
 
 @NgModule({
   imports: [
@@ -29,8 +33,12 @@ import { EditAddPieceOAuth2CredentialsDialogComponent } from './components/dialo
     PlatformSettingsComponent,
     SigningKeysTableComponent,
     CreateSigningKeyDialogComponent,
+    CreateCustomDomainDialogComponent,
     PiecesTableComponent,
     EditAddPieceOAuth2CredentialsDialogComponent,
+    SmtpSettingsComponent,
+    TermsAndServicesSettingsComponent,
+    CustomDomainTableComponent,
   ],
 })
 export class UiEePlatformModule {}

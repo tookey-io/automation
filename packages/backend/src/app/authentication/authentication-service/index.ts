@@ -1,11 +1,12 @@
 import { QueryFailedError } from 'typeorm'
-import { AuthenticationResponse, SignInRequest, UserStatus, ActivepiecesError, ErrorCode, apId, ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, PrincipalType } from '@activepieces/shared'
+import { AuthenticationResponse, SignInRequest, UserStatus, ActivepiecesError, ErrorCode, apId, ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, PrincipalType, isNil, User } from '@activepieces/shared'
 import { userService } from '../../user/user-service'
 import { passwordHasher } from '../lib/password-hasher'
 import { authenticationServiceHooks as hooks } from './hooks'
 import { system } from '../../helper/system/system'
 import { SystemProp } from '../../helper/system/system-prop'
 import { accessTokenManager } from '../lib/access-token-manager'
+import { generateRandomPassword } from '../../helper/crypto'
 
 export const authenticationService = {
     // TODO: Move to authentication service
@@ -37,7 +38,7 @@ export const authenticationService = {
         })
     },
     externalUserAuth: async (request: ExternalUserAuthRequest): Promise<AuthenticationResponse> => {
-        const user = await userService.getOneByEmail({
+        const user = await userService.getbyEmail({
             email: request.id,
         })
 
@@ -83,16 +84,17 @@ export const authenticationService = {
         try {
             const user = await userService.create({
                 ...request,
+                platformId: null,
             })
 
             const { user: updatedUser, project, token } = await hooks.get().postSignUp({
                 user,
             })
 
-            const { password: _, ...filteredUser } = updatedUser
+            const userWithoutPassword = removePasswordPropFromUser(updatedUser)
 
             return {
-                ...filteredUser,
+                ...userWithoutPassword,
                 token,
                 projectId: project.id,
             }
@@ -111,41 +113,103 @@ export const authenticationService = {
         }
     },
 
-    signIn: async (request: SignInRequest): Promise<AuthenticationResponse> => {
-        const user = await userService.getOneByEmail({
+    async signIn(request: SignInRequest): Promise<AuthenticationResponse> {
+        const user = await userService.getByPlatformAndEmail({
+            platformId: null,
             email: request.email,
         })
 
-        if (user === null) {
-            throw new ActivepiecesError({
-                code: ErrorCode.INVALID_CREDENTIALS,
-                params: {
-                    email: request.email,
-                },
-            })
-        }
+        assertUserIsAllowedToSignIn(user)
 
-        const passwordMatches = await passwordHasher.compare(request.password, user.password)
-
-        if (!passwordMatches) {
-            throw new ActivepiecesError({
-                code: ErrorCode.INVALID_CREDENTIALS,
-                params: {
-                    email: request.email,
-                },
-            })
-        }
+        await assertPasswordMatches({
+            requestPassword: request.password,
+            userPassword: user.password,
+        })
 
         const { user: updatedUser, project, token } = await hooks.get().postSignIn({
             user,
         })
 
-        const { password: _, ...filteredUser } = updatedUser
+        const userWithoutPassword = removePasswordPropFromUser(updatedUser)
 
         return {
-            ...filteredUser,
+            ...userWithoutPassword,
             token,
             projectId: project.id,
         }
     },
+
+    async federatedAuthn(params: FederatedAuthnParams): Promise<AuthenticationResponse> {
+        const existingUser = await userService.getByPlatformAndEmail({
+            platformId: params.platformId,
+            email: params.email,
+        })
+
+        if (existingUser) {
+            const { user: updatedUser, project, token } = await hooks.get().postSignIn({
+                user: existingUser,
+            })
+
+            const userWithoutPassword = removePasswordPropFromUser(updatedUser)
+
+            return {
+                ...userWithoutPassword,
+                token,
+                projectId: project.id,
+            }
+        }
+
+        const newUser = {
+            email: params.email,
+            status: params.userStatus,
+            firstName: params.firstName,
+            lastName: params.lastName,
+            trackEvents: true,
+            newsLetter: true,
+            password: await generateRandomPassword(),
+            platformId: params. platformId,
+        }
+
+        return this.signUp(newUser)
+    },
+}
+
+const assertUserIsAllowedToSignIn: (user: User | null) => asserts user is User = (user) => {
+    if (isNil(user) || user.status === UserStatus.INVITED) {
+        throw new ActivepiecesError({
+            code: ErrorCode.INVALID_CREDENTIALS,
+            params: {
+                email: user?.email,
+            },
+        })
+    }
+}
+
+const assertPasswordMatches = async ({ requestPassword, userPassword }: AssertPasswordsMatchParams): Promise<void> => {
+    const passwordMatches = await passwordHasher.compare(requestPassword, userPassword)
+
+    if (!passwordMatches) {
+        throw new ActivepiecesError({
+            code: ErrorCode.INVALID_CREDENTIALS,
+            params: {},
+        })
+    }
+}
+
+const removePasswordPropFromUser = (user: User): Omit<User, 'password'> => {
+    const { password: _, ...filteredUser } = user
+    return filteredUser
+}
+
+type AssertPasswordsMatchParams = {
+    requestPassword: string
+    userPassword: string
+}
+
+type FederatedAuthnParams = {
+    email: string
+    userStatus: UserStatus
+    firstName: string
+    lastName: string
+    platformId: string | null
 }

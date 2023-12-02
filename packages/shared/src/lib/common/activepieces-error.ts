@@ -17,6 +17,7 @@ type ErrorParams =
     | AuthorizationErrorParams
     | PermissionDeniedErrorParams
     | ConfigNotFoundErrorParams
+    | EmailIsNotVerfiedErrorParams
     | EngineOperationFailureParams
     | EntityNotFoundErrorParams
     | ExecutionTimeoutErrorParams
@@ -39,11 +40,12 @@ type ErrorParams =
     | PauseMetadataMissingErrorParams
     | PieceNotFoundErrorParams
     | PieceTriggerNotFoundErrorParams
-    | ProjectNotFoundErrorParams
     | StepNotFoundErrorParams
     | SystemInvalidErrorParams
     | SystemPropNotDefinedErrorParams
     | QuotaExceededParams
+    | InvalidOtpParams
+    | PermissionDeniedErrorParams
     | TestTriggerFailedErrorParams
     | TriggerDisableErrorParams
     | TriggerEnableErrorParams
@@ -131,13 +133,6 @@ export type FlowRunNotFoundErrorParams = BaseErrorParams<
     }
 >;
 
-export type ProjectNotFoundErrorParams = BaseErrorParams<
-    ErrorCode.PROJECT_NOT_FOUND,
-    {
-        id: FlowRunId;
-    }
->;
-
 export type FlowVersionNotFoundErrorParams = BaseErrorParams<
     ErrorCode.FLOW_VERSION_NOT_FOUND,
     {
@@ -146,11 +141,11 @@ export type FlowVersionNotFoundErrorParams = BaseErrorParams<
 >;
 
 export type InvalidCredentialsErrorParams = BaseErrorParams<
-    ErrorCode.INVALID_CREDENTIALS,
-    {
-        email: string;
-    }
->;
+ErrorCode.INVALID_CREDENTIALS,
+{
+    email?: string
+}
+>
 
 export type EmailIsNotVerfiedErrorParams = BaseErrorParams<
     ErrorCode.EMAIL_IS_NOT_VERFIED,
@@ -322,10 +317,13 @@ export type QuotaExceededParams = BaseErrorParams<
     }
 >;
 
+export type InvalidOtpParams = BaseErrorParams<ErrorCode.INVALID_OTP, Record<string, never>>
+
 export enum ErrorCode {
     APP_CONNECTION_NOT_FOUND = 'APP_CONNECTION_NOT_FOUND',
     AUTHORIZATION = 'AUTHORIZATION',
     CONFIG_NOT_FOUND = 'CONFIG_NOT_FOUND',
+    EMAIL_IS_NOT_VERFIED = 'EMAIL_IS_NOT_VERFIED',
     ENGINE_OPERATION_FAILURE = 'ENGINE_OPERATION_FAILURE',
     ENTITY_NOT_FOUND = 'ENTITY_NOT_FOUND',
     EXECUTION_TIMEOUT = 'EXECUTION_TIMEOUT',
@@ -343,12 +341,14 @@ export enum ErrorCode {
     INVALID_CLOUD_CLAIM = 'INVALID_CLOUD_CLAIM',
     INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
     INVALID_OR_EXPIRED_JWT_TOKEN = 'INVALID_OR_EXPIRED_JWT_TOKEN',
+    INVALID_OTP = 'INVALID_OTP',
     JOB_REMOVAL_FAILURE = 'JOB_REMOVAL_FAILURE',
     OPEN_AI_FAILED = 'OPEN_AI_FAILED',
     PAUSE_METADATA_MISSING = 'PAUSE_METADATA_MISSING',
+    PERMISSION_DENIED = 'PERMISSION_DENIED',
     PIECE_NOT_FOUND = 'PIECE_NOT_FOUND',
     PIECE_TRIGGER_NOT_FOUND = 'PIECE_TRIGGER_NOT_FOUND',
-    PROJECT_NOT_FOUND = 'PROJECT_NOT_FOUND',
+    QUOTA_EXCEEDED = 'QUOTA_EXCEEDED',
     STEP_NOT_FOUND = 'STEP_NOT_FOUND',
     SYSTEM_PROP_INVALID = 'SYSTEM_PROP_INVALID',
     SYSTEM_PROP_NOT_DEFINED = 'SYSTEM_PROP_NOT_DEFINED',
@@ -361,7 +361,4 @@ export enum ErrorCode {
     VALIDATION = 'VALIDATION',
 
     // TOOKEY: custom errors
-    QUOTA_EXCEEDED = 'QUOTA_EXCEEDED',
-    PERMISSION_DENIED = 'PERMISSION_DENIED',
-    EMAIL_IS_NOT_VERFIED = 'EMAIL_IS_NOT_VERFIED',
 }
