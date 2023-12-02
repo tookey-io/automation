@@ -34,6 +34,8 @@ import { AutocompleteDropdownSizesButtonsComponent } from './interpolating-text-
 import { DropdownPropertySearchPipe } from './piece-properties-form/dropdown-search.pipe';
 import { MarkdownModule } from 'ngx-markdown';
 import { SelectedAuthConfigsPipe } from './piece-properties-form/selected-auth-config.pipe';
+import { init } from './interpolating-text-form-control/fixed-selection-mention';
+import { UiFeaturePiecesModule } from 'ui-feature-pieces';
 const exportedDeclarations = [
   ArrayFormControlComponent,
   BranchConditionFormControlComponent,
@@ -54,6 +56,7 @@ const exportedDeclarations = [
     ReactiveFormsModule,
     FormsModule,
     UiFeatureConnectionsModule,
+    UiFeaturePiecesModule,
     MatTreeModule,
     QuillModule.forRoot({}),
     MarkdownModule,
@@ -80,4 +83,8 @@ const exportedDeclarations = [
   ],
   exports: [...exportedDeclarations],
 })
-export class UiFeatureBuilderFormControlsModule {}
+export class UiFeatureBuilderFormControlsModule {
+  constructor() {
+    init();
+  }
+}

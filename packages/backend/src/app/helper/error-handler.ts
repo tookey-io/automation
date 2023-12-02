@@ -1,7 +1,11 @@
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify'
 import { StatusCodes } from 'http-status-codes'
 import { ActivepiecesError, ErrorCode } from '@activepieces/shared'
-import { captureException } from './logger'
+import { captureException, logger } from './logger'
+import { system } from './system/system'
+import { SystemProp } from './system/system-prop'
+
+const ENRICH_ERROR_CONTEXT = system.getBoolean(SystemProp.ENRICH_ERROR_CONTEXT) ?? false
 
 export const errorHandler = async (
     error: FastifyError,
@@ -12,10 +16,16 @@ export const errorHandler = async (
         const statusCodeMap: Partial<Record<ErrorCode, StatusCodes>> = {
             [ErrorCode.INVALID_API_KEY]: StatusCodes.UNAUTHORIZED,
             [ErrorCode.INVALID_BEARER_TOKEN]: StatusCodes.UNAUTHORIZED,
-            [ErrorCode.TASK_QUOTA_EXCEEDED]: StatusCodes.PAYMENT_REQUIRED,
+            [ErrorCode.QUOTA_EXCEEDED]: StatusCodes.PAYMENT_REQUIRED,
+            [ErrorCode.PERMISSION_DENIED]: StatusCodes.FORBIDDEN,
             [ErrorCode.ENTITY_NOT_FOUND]: StatusCodes.NOT_FOUND,
             [ErrorCode.EXISTING_USER]: StatusCodes.CONFLICT,
             [ErrorCode.AUTHORIZATION]: StatusCodes.FORBIDDEN,
+            [ErrorCode.SIGN_UP_DISABLED]: StatusCodes.FORBIDDEN,
+            [ErrorCode.PLATFORM_SIGN_UP_ENABLED_FOR_INVITED_USERS_ONLY]: StatusCodes.FORBIDDEN,
+            [ErrorCode.INVALID_CREDENTIALS]: StatusCodes.UNAUTHORIZED,
+            [ErrorCode.EMAIL_IS_NOT_VERIFIED]: StatusCodes.FORBIDDEN,
+            [ErrorCode.INVALID_OTP]: StatusCodes.GONE,
         }
 
         const statusCode = statusCodeMap[error.error.code] ?? StatusCodes.BAD_REQUEST
@@ -26,9 +36,44 @@ export const errorHandler = async (
         })
     }
     else {
-        if (!error.statusCode || error.statusCode === StatusCodes.INTERNAL_SERVER_ERROR) {
+        logger.error('[errorHandler]: ' + JSON.stringify(error))
+        if (!error.statusCode || error.statusCode === StatusCodes.INTERNAL_SERVER_ERROR.valueOf()) {
             captureException(error)
         }
         await reply.status(error.statusCode ?? StatusCodes.INTERNAL_SERVER_ERROR).send(error)
     }
+}
+
+export const enrichErrorContext = ({ error, key, value }: EnrichErrorContextParams): unknown => {
+    if (!ENRICH_ERROR_CONTEXT) {
+        return error
+    }
+
+    if (error instanceof Error) {
+        if ('context' in error && error.context instanceof Object) {
+            const enrichedError = Object.assign(error, {
+                ...error.context,
+                [key]: value,
+            })
+
+            return enrichedError
+        }
+        else {
+            const enrichedError = Object.assign(error, {
+                context: {
+                    [key]: value,
+                },
+            })
+
+            return enrichedError
+        }
+    }
+
+    return error
+}
+
+type EnrichErrorContextParams = {
+    error: unknown
+    key: string
+    value: unknown
 }

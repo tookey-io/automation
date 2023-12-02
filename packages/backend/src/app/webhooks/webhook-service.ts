@@ -118,7 +118,7 @@ export const webhookService = {
             }),
         )
 
-        return await Promise.all(createFlowRuns)
+        return Promise.all(createFlowRuns)
     },
 
     async simulationCallback({ flow, payload }: CallbackParams): Promise<void> {
@@ -173,11 +173,9 @@ const getLatestFlowVersionOrThrow = async (
     projectId: ProjectId,
 ): Promise<FlowVersion> => {
     const flowVersion = await flowVersionService.getFlowVersion({
-        projectId,
         flowId,
         versionId: undefined,
         removeSecrets: false,
-        includeArtifactAsBase64: false,
     })
 
     if (isNil(flowVersion)) {

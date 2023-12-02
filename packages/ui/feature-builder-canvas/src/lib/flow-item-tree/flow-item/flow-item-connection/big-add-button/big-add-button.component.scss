@@ -13,7 +13,6 @@
     .add-icon {
       transform: scale(1.1);
     }
-    border: 1px $border dashed;
   }
   &.box-shadow {
     box-shadow: 0px 0px 0px 5px #fafafa;
@@ -21,9 +20,10 @@
 }
 
 .big-add-button-drop-indicator {
-  background: rgba($primary-default, 0.6);
-  box-shadow: 0px 0px 0px 6px rgba($primary-default, 0.2);
+  background: var(--primary-palette-300);
+  box-shadow: 0px 0px 0px 6px var(--primary-palette-100);
   box-sizing: content-box;
+  opacity:80%;
 }
 .add-icon {
   fill: #a6b1bf;

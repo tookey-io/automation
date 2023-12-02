@@ -17,15 +17,16 @@ import { MentionListItem } from '../../model/mention-list-item';
 import { FlowStructureUtil } from '../../utils/flowStructureUtil';
 import { ConnectionDropdownItem } from '../../model/connections-dropdown-item';
 import { BuilderSavingStatusEnum, CanvasState } from '../../model';
+import { FlowItemDetails } from '@activepieces/ui/common';
+
+import { FlowInstanceState } from './flow-instance/flow-instance.reducer';
+import { StepRunResult } from '../../utils/stepRunResult';
 import {
   CORE_PIECES_ACTIONS_NAMES,
   CORE_PIECES_TRIGGERS,
   CORE_SCHEDULE,
-  FlowItemDetails,
   corePieceIconUrl,
-} from '@activepieces/ui/common';
-import { FlowInstanceState } from './flow-instance/flow-instance.reducer';
-import { StepRunResult } from '../../utils/stepRunResult';
+} from 'ui-feature-pieces';
 
 export const BUILDER_STATE_NAME = 'builderState';
 
@@ -117,7 +118,7 @@ export const selectCurrentFlowFolderName = createSelector(
   selectFlowState,
   (state) => {
     if (!state.folder) {
-      return 'Uncategorized';
+      return $localize`Uncategorized`;
     }
     return state.folder.displayName;
   }
@@ -348,7 +349,7 @@ const selectMissingStepRecommendedFlowItemsDetails = createSelector(
     const recommendations = core.filter(
       (f) =>
         (f.type === ActionType.PIECE &&
-          f.extra?.appName === '@activepieces/piece-http') ||
+          f.extra?.pieceName === '@activepieces/piece-http') ||
         f.type === ActionType.CODE
     );
     return recommendations;
@@ -383,21 +384,21 @@ export const selectFlowItemDetails = (flowItem: FlowItem) =>
         CORE_PIECES_ACTIONS_NAMES.find((n) => n === flowItem.settings.pieceName)
       ) {
         return state.coreFlowItemsDetails.find(
-          (c) => c.extra?.appName === flowItem.settings.pieceName
+          (c) => c.extra?.pieceName === flowItem.settings.pieceName
         );
       }
       return state.customPiecesActionsFlowItemDetails.find(
-        (f) => f.extra?.appName === flowItem.settings.pieceName
+        (f) => f.extra?.pieceName === flowItem.settings.pieceName
       );
     }
     if (flowItem.type === TriggerType.PIECE) {
       if (CORE_PIECES_TRIGGERS.find((n) => n === flowItem.settings.pieceName)) {
         return state.coreTriggerFlowItemsDetails.find(
-          (c) => c.extra?.appName === flowItem.settings.pieceName
+          (c) => c.extra?.pieceName === flowItem.settings.pieceName
         );
       }
       return state.customPiecesTriggersFlowItemDetails.find(
-        (f) => f.extra?.appName === flowItem.settings.pieceName
+        (f) => f.extra?.pieceName === flowItem.settings.pieceName
       );
     }
 
@@ -523,14 +524,14 @@ function findStepLogoUrlForMentions(
         return corePieceIconUrl(step.settings.pieceName);
       }
       return flowItemsDetailsState.customPiecesActionsFlowItemDetails.find(
-        (i) => i.extra?.appName === step.settings.pieceName
+        (i) => i.extra?.pieceName === step.settings.pieceName
       )?.logoUrl;
     case TriggerType.PIECE:
       if (CORE_PIECES_TRIGGERS.find((n) => n === step.settings.pieceName)) {
         return corePieceIconUrl(step.settings.pieceName);
       }
       return flowItemsDetailsState.customPiecesTriggersFlowItemDetails.find(
-        (i) => i.extra?.appName === step.settings.pieceName
+        (i) => i.extra?.pieceName === step.settings.pieceName
       )?.logoUrl;
     case TriggerType.EMPTY:
       return 'assets/img/custom/piece/emptyTrigger.png';
@@ -542,9 +543,6 @@ function findStepLogoUrlForMentions(
       return 'assets/img/custom/piece/loop_mention.png';
     case ActionType.CODE:
       return 'assets/img/custom/piece/code_mention.png';
-    case ActionType.MISSING:
-      // TODO EDIT
-      return 'assets/img/custom/piece/emptyTrigger.png';
   }
 }
 

@@ -11,7 +11,7 @@ import { map, Observable, of, shareReplay, switchMap, tap } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { FormControl } from '@angular/forms';
 import { CdkDragMove } from '@angular/cdk/drag-drop';
-import { ActionType, TriggerType } from '@activepieces/shared';
+import { ActionType, ApFlagId, TriggerType } from '@activepieces/shared';
 import {
   BuilderSelectors,
   CollectionBuilderService,
@@ -22,12 +22,12 @@ import {
 import { forkJoin } from 'rxjs';
 import {
   TestStepService,
-  PieceMetadataService,
   isOverflown,
-  CORE_SCHEDULE,
+  FlagService,
 } from '@activepieces/ui/common';
 import { TriggerStrategy } from '@activepieces/pieces-framework';
 import { BuilderAutocompleteMentionsDropdownService } from '@activepieces/ui/common';
+import { CORE_SCHEDULE, PieceMetadataService } from 'ui-feature-pieces';
 
 @Component({
   selector: 'app-flow-right-sidebar',
@@ -55,6 +55,7 @@ export class FlowRightSidebarComponent implements OnInit {
   isCurrentStepPieceWebhookTrigger$: Observable<boolean>;
   viewMode$: Observable<ViewModeEnum>;
   ViewModeEnum = ViewModeEnum;
+  showDocs$: Observable<boolean>;
   currentStepPieceVersion$: Observable<
     | {
         version: string | undefined;
@@ -68,12 +69,14 @@ export class FlowRightSidebarComponent implements OnInit {
     private ngZone: NgZone,
     private testStepService: TestStepService,
     private renderer2: Renderer2,
+    private flagService: FlagService,
     private pieceMetadaService: PieceMetadataService,
     public builderService: CollectionBuilderService,
     private builderAutocompleteMentionsDropdownService: BuilderAutocompleteMentionsDropdownService
   ) {}
 
   ngOnInit(): void {
+    this.showDocs$ = this.flagService.isFlagEnabled(ApFlagId.SHOW_DOCS);
     this.checkCurrentStepPieceVersion();
     this.rightSidebarType$ = this.store.select(
       BuilderSelectors.selectCurrentRightSideBarType

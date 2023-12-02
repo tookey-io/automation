@@ -3,8 +3,22 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { SignInRequest, SignUpRequest, User } from '@activepieces/shared';
+import {
+  AuthenticationResponse,
+  Principal,
+  SignInRequest,
+  SignUpRequest,
+  User,
+} from '@activepieces/shared';
 import { environment } from '../environments/environment';
+import {
+  ClaimTokenRequest,
+  CreateOtpRequestBody,
+  FederatedAuthnLoginResponse,
+  ResetPasswordRequestBody,
+  ThirdPartyAuthnProviderEnum,
+  VerifyEmailRequestBody,
+} from '@activepieces/ee-shared';
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +58,10 @@ export class AuthenticationService {
       }
     );
   }
+  
+  me(): Observable<User> {
+    return this.http.get<User>(environment.apiUrl + '/users/me');
+  }
 
   signIn(request: SignInRequest): Observable<HttpResponse<User>> {
     return this.http.post<User>(
@@ -55,8 +73,10 @@ export class AuthenticationService {
     );
   }
 
-  signUp(request: SignUpRequest): Observable<HttpResponse<User>> {
-    return this.http.post<User>(
+  signUp(
+    request: SignUpRequest
+  ): Observable<HttpResponse<AuthenticationResponse>> {
+    return this.http.post<AuthenticationResponse>(
       environment.apiUrl + '/authentication/sign-up',
       request,
       {
@@ -65,12 +85,12 @@ export class AuthenticationService {
     );
   }
 
-  saveToken(response: HttpResponse<any>) {
-    localStorage.setItem(environment.jwtTokenName, response.body.token);
+  saveToken(token: string) {
+    localStorage.setItem(environment.jwtTokenName, token);
   }
 
   saveUser(response: HttpResponse<any>) {
-    this.saveToken(response);
+    this.saveToken(response.body.token);
     this.updateUser(response.body);
   }
 
@@ -111,6 +131,63 @@ export class AuthenticationService {
     return this.http.post(
       'https://us-central1-activepieces-b3803.cloudfunctions.net/addContact',
       { email: email }
+    );
+  }
+  getDecodedToken(): Principal | null {
+    const token = localStorage.getItem(environment.jwtTokenName);
+    const decodedToken = this.jwtHelper.decodeToken(token || '');
+    // TODO REMOVE in next release
+    if (decodedToken && decodedToken['platformId']) {
+      this.logout();
+    }
+    return decodedToken;
+  }
+
+  getPlatformId(): string | undefined {
+    const decodedToken = this.getDecodedToken();
+    return decodedToken?.platform?.id;
+  }
+
+  isPlatformOwner(): boolean {
+    const decodedToken = this.getDecodedToken();
+    return decodedToken?.platform?.role === 'OWNER';
+  }
+
+  sendOtpEmail(req: CreateOtpRequestBody) {
+    return this.http.post<void>(`${environment.apiUrl}/otp`, req);
+  }
+
+  verifyEmail(req: VerifyEmailRequestBody) {
+    return this.http.post<void>(
+      `${environment.apiUrl}/authn/local/verify-email`,
+      req
+    );
+  }
+  resetPassword(req: ResetPasswordRequestBody) {
+    return this.http.post<void>(
+      `${environment.apiUrl}/authn/local/reset-password`,
+      req
+    );
+  }
+
+  getThirdPartyLoginUrl(provider: ThirdPartyAuthnProviderEnum) {
+    return this.http.get<FederatedAuthnLoginResponse>(
+      `${environment.apiUrl}/authn/federated/login`,
+      {
+        params: {
+          providerName: provider,
+        },
+      }
+    );
+  }
+
+  claimThirdPartyRequest(request: ClaimTokenRequest) {
+    return this.http.post<AuthenticationResponse>(
+      `${environment.apiUrl}/authn/federated/claim`,
+      request,
+      {
+        observe: 'response',
+      }
     );
   }
 }

@@ -3,7 +3,7 @@ import { argv } from 'node:process'
 import { rm, writeFile } from 'node:fs/promises'
 import { getAvailablePieceNames } from './utils/get-available-piece-names'
 import { exec } from './utils/exec'
-import { readPackageJson, readProjectJson, writeProjectJson } from './utils/files'
+import { readPackageEslint, readPackageJson, readProjectJson, writePackageEslint, writeProjectJson } from './utils/files'
 import chalk from 'chalk';
 
 const validatePieceName = async (pieceName: string) => {
@@ -78,6 +78,7 @@ const updateProjectJsonConfig = async (pieceName: string) => {
   assert(projectJson.targets?.build?.options, '[updateProjectJsonConfig] targets.build.options is required');
 
   projectJson.targets.build.options.buildableProjectDepsInPackageJsonType = 'dependencies'
+  projectJson.targets.build.options.updateBuildableProjectDepsInPackageJson = true
   await writeProjectJson(`packages/pieces/${pieceName}`, projectJson)
 }
 
@@ -88,10 +89,17 @@ const updatePackageJsonConfig = async (pieceName: string) => {
   await writeProjectJson(`packages/pieces/${pieceName}`, projectJson)
 }
 
+const updateEslintFile = async (pieceName: string) => {
+    const eslintFile = await readPackageEslint(`packages/pieces/${pieceName}`)
+    eslintFile.overrides.splice(eslintFile.overrides.findIndex((rule: any) => rule.files[0] == '*.json'), 1)
+    await writePackageEslint(`packages/pieces/${pieceName}`, eslintFile)
+}
+
 const setupGeneratedLibrary = async (pieceName: string) => {
   await removeUnusedFiles(pieceName)
   await generateIndexTsFile(pieceName)
   await updateProjectJsonConfig(pieceName)
+  await updateEslintFile(pieceName)
 }
 
 const main = async () => {

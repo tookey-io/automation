@@ -1,18 +1,27 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import {
-  PieceMetadataService,
-  CORE_PIECES_ACTIONS_NAMES,
-  CORE_PIECES_TRIGGERS,
-  corePieceIconUrl,
-} from '@activepieces/ui/common';
+import { TelemetryService } from '@activepieces/ui/common';
 import { PieceMetadataSummary } from '@activepieces/pieces-framework';
-import { Observable, map, shareReplay, startWith, switchMap, tap } from 'rxjs';
+import {
+  Observable,
+  debounceTime,
+  map,
+  shareReplay,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { TriggerType } from '@activepieces/shared';
 import {
   ControlValueAccessor,
   FormControl,
   NG_VALUE_ACCESSOR,
 } from '@angular/forms';
+import {
+  CORE_PIECES_ACTIONS_NAMES,
+  CORE_PIECES_TRIGGERS,
+  PieceMetadataService,
+  corePieceIconUrl,
+} from 'ui-feature-pieces';
 
 @Component({
   selector: 'app-template-apps-dropdown',
@@ -27,6 +36,9 @@ import {
   ],
 })
 export class TemplateAppsDropdownComponent implements ControlValueAccessor {
+  //EE
+  savePiecesSearch$: Observable<void>;
+  //EE End
   pieces$: Observable<
     Pick<PieceMetadataSummary, 'displayName' | 'logoUrl' | 'name'>[]
   >;
@@ -47,7 +59,25 @@ export class TemplateAppsDropdownComponent implements ControlValueAccessor {
   onChange: (val: Array<string>) => void = () => {
     //ignored
   };
-  constructor(private pieceMetadataService: PieceMetadataService) {
+
+  constructor(
+    private pieceMetadataService: PieceMetadataService,
+    //EE
+    private telemetryService: TelemetryService
+  ) {
+    this.savePiecesSearch$ = this.searchControl.valueChanges.pipe(
+      debounceTime(1000),
+      switchMap((search) => {
+        return this.telemetryService.savePiecesSearch({
+          insideTemplates: true,
+          search,
+          target: 'both',
+        });
+      }),
+      map(() => void 0)
+    );
+    //EE End
+
     this.valueChanges$ = this.dropdownControl.valueChanges.pipe(
       tap((val) => {
         this.addPieceToFilter(val);

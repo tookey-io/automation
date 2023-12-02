@@ -3,12 +3,14 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { map, Observable, switchMap, take, tap } from 'rxjs';
 import {
+  AppearanceService,
   DeleteEntityDialogComponent,
   DeleteEntityDialogData,
+  FlagService,
   FlowService,
+  NavigationService,
   environment,
   fadeIn400ms,
-  initialiseBeamer,
 } from '@activepieces/ui/common';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -17,8 +19,8 @@ import {
   FlowsActions,
 } from '@activepieces/ui/feature-builder-store';
 import { Flow, FlowInstance } from '@activepieces/shared';
+import { EmbeddingService } from '@activepieces/ui/common';
 import { ImportFlowDialogueComponent } from './import-flow-dialogue/import-flow-dialogue.component';
-import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-flow-builder-header',
@@ -33,22 +35,34 @@ export class FlowBuilderHeaderComponent implements OnInit {
   flow$: Observable<Flow>;
   editingFlowName = false;
   downloadFile$: Observable<void>;
+  shareFlow$: Observable<void>;
   deleteFlowDialogClosed$: Observable<void>;
   folderDisplayName$: Observable<string>;
   duplicateFlow$: Observable<void>;
   openDashboardOnFolder$: Observable<string>;
+  environment = environment;
+  fullLogo$: Observable<string>;
+  setTitle$: Observable<void>;
+  isInEmbedded$: Observable<boolean>;
   constructor(
     public dialogService: MatDialog,
     private store: Store,
     private router: Router,
-    private title: Title,
+    private appearanceService: AppearanceService,
     public collectionBuilderService: CollectionBuilderService,
     private flowService: FlowService,
-    private matDialog: MatDialog
-  ) {}
+    private matDialog: MatDialog,
+    private flagService: FlagService,
+    private embeddingService: EmbeddingService,
+    private navigationService: NavigationService
+  ) {
+    this.isInEmbedded$ = this.embeddingService.getIsInEmbedding$();
+    this.fullLogo$ = this.flagService
+      .getLogos()
+      .pipe(map((logos) => logos.fullLogoUrl));
+  }
 
   ngOnInit(): void {
-    initialiseBeamer();
     this.instance$ = this.store.select(BuilderSelectors.selectCurrentInstance);
     this.isInDebugMode$ = this.store.select(
       BuilderSelectors.selectIsInDebugMode
@@ -62,20 +76,11 @@ export class FlowBuilderHeaderComponent implements OnInit {
   changeEditValue(event: boolean) {
     this.editingFlowName = event;
   }
-
   redirectHome(newWindow: boolean) {
-    if (newWindow) {
-      const url = this.router.serializeUrl(this.router.createUrlTree([``]));
-      window.open(url, '_blank', 'noopener');
-    } else {
-      const urlArrays = this.router.url.split('/');
-      urlArrays.splice(urlArrays.length - 1, 1);
-      const fixedUrl = urlArrays.join('/');
-      this.router.navigate([fixedUrl]);
-    }
+    this.navigationService.navigate('/flows', newWindow);
   }
   saveFlowName(flowName: string) {
-    this.title.setTitle(`${flowName} - ${environment.websiteTitle}`);
+    this.setTitle$ = this.appearanceService.setTitle(flowName);
     this.store.dispatch(FlowsActions.changeName({ displayName: flowName }));
   }
 
@@ -90,6 +95,7 @@ export class FlowBuilderHeaderComponent implements OnInit {
         map(() => void 0)
       );
   }
+
   download(id: string) {
     this.downloadFile$ = this.flowService.exportTemplate(id, undefined).pipe(
       tap((json) => {
@@ -119,7 +125,7 @@ export class FlowBuilderHeaderComponent implements OnInit {
     const dialogData: DeleteEntityDialogData = {
       deleteEntity$: this.flowService.delete(flow.id),
       entityName: flow.version.displayName,
-      note: `This will permanently delete the flow, all its data and any background runs.
+      note: $localize`This will permanently delete the flow, all its data and any background runs.
       You can't undo this action.`,
     };
     const dialogRef = this.dialogService.open(DeleteEntityDialogComponent, {
@@ -150,9 +156,5 @@ export class FlowBuilderHeaderComponent implements OnInit {
           });
         })
       );
-  }
-
-  get environment() {
-    return environment;
   }
 }

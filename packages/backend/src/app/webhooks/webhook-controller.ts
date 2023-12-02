@@ -1,13 +1,18 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { StatusCodes } from 'http-status-codes'
-import { ActivepiecesError, ErrorCode, EventPayload, ExecutionOutputStatus, Flow, FlowId, FlowRun, StopExecutionOutput, WebhookUrlParams } from '@activepieces/shared'
+import { ActivepiecesError, ApEdition, ErrorCode, EventPayload, ExecutionOutputStatus, Flow, FlowId, FlowInstanceStatus, FlowRun, RunTerminationReason, StopExecutionOutput, WebhookUrlParams } from '@activepieces/shared'
 import { webhookService } from './webhook-service'
 import { captureException, logger } from '../helper/logger'
 import { flowRunService } from '../flows/flow-run/flow-run-service'
 import { fileService } from '../file/file.service'
 import { isNil } from '@activepieces/shared'
 import { flowRepo } from '../flows/flow/flow.repo'
+import { flowInstanceService } from '../flows/flow-instance/flow-instance.service'
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
+import { getEdition } from '../helper/secret-helper'
+import { SystemProp } from '../helper/system/system-prop'
+import { system } from '../helper/system/system'
+import { tasksLimit } from '../ee/billing/limits/tasks-limit'
 
 export const webhookController: FastifyPluginAsyncTypebox = async (app) => {
 
@@ -110,7 +115,7 @@ export const webhookController: FastifyPluginAsyncTypebox = async (app) => {
 
 const POLLING_INTERVAL_MS = 300
 const MAX_POLLING_INTERVAL_MS = 2000
-const POLLING_TIMEOUT_MS = 1000 * 30
+const POLLING_TIMEOUT_MS = (system.getNumber(SystemProp.WEBHOOK_TIMEOUT_SECONDS) ?? 30) * 1000
 
 const waitForRunToComplete = async (run: FlowRun) => {
     const startTime = Date.now()
@@ -150,12 +155,12 @@ const getResponseForStoppedRun = async (run: FlowRun, reply: FastifyReply) => {
 
     await reply
         .status(flowLogs.stopResponse?.status ?? StatusCodes.OK)
-        .send(flowLogs.stopResponse?.body)
         .headers(flowLogs.stopResponse?.headers ?? {})
+        .send(flowLogs.stopResponse?.body)
 }
 
 const handleExecutionOutputStatus = async (run: FlowRun, reply: FastifyReply) => {
-    if (run.status === ExecutionOutputStatus.STOPPED) {
+    if (run.status === ExecutionOutputStatus.SUCCEEDED && run.terminationReason === RunTerminationReason.STOPPED_BY_HOOK) {
         await getResponseForStoppedRun(run, reply)
     }
     else {
@@ -173,23 +178,17 @@ async function convertRequest(request: FastifyRequest): Promise<EventPayload> {
     return payload
 }
 
-const convertBody = async (request: FastifyRequest) => {
+const convertBody = async (request: FastifyRequest): Promise<unknown> => {
     if (request.isMultipart()) {
         const jsonResult: Record<string, unknown> = {}
-        const parts = request.parts()
-        for await (const part of parts) {
-            if (part.type === 'file') {
-                const chunks = []
-                for await (const chunk of part.file) {
-                    chunks.push(chunk)
-                }
-                const fileBuffer = Buffer.concat(chunks)
-                jsonResult[part.fieldname] = fileBuffer.toString('base64')
-            }
-            else {
-                jsonResult[part.fieldname] = part.value
-            }
+        const requestBodyEntries = Object.entries(request.body as Record<string, unknown>)
+
+        for (const [key, value] of requestBodyEntries) {
+            jsonResult[key] = value instanceof Buffer ? value.toString('base64') : value
         }
+
+        logger.debug({ name: 'WebhookController#convertBody', jsonResult })
+
         return jsonResult
     }
     return request.body
@@ -244,6 +243,25 @@ const getFlowOrThrow = async (flowId: FlowId): Promise<Flow> => {
             },
         })
     }
+
+    // TODO FIX AND REFACTOR
+    // BEGIN EE
+    const edition = getEdition()
+    if (edition === ApEdition.CLOUD) {
+        try {
+            await tasksLimit.limit({
+                projectId: flow.projectId,
+            })
+        }
+        catch (e) {
+            if (e instanceof ActivepiecesError && e.error.code === ErrorCode.QUOTA_EXCEEDED) {
+                logger.info(`[webhookController] removing flow.id=${flow.id} run out of flow quota`)
+                await flowInstanceService.update({ projectId: flow.projectId, flowId: flow.id, status: FlowInstanceStatus.DISABLED })
+            }
+            throw e
+        }
+    }
+    // END EE
 
     return flow
 }

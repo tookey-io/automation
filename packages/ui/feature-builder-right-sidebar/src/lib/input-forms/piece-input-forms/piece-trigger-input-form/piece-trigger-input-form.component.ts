@@ -16,16 +16,14 @@ import {
   TriggerType,
   UpdateTriggerRequest,
   AUTHENTICATION_PROPERTY_NAME,
+  PackageType,
+  PieceType,
 } from '@activepieces/shared';
 import {
   PieceAuthProperty,
   TriggerStrategy,
 } from '@activepieces/pieces-framework';
-import {
-  PieceMetadataService,
-  CORE_SCHEDULE,
-  fadeInUp400ms,
-} from '@activepieces/ui/common';
+import { fadeInUp400ms } from '@activepieces/ui/common';
 import { Store } from '@ngrx/store';
 import {
   BuilderSelectors,
@@ -35,6 +33,7 @@ import {
 import { PiecePropertiesFormValue } from '@activepieces/ui/feature-builder-form-controls';
 import { ComponentTriggerInputFormSchema } from '../../input-forms-schema';
 import { PiecePropertyMap } from '@activepieces/pieces-framework';
+import { CORE_SCHEDULE, PieceMetadataService } from 'ui-feature-pieces';
 
 declare type TriggerDropdownOption = {
   label: {
@@ -78,9 +77,11 @@ export class PieceTriggerInputFormComponent {
   CORE_SCHEDULE = CORE_SCHEDULE;
   pieceTriggerInputForm: UntypedFormGroup;
   initialSetup$: Observable<TriggerDropdownOption[]>;
+  packageType: PackageType;
+  pieceType: PieceType;
   pieceName: string;
   pieceVersion: string;
-  intialComponentTriggerInputFormValue: {
+  initialComponentTriggerInputFormValue: {
     triggerName: string;
     input: { [key: string]: any };
   } | null;
@@ -178,8 +179,8 @@ export class PieceTriggerInputFormComponent {
   }
   private initialiseConfigsFormValue(items: TriggerDropdownOption[]) {
     if (
-      this.intialComponentTriggerInputFormValue &&
-      this.intialComponentTriggerInputFormValue.triggerName
+      this.initialComponentTriggerInputFormValue &&
+      this.initialComponentTriggerInputFormValue.triggerName
     ) {
       this.pieceTriggerInputForm
         .get(TRIGGER_FORM_CONTROL_NAME)!
@@ -187,7 +188,7 @@ export class PieceTriggerInputFormComponent {
           items.find(
             (i) =>
               i.value.triggerName ===
-              this.intialComponentTriggerInputFormValue?.triggerName
+              this.initialComponentTriggerInputFormValue?.triggerName
           )?.value,
           {
             emitEvent: false,
@@ -197,7 +198,7 @@ export class PieceTriggerInputFormComponent {
         items.find(
           (it) =>
             it.value.triggerName ===
-            this.intialComponentTriggerInputFormValue?.triggerName
+            this.initialComponentTriggerInputFormValue?.triggerName
         )
       ).pipe(
         tap((selectedTrigger) => {
@@ -212,7 +213,7 @@ export class PieceTriggerInputFormComponent {
               };
             }
             const propertiesValues =
-              this.intialComponentTriggerInputFormValue!.input;
+              this.initialComponentTriggerInputFormValue!.input;
             const propertiesFormValue: PiecePropertiesFormValue = {
               properties: properties,
               propertiesValues: propertiesValues,
@@ -235,9 +236,12 @@ export class PieceTriggerInputFormComponent {
   }
 
   writeValue(obj: ComponentTriggerInputFormSchema): void {
-    this.intialComponentTriggerInputFormValue = obj;
+    this.initialComponentTriggerInputFormValue = obj;
+    this.packageType = obj.packageType;
+    this.pieceType = obj.pieceType;
     this.pieceName = obj.pieceName;
     this.pieceVersion = obj.pieceVersion;
+
     this.pieceTriggerInputForm
       .get(TRIGGER_FORM_CONTROL_NAME)
       ?.setValue(undefined, { emitEvent: false });

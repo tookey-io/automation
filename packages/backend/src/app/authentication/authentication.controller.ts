@@ -1,46 +1,33 @@
-import { ApFlagId, PrincipalType, ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, SignInRequest, SignUpRequest } from '@activepieces/shared'
+import { ApFlagId, PrincipalType, ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, SignInRequest, SignUpRequest, UserStatus, apId, ApEdition } from '@activepieces/shared'
 import { StatusCodes } from 'http-status-codes'
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
-import { authenticationService } from './authentication.service'
-import { flagService } from '../flags/flag.service'
-import { system } from '../helper/system/system'
-import { SystemProp } from '../helper/system/system-prop'
-import { FastifyReply, FastifyRequest } from 'fastify'
+import { authenticationService } from './authentication-service'
+import { resolvePlatformIdForRequest } from '../ee/platform/lib/platform-utils'
+import { getEdition } from '../helper/secret-helper'
+
+const edition = getEdition()
 
 export const authenticationController: FastifyPluginAsyncTypebox = async (app) => {
-    app.post(
-        '/sign-up',
-        {
-            schema: {
-                body: SignUpRequest,
-            },
-        },
-        async (request: FastifyRequest<{ Body: SignUpRequest }>, reply: FastifyReply) => {
-            const userCreated = await flagService.getOne(ApFlagId.USER_CREATED)
-            const signUpEnabled = system.getBoolean(SystemProp.SIGN_UP_ENABLED) ?? false
+    app.post('/sign-up', SignUpRequestOptions, async (request) => {
+        const platformId = await resolvePlatformIdForRequest(request)
 
-            if (userCreated && !signUpEnabled) {
-                return reply.code(403).send({
-                    message: 'Sign up is disabled',
-                })
-            }
+        return authenticationService.signUp({
+            ...request.body,
+            status: edition === ApEdition.COMMUNITY ? UserStatus.VERIFIED : UserStatus.CREATED,
+            platformId,
+        })
+    })
 
-            return authenticationService.signUp(request.body)
-        },
-    )
+    app.post('/sign-in', SignInRequestOptions, async (request) => {
+        const platformId = await resolvePlatformIdForRequest(request)
 
-    app.post(
-        '/sign-in',
-        {
-            schema: {
-                body: SignInRequest,
-            },
-        },
-        async (request: FastifyRequest<{ Body: SignInRequest }>) => {
-            return authenticationService.signIn(request.body)
-        },
-    )
+        return authenticationService.signIn({
+            ...request.body,
+            platformId,
+        })
+    })
 
+    // TODO: Move to authentication service
     app.post(
         '/external/user/inject',
         {
@@ -48,14 +35,19 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
                 body: ExternalUserRequest,
             },
         },
-        async (request: FastifyRequest<{ Body: ExternalUserRequest }>, reply: FastifyReply) => {
+        async (request, reply) => {
             if (request.principal.type !== PrincipalType.EXTERNAL) {
                 reply.status(StatusCodes.FORBIDDEN)
                 return
             }
 
-            const authenticationResponse = await authenticationService.externalUserInject(request.body)
-            reply.send(authenticationResponse)
+            return authenticationService.federatedAuthn({
+                email: request.body.id,
+                userStatus: UserStatus.VERIFIED,
+                firstName: request.body.firstName,
+                lastName: request.body.lastName,
+                platformId: null
+            })
         },
     )
 
@@ -66,14 +58,19 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
                 body: ExternalUserAuthRequest,
             },
         },
-        async (request: FastifyRequest<{ Body: ExternalUserAuthRequest }>, reply: FastifyReply) => {
+        async (request, reply) => {
             if (request.principal.type !== PrincipalType.EXTERNAL) {
                 reply.status(StatusCodes.FORBIDDEN)
                 return
             }
 
-            const authenticationResponse = await authenticationService.externalUserAuth(request.body)
-            reply.send(authenticationResponse)
+            return authenticationService.federatedAuthn({
+                email: request.body.id,
+                userStatus: UserStatus.VERIFIED,
+                firstName: '', // SHOULD BE AVAILABLE IN PREVIOUSLY INJECTED USER
+                lastName: '', // SHOULD BE AVAILABLE IN PREVIOUSLY INJECTED USER
+                platformId: null
+            })
         },
     )
     app.post(
@@ -83,22 +80,34 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
                 body: ExternalServiceAuthRequest,
             },
         },
-        async (request: FastifyRequest<{ Body: ExternalServiceAuthRequest }>, reply: FastifyReply) => {
+        async (request, reply) => {
             const authenticationResponse = await authenticationService.externalServiceAuth(request.body)
             reply.send(authenticationResponse)
         },
     )
 
-    app.get(
-        '/me',
-        async (request: FastifyRequest) => {
-            return request.principal
-        },
-    )
-    app.get(
-        '/me/full',
-        async (request: FastifyRequest, reply: FastifyReply) => {
-            reply.send(await authenticationService.user(request.principal.id))
-        },
-    )
+    // app.get(
+    //     '/me',
+    //     async (request: FastifyRequest) => {
+    //         return request.principal
+    //     },
+    // )
+    // app.get(
+    //     '/me/full',
+    //     async (request: FastifyRequest, reply: FastifyReply) => {
+    //         reply.send(await authenticationService.user(request.principal.id))
+    //     },
+    // )
+}
+
+const SignUpRequestOptions = {
+    schema: {
+        body: SignUpRequest,
+    },
+}
+
+const SignInRequestOptions = {
+    schema: {
+        body: SignInRequest,
+    },
 }

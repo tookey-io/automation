@@ -14,6 +14,7 @@ import {
     TriggerHookType,
     TriggerPayload,
     TriggerType,
+    ApEdition,
 } from '@activepieces/shared'
 import { ActivepiecesError, ErrorCode } from '@activepieces/shared'
 import { flowQueue } from '../workers/flow-worker/flow-queue'
@@ -32,10 +33,23 @@ import { system } from './system/system'
 import { SystemProp } from './system/system-prop'
 import { JobType } from '../workers/flow-worker/queues/queue'
 import { getServerUrl } from './public-ip-utils'
+import { getEdition } from './secret-helper'
+import { plansService } from '../ee/billing/project-plan/project-plan.service'
 
-const POLLING_FREQUENCY_CRON_EXPRESSON = `*/${system.getNumber(
-    SystemProp.TRIGGER_DEFAULT_POLL_INTERVAL,
-) ?? 5} * * * *`
+function constructEveryXMinuteCron(minute: number) {
+    const edition = getEdition()
+    switch (edition) {
+        case ApEdition.CLOUD:
+            return `*/${minute} * * * *`
+        case ApEdition.COMMUNITY:
+        case ApEdition.ENTERPRISE:
+            return `*/${system.getNumber(
+                SystemProp.TRIGGER_DEFAULT_POLL_INTERVAL,
+            ) ?? 5} * * * *`
+    }
+}
+
+const POLLING_FREQUENCY_CRON_EXPRESSON = constructEveryXMinuteCron(system.getNumber(SystemProp.TRIGGER_DEFAULT_POLL_INTERVAL) ?? 5)
 
 export const triggerUtils = {
     async tryHandshake(params: ExecuteTrigger): Promise<WebhookResponse | null> {
@@ -59,7 +73,7 @@ export const triggerUtils = {
                         handshakeConfig.paramName &&
             handshakeConfig.paramName.toLowerCase() in payload.headers
                     ) {
-                        return await executeHandshake({
+                        return executeHandshake({
                             flowVersion,
                             projectId,
                             payload,
@@ -72,7 +86,7 @@ export const triggerUtils = {
                         handshakeConfig.paramName &&
             handshakeConfig.paramName in payload.queryParams
                     ) {
-                        return await executeHandshake({
+                        return executeHandshake({
                             flowVersion,
                             projectId,
                             payload,
@@ -84,9 +98,10 @@ export const triggerUtils = {
                     if (
                         handshakeConfig.paramName &&
             typeof payload.body === 'object' &&
+            payload.body !== null &&
             handshakeConfig.paramName in payload.body
                     ) {
-                        return await executeHandshake({
+                        return executeHandshake({
                             flowVersion,
                             projectId,
                             payload,
@@ -171,7 +186,7 @@ export const triggerUtils = {
             return null
         }
 
-        return await disablePieceTrigger({
+        return disablePieceTrigger({
             projectId,
             flowVersion,
             simulate,
@@ -296,6 +311,15 @@ const enablePieceTrigger = async (params: EnableOrDisableParams) => {
                     cronExpression: POLLING_FREQUENCY_CRON_EXPRESSON,
                     timezone: 'UTC',
                 }
+                // BEGIN EE
+                const edition = getEdition()
+                if (edition === ApEdition.CLOUD) {
+                    const plan = await plansService.getOrCreateDefaultPlan({
+                        projectId,
+                    })
+                    engineHelperResponse.result.scheduleOptions.cronExpression = constructEveryXMinuteCron(plan.minimumPollingInterval)
+                }
+                // END EE
             }
             await flowQueue.add({
                 id: flowVersion.id,
@@ -325,7 +349,7 @@ async function getPieceTrigger({
     trigger: PieceTrigger
     projectId: ProjectId
 }): Promise<TriggerBase> {
-    const piece = await pieceMetadataService.get({
+    const piece = await pieceMetadataService.getOrThrow({
         projectId,
         name: trigger.settings.pieceName,
         version: trigger.settings.pieceVersion,

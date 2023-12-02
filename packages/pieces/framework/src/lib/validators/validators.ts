@@ -232,6 +232,17 @@ class Validators {
     },
   };
 
+  static nonZero: TypedValidatorFn<ValidationInputType.NUMBER> = {
+    type: ValidationInputType.NUMBER,
+    fn: (property, processedValue, userInput) => {
+      if (processedValue === 0) {
+        return formatErrorMessage(ErrorMessages.NON_ZERO, { userInput });
+      }
+
+      return null;
+    },
+  }
+
   static integer: TypedValidatorFn<ValidationInputType.NUMBER> = {
     type: ValidationInputType.NUMBER,
     fn: (property, processedValue, userInput) => {
@@ -308,6 +319,18 @@ class Validators {
         return formatErrorMessage(ErrorMessages.FILE, { userInput });
       }
       return null;
+    },
+  };
+
+  static phoneNumber: TypedValidatorFn<ValidationInputType.STRING> = {
+    type: ValidationInputType.STRING,
+    fn: (property, processedValue, userInput) => {
+        const pattern = new RegExp('^\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,3}?\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$');
+        if (isEmpty(processedValue)) return null;
+  
+        return pattern.test(String(processedValue))
+          ? null
+          : formatErrorMessage(ErrorMessages.PHONE_NUMBER, { userInput });
     },
   };
 

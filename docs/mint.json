@@ -5,7 +5,7 @@
     "dark": "./resources/logo/dark.svg",
     "href": "https://www.activepieces.com"
   },
-  "favicon": "/favicon.png",
+  "favicon": "/favicon.svg",
   "colors": {
     "primary": "#5155D7",
     "dark": "#3033A6",
@@ -34,22 +34,23 @@
     }
   ],
   "primaryTab": {
-      "name": "Learn"
+    "name": "Learn"
   },
   "tabs": [
     {
-      "name": "Develop Pieces",
-      "icon": "code",
+      "name": "Developers",
       "url": "developers"
     },
     {
       "name": "Pieces",
-      "icon": "plug",
       "url": "https://www.activepieces.com/pieces"
     },
     {
+      "name": "Deploy",
+      "url": "install"
+    },
+    {
       "name": "Discord",
-      "icon": "discord",
       "url": "https://discord.gg/2jUXBKDdP8"
     }
   ],
@@ -58,32 +59,40 @@
       "group": "Getting Started",
       "pages": [
         "getting-started/introduction",
-        "getting-started/building-flows",
-        "getting-started/passing-data",
-        "getting-started/publishing-flows",
-        "getting-started/debugging-runs"
+        "getting-started/principles"
       ]
     },
     {
-      "group": "Helper Pieces",
+      "group": "Flows",
       "pages": [
-        "helper-pieces/code"
+        "flows/building-flows",
+        "flows/passing-data",
+        "flows/publishing-flows",
+        "flows/debugging-runs",
+        "flows/code"
       ]
     },
     {
-      "group": "Self Host",
+      "group": "Security",
       "pages": [
-        {
-          "group": "Install Options",
-          "icon": "server",
-          "pages": [
-            "install/options/overview",
-            "install/options/docker",
-            "install/options/docker-compose",
-            "install/options/easypanel",            
-            "install/options/aws"
-          ]
-        },
+        "security/permissions",
+        "security/sso"
+      ]
+    },
+    {
+      "group": "Get Started",
+      "pages": [
+        "install/options/overview",
+        "install/options/docker",
+        "install/options/docker-compose",
+        "install/options/easypanel",
+        "install/options/aws",
+        "install/options/gcp"
+      ]
+    },
+    {
+      "group": "Reference",
+      "pages": [
         {
           "group": "Configurations",
           "icon": "gear",
@@ -92,8 +101,10 @@
             "install/configurations/error-notifications"
           ]
         },
-        "install/editions",
-        "install/breaking-changes"
+        "install/setup-ssl",
+        "install/architecture",
+        "install/enterprise",
+        "install/troubleshooting"
       ]
     },
     {
@@ -105,9 +116,10 @@
     {
       "group": "Tutorials",
       "pages": [
+        "developers/setup-fork",
         {
-          "group": "Development Setup",
-          "icon": "circle-1",
+          "group": "Development Environment",
+          "icon": "circle-2",
           "pages": [
             "developers/development-setup/getting-started",
             "developers/development-setup/codespaces",
@@ -118,14 +130,23 @@
         "developers/building-pieces/create-action",
         {
           "group": "Create Triggers",
-          "icon": "circle-3",
+          "icon": "circle-4",
           "pages": [
             "developers/building-pieces/triggers/overview",
             "developers/building-pieces/triggers/create-polling-trigger",
             "developers/building-pieces/triggers/create-webhook-trigger"
           ]
         },
-        "developers/building-pieces/publish-piece"
+        {
+          "group": "Sharing Pieces",
+          "icon": "circle-5",
+          "pages": [
+            "developers/sharing-pieces/overview",
+            "developers/sharing-pieces/contribute",
+            "developers/sharing-pieces/community",
+            "developers/sharing-pieces/private"
+          ]
+        }
       ]
     },
     {
@@ -136,6 +157,8 @@
         "developers/piece-reference/properties-validation",
         "developers/piece-reference/flow-control",
         "developers/piece-reference/persistent-storage",
+        "developers/piece-reference/files",
+        "developers/piece-reference/external-libraries",
         "developers/piece-reference/piece-versioning",
         "developers/piece-reference/examples"
       ]
@@ -149,17 +172,24 @@
       ]
     },
     {
-      "group": "Other",
+      "group": "Platform",
       "pages": [
-        "telemetry",
-        "changelog",
-        "license"
+        "platform/overview",
+        "platform/appearance",
+        "platform/manage-projects",
+        "platform/custom-domain",
+        "platform/manage-pieces",
+        "platform/manage-oauth2",
+        "platform/customize-emails",
+        "platform/managed-users",
+        "platform/embedding"
       ]
     },
     {
       "group": "Enterprise Edition",
       "pages": [
         "enterprise/whitelabel",
+        "enterprise/environments",
         {
           "group": "Connection Cards",
           "icon": "cards-blank",
@@ -170,6 +200,16 @@
             "enterprise/connection-cards/user-flows"
           ]
         }
+      ]
+    },
+    {
+      "group": "About",
+      "pages": [
+        "about/i18n",
+        "about/editions",
+        "about/changelog",
+        "about/telemetry",
+        "about/license"
       ]
     }
   ],

@@ -13,7 +13,10 @@
 			"extensions": [
 				"dbaeumer.vscode-eslint",
 				"esbenp.prettier-vscode",
-				"github.vscode-github-actions"
+				"github.vscode-github-actions",
+				"Angular.ng-template",
+				"nrwl.angular-console",
+				"cipchk.cssrem"
 			]
 		}
 	},

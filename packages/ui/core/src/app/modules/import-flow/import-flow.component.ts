@@ -5,7 +5,9 @@ import {
   TelemetryEventName,
 } from '@activepieces/shared';
 import {
+  FlagService,
   FlowService,
+  RedirectService,
   TelemetryService,
   TemplatesService,
 } from '@activepieces/ui/common';
@@ -35,15 +37,21 @@ export class ImportFlowComponent implements OnInit {
 
   importFlow$: Observable<void>;
   hasDirectFlag$: Observable<boolean> = of(false);
-
+  fullLogoUrl$: Observable<string>;
   constructor(
     private route: ActivatedRoute,
     private templatesService: TemplatesService,
     private flowService: FlowService,
     private router: Router,
     private metaService: Meta,
-    private telemetryService: TelemetryService
-  ) {}
+    private telemetryService: TelemetryService,
+    private flagService: FlagService,
+    private redirectService: RedirectService
+  ) {
+    this.fullLogoUrl$ = this.flagService
+      .getLogos()
+      .pipe(map((logos) => logos.fullLogoUrl));
+  }
 
   ngOnInit(): void {
     this.loadFlow$ = this.route.params.pipe(
@@ -115,14 +123,8 @@ export class ImportFlowComponent implements OnInit {
         catchError((error) => {
           console.error(error);
           if (error.status === StatusCodes.UNAUTHORIZED) {
-            this.router.navigate(['/sign-up'], {
-              queryParams: {
-                redirect_url:
-                  `${window.location.origin}${window.location.pathname}`.split(
-                    '?'
-                  )[0],
-              },
-            });
+            this.redirectService.setRedirectRouteToCurrentRoute();
+            this.router.navigate(['/sign-in']);
             return EMPTY;
           }
           this.router.navigate(['not-found']);
