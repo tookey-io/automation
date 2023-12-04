@@ -1,0 +1,46 @@
+{
+  "name": "pieces-polygon-id",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/polygon-id/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/polygon-id",
+        "tsConfig": "packages/pieces/polygon-id/tsconfig.lib.json",
+        "packageJson": "packages/pieces/polygon-id/package.json",
+        "main": "packages/pieces/polygon-id/src/index.ts",
+        "assets": [
+          "packages/pieces/polygon-id/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-polygon-id {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/polygon-id/**/*.ts",
+          "packages/pieces/polygon-id/package.json"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "@tookey-io"
+  ]
+}
