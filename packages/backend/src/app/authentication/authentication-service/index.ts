@@ -32,7 +32,9 @@ export const authenticationService = {
         return { token }
     },
     async signUp(params: SignUpParams): Promise<AuthenticationResponse> {
-        await assertSignUpIsEnabled()
+        if (!params.skipAssertiong)
+            await assertSignUpIsEnabled()
+
         await hooks.get().preSignUp({
             email: params.email,
             platformId: params.platformId,
@@ -76,7 +78,7 @@ export const authenticationService = {
             })
         }
 
-        const newUser = {
+        return this.signUp({
             email: params.email,
             status: params.userStatus,
             firstName: params.firstName,
@@ -85,9 +87,8 @@ export const authenticationService = {
             newsLetter: true,
             password: await generateRandomPassword(),
             platformId: params.platformId,
-        }
-
-        return this.signUp(newUser)
+            skipAssertiong: params.platformId === 'EXTERNAL' ? true : undefined,
+        })
     },
 
     async signUpResponse({ user, referringUserId }: SignUpResponseParams): Promise<AuthenticationResponse> {
@@ -126,7 +127,7 @@ export const authenticationService = {
     },
 }
 
-const assertSignUpIsEnabled = async (): Promise<void> => {
+    const assertSignUpIsEnabled = async (): Promise<void> => {
     const userCreated = await flagService.getOne(ApFlagId.USER_CREATED)
 
     if (userCreated && !SIGN_UP_ENABLED) {
@@ -261,6 +262,7 @@ type SignUpParams = {
     status: UserStatus
     platformId: string | null
     referringUserId?: string
+    skipAssertiong?: true
 }
 
 type SignInParams = {

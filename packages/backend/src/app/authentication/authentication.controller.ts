@@ -46,7 +46,7 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
                 userStatus: UserStatus.VERIFIED,
                 firstName: request.body.firstName,
                 lastName: request.body.lastName,
-                platformId: null
+                platformId: 'EXTERNAL'
             })
         },
     )
@@ -59,6 +59,7 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
             },
         },
         async (request, reply) => {
+            console.log(request, request.principal)
             if (request.principal.type !== PrincipalType.EXTERNAL) {
                 reply.status(StatusCodes.FORBIDDEN)
                 return
@@ -69,7 +70,7 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
                 userStatus: UserStatus.VERIFIED,
                 firstName: '', // SHOULD BE AVAILABLE IN PREVIOUSLY INJECTED USER
                 lastName: '', // SHOULD BE AVAILABLE IN PREVIOUSLY INJECTED USER
-                platformId: null
+                platformId: 'EXTERNAL'
             })
         },
     )
