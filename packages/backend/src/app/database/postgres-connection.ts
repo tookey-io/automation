@@ -93,6 +93,8 @@ import { ModifyProjectMembersAndRemoveUserId1701647565290 } from './migration/po
 import { AddApiKeys1701716639135 } from './migration/postgres/1701716639135-AddApiKeys'
 import { AddEmbeddingFeatureToPlatform1701794452891 } from './migration/postgres/1701794452891-AddEmbeddingFeatureToPlatform'
 import { AddPlatformIdToFile1701807681821 } from './migration/postgres/1701807681821-AddPlatformIdToFile'
+import { AddPlatformIdToFlowTemplates1703411318826 } from './migration/postgres/1703411318826-AddPlatformIdToFlowTemplates'
+import { RemoveFlowInstance1702379794665 } from './migration/postgres/1702379794665-remove-flow-instance'
 
 
 const getSslConfig = (): boolean | TlsOptions => {
@@ -160,6 +162,7 @@ const getMigrations = (): (new () => MigrationInterface)[] => {
         AddPlatformIdToPieceMetadata1700522340280,
         AddPartialUniqueIndexForEmailAndPlatformIdIsNull1701096458822,
         AddPlatformIdToFile1701807681821,
+        RemoveFlowInstance1702379794665,
     ]
 
     const edition = getEdition()
@@ -199,10 +202,17 @@ const getMigrations = (): (new () => MigrationInterface)[] => {
                 ModifyProjectMembersAndRemoveUserId1701647565290,
                 AddApiKeys1701716639135,
                 AddEmbeddingFeatureToPlatform1701794452891,
+                AddPlatformIdToFlowTemplates1703411318826,
             )
             break
         case ApEdition.ENTERPRISE:
             commonMigration.push(
+                AddTemplates1685538145476,
+                AddPinnedAndBlogUrlToTemplates1686133672743,
+                AddPinnedOrder1686154285890,
+                AddProjectIdToTemplate1688083336934,
+                FlowTemplateAddUserIdAndImageUrl1694379223109,
+                AddFeaturedDescriptionAndFlagToTemplates1694604120205,
                 AddProjectMembers1689177797092,
                 ProjectMemberRelations1694381968985,
                 AddPlatform1697717995884,
@@ -227,6 +237,7 @@ const getMigrations = (): (new () => MigrationInterface)[] => {
                 ModifyProjectMembersAndRemoveUserId1701647565290,
                 AddApiKeys1701716639135,
                 AddEmbeddingFeatureToPlatform1701794452891,
+                AddPlatformIdToFlowTemplates1703411318826,
             )
             break
         case ApEdition.COMMUNITY:

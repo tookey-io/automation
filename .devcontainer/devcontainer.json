@@ -16,7 +16,10 @@
 				"github.vscode-github-actions",
 				"Angular.ng-template",
 				"nrwl.angular-console",
-				"cipchk.cssrem"
+				"cipchk.cssrem",
+				"huizhou.githd",
+				"GitHub.copilot",
+				"GitHub.copilot-chat"
 			]
 		}
 	},

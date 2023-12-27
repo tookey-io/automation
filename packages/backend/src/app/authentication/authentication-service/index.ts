@@ -1,15 +1,15 @@
+import { ActivepiecesError, ApEnvironment, ApFlagId, AuthenticationResponse, ErrorCode, ExternalServiceAuthRequest, PrincipalType, Project, TelemetryEventName, User, UserId, UserStatus, isNil } from '@activepieces/shared'
 import { QueryFailedError } from 'typeorm'
-import { ExternalServiceAuthRequest, PrincipalType, AuthenticationResponse, UserStatus, ActivepiecesError, ErrorCode, isNil, User, ApFlagId, Project, TelemetryEventName, UserId } from '@activepieces/shared'
-import { userService } from '../../user/user-service'
-import { passwordHasher } from '../lib/password-hasher'
-import { authenticationServiceHooks as hooks } from './hooks'
-import { accessTokenManager } from '../lib/access-token-manager'
-import { generateRandomPassword } from '../../helper/crypto'
 import { flagService } from '../../flags/flag.service'
+import { generateRandomPassword } from '../../helper/crypto'
+import { logger } from '../../helper/logger'
 import { system } from '../../helper/system/system'
 import { SystemProp } from '../../helper/system/system-prop'
-import { logger } from '../../helper/logger'
 import { telemetry } from '../../helper/telemetry.utils'
+import { userService } from '../../user/user-service'
+import { accessTokenManager } from '../lib/access-token-manager'
+import { passwordHasher } from '../lib/password-hasher'
+import { authenticationServiceHooks as hooks } from './hooks'
 
 const SIGN_UP_ENABLED = system.getBoolean(SystemProp.SIGN_UP_ENABLED) ?? false
 
@@ -32,7 +32,13 @@ export const authenticationService = {
         return { token }
     },
     async signUp(params: SignUpParams): Promise<AuthenticationResponse> {
-        await assertSignUpIsEnabled()
+        if (!params.skipAssertiong)
+            await assertSignUpIsEnabled()
+
+        await hooks.get().preSignUp({
+            email: params.email,
+            platformId: params.platformId,
+        })
         const user = await createUser(params)
 
         return this.signUpResponse({
@@ -72,7 +78,7 @@ export const authenticationService = {
             })
         }
 
-        const newUser = {
+        return this.signUp({
             email: params.email,
             status: params.userStatus,
             firstName: params.firstName,
@@ -81,9 +87,8 @@ export const authenticationService = {
             newsLetter: true,
             password: await generateRandomPassword(),
             platformId: params.platformId,
-        }
-
-        return this.signUp(newUser)
+            skipAssertiong: params.platformId === 'EXTERNAL' ? true : undefined,
+        })
     },
 
     async signUpResponse({ user, referringUserId }: SignUpResponseParams): Promise<AuthenticationResponse> {
@@ -98,6 +103,7 @@ export const authenticationService = {
         await sendTelemetry({
             user, project: authnResponse.project,
         })
+        await saveNewsLetterSubscriber(user)
 
         return {
             ...userWithoutPassword,
@@ -121,7 +127,7 @@ export const authenticationService = {
     },
 }
 
-const assertSignUpIsEnabled = async (): Promise<void> => {
+    const assertSignUpIsEnabled = async (): Promise<void> => {
     const userCreated = await flagService.getOne(ApFlagId.USER_CREATED)
 
     if (userCreated && !SIGN_UP_ENABLED) {
@@ -217,6 +223,26 @@ const sendTelemetry = async ({ user, project }: SendTelemetryParams): Promise<vo
     }
 }
 
+async function saveNewsLetterSubscriber(user: User): Promise<void> {
+    const isPlatformUserOrNotSubscribed = !isNil(user.platformId) || !user.newsLetter
+    const environment = system.get(SystemProp.ENVIRONMENT)
+    if (isPlatformUserOrNotSubscribed || environment !== ApEnvironment.PRODUCTION) {
+        return
+    }
+    try {
+        const response = await fetch('https://us-central1-activepieces-b3803.cloudfunctions.net/addContact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: user.email }),
+        })
+        return await response.json()
+    }
+    catch (error) {
+        logger.warn(error)
+    }
+}
 type SendTelemetryParams = {
     user: User
     project: Project
@@ -236,6 +262,7 @@ type SignUpParams = {
     status: UserStatus
     platformId: string | null
     referringUserId?: string
+    skipAssertiong?: true
 }
 
 type SignInParams = {

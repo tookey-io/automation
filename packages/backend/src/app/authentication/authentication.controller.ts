@@ -1,9 +1,9 @@
-import { ApFlagId, PrincipalType, ExternalUserRequest, ExternalUserAuthRequest, ExternalServiceAuthRequest, SignInRequest, SignUpRequest, UserStatus, apId, ApEdition } from '@activepieces/shared'
-import { StatusCodes } from 'http-status-codes'
+import { ALL_PRINICPAL_TYPES, ApEdition, ExternalServiceAuthRequest, ExternalUserAuthRequest, ExternalUserRequest, PrincipalType, SignInRequest, SignUpRequest, UserStatus } from '@activepieces/shared'
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
-import { authenticationService } from './authentication-service'
+import { StatusCodes } from 'http-status-codes'
 import { resolvePlatformIdForRequest } from '../ee/platform/lib/platform-utils'
 import { getEdition } from '../helper/secret-helper'
+import { authenticationService } from './authentication-service'
 
 const edition = getEdition()
 
@@ -46,7 +46,7 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
                 userStatus: UserStatus.VERIFIED,
                 firstName: request.body.firstName,
                 lastName: request.body.lastName,
-                platformId: null
+                platformId: 'EXTERNAL'
             })
         },
     )
@@ -59,6 +59,7 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
             },
         },
         async (request, reply) => {
+            console.log(request, request.principal)
             if (request.principal.type !== PrincipalType.EXTERNAL) {
                 reply.status(StatusCodes.FORBIDDEN)
                 return
@@ -69,7 +70,7 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
                 userStatus: UserStatus.VERIFIED,
                 firstName: '', // SHOULD BE AVAILABLE IN PREVIOUSLY INJECTED USER
                 lastName: '', // SHOULD BE AVAILABLE IN PREVIOUSLY INJECTED USER
-                platformId: null
+                platformId: 'EXTERNAL'
             })
         },
     )
@@ -101,12 +102,18 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
 }
 
 const SignUpRequestOptions = {
+    config: {
+        allowedPrincipals: ALL_PRINICPAL_TYPES,
+    },
     schema: {
         body: SignUpRequest,
     },
 }
 
 const SignInRequestOptions = {
+    config: {
+        allowedPrincipals: ALL_PRINICPAL_TYPES,
+    },
     schema: {
         body: SignInRequest,
     },

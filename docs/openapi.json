@@ -7,6 +7,7 @@
   "components": {
     "schemas": {
       "project-member": {
+        "description": "Project member is which user is assigned to a project.",
         "type": "object",
         "properties": {
           "id": {
@@ -73,7 +74,6 @@
           "created",
           "updated",
           "email",
-          "platformId",
           "projectId",
           "role",
           "status"
@@ -183,14 +183,12 @@
               "created",
               "updated",
               "projectId",
-              "stripeSubscriptionId",
               "subscriptionStartDatetime",
               "flowPlanName",
               "minimumPollingInterval",
               "connections",
               "teamMembers",
-              "tasks",
-              "tasksPerDay"
+              "tasks"
             ]
           },
           "usage": {
@@ -556,12 +554,12 @@
           "created",
           "updated",
           "projectId",
-          "folderId",
           "version",
           "status"
         ]
       },
       "app-connection": {
+        "description": "App connection is a connection to an external app.",
         "type": "object",
         "properties": {
           "id": {
@@ -654,380 +652,10 @@
     }
   },
   "paths": {
-    "/v1/flows/{flowId}": {
-      "get": {
-        "tags": [
-          "flows"
-        ],
-        "description": "Get a flow by id",
-        "parameters": [
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "query",
-            "name": "versionId",
-            "required": false
-          },
-          {
-            "schema": {
-              "pattern": "^[0-9a-zA-Z]{21}$",
-              "type": "string"
-            },
-            "in": "path",
-            "name": "flowId",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Default Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "created": {
-                      "type": "string"
-                    },
-                    "updated": {
-                      "type": "string"
-                    },
-                    "projectId": {
-                      "type": "string"
-                    },
-                    "folderId": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "version": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "created": {
-                          "type": "string"
-                        },
-                        "updated": {
-                          "type": "string"
-                        },
-                        "flowId": {
-                          "type": "string"
-                        },
-                        "displayName": {
-                          "type": "string"
-                        },
-                        "trigger": {
-                          "anyOf": [
-                            {
-                              "type": "object",
-                              "properties": {
-                                "name": {
-                                  "type": "string"
-                                },
-                                "valid": {
-                                  "type": "boolean"
-                                },
-                                "displayName": {
-                                  "type": "string"
-                                },
-                                "nextAction": {},
-                                "type": {
-                                  "type": "string",
-                                  "enum": [
-                                    "WEBHOOK"
-                                  ]
-                                },
-                                "settings": {
-                                  "type": "object",
-                                  "properties": {
-                                    "inputUiInfo": {
-                                      "additionalProperties": true,
-                                      "type": "object",
-                                      "properties": {
-                                        "currentSelectedData": {},
-                                        "customizedInputs": {
-                                          "type": "object",
-                                          "additionalProperties": {}
-                                        },
-                                        "lastTestDate": {
-                                          "type": "string"
-                                        }
-                                      }
-                                    }
-                                  },
-                                  "required": [
-                                    "inputUiInfo"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "name",
-                                "valid",
-                                "displayName",
-                                "type",
-                                "settings"
-                              ]
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "name": {
-                                  "type": "string"
-                                },
-                                "valid": {
-                                  "type": "boolean"
-                                },
-                                "displayName": {
-                                  "type": "string"
-                                },
-                                "nextAction": {},
-                                "type": {
-                                  "type": "string",
-                                  "enum": [
-                                    "PIECE_TRIGGER"
-                                  ]
-                                },
-                                "settings": {
-                                  "type": "object",
-                                  "properties": {
-                                    "pieceName": {
-                                      "type": "string"
-                                    },
-                                    "pieceVersion": {
-                                      "type": "string",
-                                      "pattern": "^([~^])?[0-9]+\\.[0-9]+\\.[0-9]+$"
-                                    },
-                                    "pieceType": {
-                                      "anyOf": [
-                                        {
-                                          "type": "string",
-                                          "enum": [
-                                            "CUSTOM"
-                                          ]
-                                        },
-                                        {
-                                          "type": "string",
-                                          "enum": [
-                                            "OFFICIAL"
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    "packageType": {
-                                      "anyOf": [
-                                        {
-                                          "type": "string",
-                                          "enum": [
-                                            "ARCHIVE"
-                                          ]
-                                        },
-                                        {
-                                          "type": "string",
-                                          "enum": [
-                                            "REGISTRY"
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    "triggerName": {
-                                      "type": "string"
-                                    },
-                                    "input": {
-                                      "type": "object",
-                                      "additionalProperties": {}
-                                    },
-                                    "inputUiInfo": {
-                                      "additionalProperties": true,
-                                      "type": "object",
-                                      "properties": {
-                                        "currentSelectedData": {},
-                                        "customizedInputs": {
-                                          "type": "object",
-                                          "additionalProperties": {}
-                                        },
-                                        "lastTestDate": {
-                                          "type": "string"
-                                        }
-                                      }
-                                    }
-                                  },
-                                  "required": [
-                                    "pieceName",
-                                    "pieceVersion",
-                                    "pieceType",
-                                    "packageType",
-                                    "triggerName",
-                                    "input",
-                                    "inputUiInfo"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "name",
-                                "valid",
-                                "displayName",
-                                "type",
-                                "settings"
-                              ]
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "name": {
-                                  "type": "string"
-                                },
-                                "valid": {
-                                  "type": "boolean"
-                                },
-                                "displayName": {
-                                  "type": "string"
-                                },
-                                "nextAction": {},
-                                "type": {
-                                  "type": "string",
-                                  "enum": [
-                                    "EMPTY"
-                                  ]
-                                },
-                                "settings": {}
-                              },
-                              "required": [
-                                "name",
-                                "valid",
-                                "displayName",
-                                "type",
-                                "settings"
-                              ]
-                            }
-                          ]
-                        },
-                        "updatedBy": {
-                          "type": "string"
-                        },
-                        "valid": {
-                          "type": "boolean"
-                        },
-                        "state": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "enum": [
-                                "LOCKED"
-                              ]
-                            },
-                            {
-                              "type": "string",
-                              "enum": [
-                                "DRAFT"
-                              ]
-                            }
-                          ]
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "created",
-                        "updated",
-                        "flowId",
-                        "displayName",
-                        "trigger",
-                        "updatedBy",
-                        "valid",
-                        "state"
-                      ]
-                    },
-                    "status": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "ENABLED"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "DISABLED"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "UNPUBLISHED"
-                          ]
-                        }
-                      ]
-                    },
-                    "schedule": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "enum": [
-                            "CRON_EXPRESSION"
-                          ]
-                        },
-                        "cronExpression": {
-                          "type": "string"
-                        },
-                        "timezone": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "type",
-                        "cronExpression",
-                        "timezone"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "created",
-                    "updated",
-                    "projectId",
-                    "folderId",
-                    "version",
-                    "status"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "flows"
-        ],
-        "description": "Delete a flow",
-        "parameters": [
-          {
-            "schema": {
-              "pattern": "^[0-9a-zA-Z]{21}$",
-              "type": "string"
-            },
-            "in": "path",
-            "name": "flowId",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Default Response"
-          }
-        }
-      }
-    },
     "/v1/app-connections/": {
       "post": {
         "tags": [
-          "connection"
+          "app-connections"
         ],
         "description": "Upsert an app connection based on the app name",
         "requestBody": {
@@ -1044,6 +672,9 @@
                         "type": "string"
                       },
                       "appName": {
+                        "type": "string"
+                      },
+                      "projectId": {
                         "type": "string"
                       },
                       "type": {
@@ -1074,6 +705,7 @@
                     "required": [
                       "name",
                       "appName",
+                      "projectId",
                       "type",
                       "value"
                     ]
@@ -1087,6 +719,9 @@
                         "type": "string"
                       },
                       "appName": {
+                        "type": "string"
+                      },
+                      "projectId": {
                         "type": "string"
                       },
                       "type": {
@@ -1176,6 +811,7 @@
                     "required": [
                       "name",
                       "appName",
+                      "projectId",
                       "type",
                       "value"
                     ]
@@ -1189,6 +825,9 @@
                         "type": "string"
                       },
                       "appName": {
+                        "type": "string"
+                      },
+                      "projectId": {
                         "type": "string"
                       },
                       "type": {
@@ -1255,6 +894,7 @@
                     "required": [
                       "name",
                       "appName",
+                      "projectId",
                       "type",
                       "value"
                     ]
@@ -1268,6 +908,9 @@
                         "type": "string"
                       },
                       "appName": {
+                        "type": "string"
+                      },
+                      "projectId": {
                         "type": "string"
                       },
                       "type": {
@@ -1338,6 +981,7 @@
                     "required": [
                       "name",
                       "appName",
+                      "projectId",
                       "type",
                       "value"
                     ]
@@ -1351,6 +995,9 @@
                         "type": "string"
                       },
                       "appName": {
+                        "type": "string"
+                      },
+                      "projectId": {
                         "type": "string"
                       },
                       "type": {
@@ -1385,6 +1032,7 @@
                     "required": [
                       "name",
                       "appName",
+                      "projectId",
                       "type",
                       "value"
                     ]
@@ -1398,6 +1046,9 @@
                         "type": "string"
                       },
                       "appName": {
+                        "type": "string"
+                      },
+                      "projectId": {
                         "type": "string"
                       },
                       "type": {
@@ -1429,6 +1080,7 @@
                     "required": [
                       "name",
                       "appName",
+                      "projectId",
                       "type",
                       "value"
                     ]
@@ -1446,7 +1098,7 @@
       },
       "get": {
         "tags": [
-          "connection"
+          "app-connections"
         ],
         "description": "List app connections",
         "parameters": [
@@ -1457,6 +1109,14 @@
             "in": "query",
             "name": "cursor",
             "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "projectId",
+            "required": true
           },
           {
             "schema": {
@@ -1486,6 +1146,7 @@
                     "data": {
                       "type": "array",
                       "items": {
+                        "description": "App connection is a connection to an external app.",
                         "type": "object",
                         "properties": {
                           "id": {
@@ -1588,9 +1249,7 @@
                     }
                   },
                   "required": [
-                    "data",
-                    "next",
-                    "previous"
+                    "data"
                   ]
                 }
               }
@@ -1599,10 +1258,10 @@
         }
       }
     },
-    "/v1/app-connections/{connectionId}": {
+    "/v1/app-connections/{id}": {
       "delete": {
         "tags": [
-          "connection"
+          "app-connections"
         ],
         "description": "Delete an app connection",
         "parameters": [
@@ -1612,7 +1271,7 @@
               "type": "string"
             },
             "in": "path",
-            "name": "connectionId",
+            "name": "id",
             "required": true
           }
         ],
@@ -1755,14 +1414,12 @@
                         "created",
                         "updated",
                         "projectId",
-                        "stripeSubscriptionId",
                         "subscriptionStartDatetime",
                         "flowPlanName",
                         "minimumPollingInterval",
                         "connections",
                         "teamMembers",
-                        "tasks",
-                        "tasksPerDay"
+                        "tasks"
                       ]
                     },
                     "usage": {
@@ -1836,7 +1493,7 @@
               "type": "string"
             },
             "in": "query",
-            "name": "platformId",
+            "name": "externalId",
             "required": false
           }
         ],
@@ -1954,14 +1611,12 @@
                               "created",
                               "updated",
                               "projectId",
-                              "stripeSubscriptionId",
                               "subscriptionStartDatetime",
                               "flowPlanName",
                               "minimumPollingInterval",
                               "connections",
                               "teamMembers",
-                              "tasks",
-                              "tasksPerDay"
+                              "tasks"
                             ]
                           },
                           "usage": {
@@ -2033,9 +1688,7 @@
                     }
                   },
                   "required": [
-                    "data",
-                    "next",
-                    "previous"
+                    "data"
                   ]
                 }
               }
@@ -2044,7 +1697,7 @@
         }
       }
     },
-    "/v1/projects/{projectId}": {
+    "/v1/projects/{id}": {
       "post": {
         "tags": [
           "projects"
@@ -2105,7 +1758,7 @@
               "type": "string"
             },
             "in": "path",
-            "name": "projectId",
+            "name": "id",
             "required": true
           }
         ],
@@ -2218,14 +1871,12 @@
                         "created",
                         "updated",
                         "projectId",
-                        "stripeSubscriptionId",
                         "subscriptionStartDatetime",
                         "flowPlanName",
                         "minimumPollingInterval",
                         "connections",
                         "teamMembers",
-                        "tasks",
-                        "tasksPerDay"
+                        "tasks"
                       ]
                     },
                     "usage": {
@@ -2291,6 +1942,42 @@
       }
     },
     "/v1/project-members/": {
+      "get": {
+        "tags": [
+          "project-members"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "projectId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
       "post": {
         "tags": [
           "project-members"
@@ -2301,6 +1988,9 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "projectId": {
+                    "type": "string"
+                  },
                   "email": {
                     "type": "string"
                   },
@@ -2345,6 +2035,7 @@
                   }
                 },
                 "required": [
+                  "projectId",
                   "email",
                   "role"
                 ]
@@ -2355,10 +2046,11 @@
         },
         "responses": {
           "201": {
-            "description": "Default Response",
+            "description": "Project member is which user is assigned to a project.",
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "Project member is which user is assigned to a project.",
                   "type": "object",
                   "properties": {
                     "id": {
@@ -2425,7 +2117,6 @@
                     "created",
                     "updated",
                     "email",
-                    "platformId",
                     "projectId",
                     "role",
                     "status"
@@ -2435,7 +2126,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/v1/project-members/{id}": {
       "delete": {
         "tags": [
           "project-members"
@@ -2445,8 +2138,8 @@
             "schema": {
               "type": "string"
             },
-            "in": "query",
-            "name": "userExternalId",
+            "in": "path",
+            "name": "id",
             "required": true
           }
         ],
