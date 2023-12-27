@@ -44,12 +44,6 @@ export const flagService = {
                 updated,
             },
             {
-                id: ApFlagId.CHATBOT_ENABLED,
-                value: getEdition() === ApEdition.ENTERPRISE ? false : system.getBoolean(SystemProp.CHATBOT_ENABLED),
-                created,
-                updated,
-            },
-            {
                 id: ApFlagId.CLOUD_AUTH_ENABLED,
                 value: system.getBoolean(SystemProp.CLOUD_AUTH_ENABLED) ?? true,
                 created,
@@ -57,6 +51,12 @@ export const flagService = {
             },
             {
                 id: ApFlagId.SHOW_COMMUNITY_PIECES,
+                value: true,
+                created,
+                updated,
+            },
+            {
+                id: ApFlagId.SHOW_SIGN_UP_LINK,
                 value: true,
                 created,
                 updated,

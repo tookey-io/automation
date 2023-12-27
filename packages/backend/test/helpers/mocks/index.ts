@@ -1,11 +1,12 @@
-import { KeyAlgorithm, SigningKey, Platform, OAuthApp, FilteredPieceBehavior, CustomDomain, CustomDomainStatus, OtpModel, OtpType, OtpState, ProjectMember, ApiKey } from '@activepieces/ee-shared'
-import { UserStatus, User, apId, Project, NotificationStatus, ProjectType, PieceType, PackageType } from '@activepieces/shared'
+import { KeyAlgorithm, SigningKey, Platform, OAuthApp, FilteredPieceBehavior, CustomDomain, CustomDomainStatus, OtpModel, OtpType, OtpState, ProjectMember, ApiKey, ProjectMemberRole, ProjectMemberStatus } from '@activepieces/ee-shared'
+import { UserStatus, User, apId, Project, NotificationStatus, ProjectType, PieceType, PackageType, Flow, FlowStatus, FlowVersion, TriggerType, FlowVersionState } from '@activepieces/shared'
 import { faker } from '@faker-js/faker'
 import { PieceMetadataSchema } from '../../../src/app/pieces/piece-metadata-entity'
 import bcrypt from 'bcrypt'
 import { OAuthAppWithEncryptedSecret } from '../../../src/app/ee/oauth-apps/oauth-app.entity'
 import { encryptString } from '../../../src/app/helper/encryption'
 import dayjs from 'dayjs'
+import { generateApiKey } from '../../../src/app/ee/api-keys/api-key-service'
 
 export const createMockUser = (user?: Partial<User>): User => {
     return {
@@ -79,6 +80,42 @@ export const createMockPlatform = (platform?: Partial<Platform>): Platform => {
     }
 }
 
+export const createMockPlatformWithOwner = (params?: CreateMockPlatformWithOwnerParams): CreateMockPlatformWithOwnerReturn => {
+    const mockOwnerId = params?.owner?.id ?? apId()
+    const mockPlatformId = params?.platform?.id ?? apId()
+
+    const mockOwner = createMockUser({
+        ...params?.owner,
+        id: mockOwnerId,
+        platformId: mockPlatformId,
+    })
+
+    const mockPlatform = createMockPlatform({
+        ...params?.platform,
+        id: mockPlatformId,
+        ownerId: mockOwnerId,
+    })
+
+    return {
+        mockPlatform,
+        mockOwner,
+    }
+}
+
+export const createMockProjectMember = (projectMember?: Partial<ProjectMember>): ProjectMember => {
+    return {
+        id: projectMember?.id ?? apId(),
+        created: projectMember?.created ?? faker.date.recent().toISOString(),
+        updated: projectMember?.updated ?? faker.date.recent().toISOString(),
+        platformId: projectMember?.platformId ?? null,
+        email: projectMember?.email ?? faker.internet.email(),
+        projectId: projectMember?.projectId ?? apId(),
+        role: projectMember?.role ?? faker.helpers.enumValue(ProjectMemberRole),
+        status: projectMember?.status ?? faker.helpers.enumValue(ProjectMemberStatus),
+    }
+}
+
+
 const MOCK_SIGNING_KEY_PUBLIC_KEY = `-----BEGIN RSA PUBLIC KEY-----
 MIICCgKCAgEAlnd5vGP/1bzcndN/yRD+ZTd6tuemxaJd+12bOZ2QCXcTM03AKSp3
 NE5QMyIi13PXMg+z1uPowfivPJ4iVTMaW1U00O7JlUduGR0VrG0BCJlfEf852V71
@@ -93,15 +130,35 @@ j9mmntXsa/leIwBVspiEOHYZwJOe5+goSd8K1VIQJxC1DVBxB2eHxMvuo3eyJ0HE
 DlebIeZy4zrE1LPgRic1kfdemyxvuN3iwZnPGiY79nL1ZNDM3M4ApSMCAwEAAQ==
 -----END RSA PUBLIC KEY-----`
 
-export const createMockApiKey = (apiKey?: Partial<ApiKey>): ApiKey => {
+export const createMockApiKey = (apiKey?: Partial<Omit<ApiKey, 'hashedValue' | 'truncatedValue'>>): ApiKey & { value: string } => {
+    const { secretHashed, secretTruncated, secret } = generateApiKey()
     return {
         id: apiKey?.id ?? apId(),
         created: apiKey?.created ?? faker.date.recent().toISOString(),
         updated: apiKey?.updated ?? faker.date.recent().toISOString(),
         displayName: apiKey?.displayName ?? faker.lorem.word(),
         platformId: apiKey?.platformId ?? apId(),
-        hashedValue: apiKey?.hashedValue ?? faker.lorem.word(),
-        truncatedValue: apiKey?.truncatedValue ?? faker.lorem.word(),
+        hashedValue: secretHashed,
+        value: secret,
+        truncatedValue: secretTruncated,
+    }
+}
+
+export const setupMockApiKeyServiceAccount = (params?: SetupMockApiKeyServiceAccountParams): SetupMockApiKeyServiceAccountReturn => {
+    const { mockOwner, mockPlatform } = createMockPlatformWithOwner({
+        owner: params?.owner,
+        platform: params?.platform,
+    })
+
+    const mockApiKey = createMockApiKey({
+        ...params?.apiKey,
+        platformId: mockPlatform.id,
+    })
+
+    return {
+        mockOwner,
+        mockPlatform,
+        mockApiKey,
     }
 }
 
@@ -157,7 +214,7 @@ export const createMockPieceMetadata = (pieceMetadata?: Partial<Omit<PieceMetada
 
 export const createMockCustomDomain = (customDomain?: Partial<CustomDomain>): CustomDomain => {
     return {
-        id: customDomain?. id ?? apId(),
+        id: customDomain?.id ?? apId(),
         created: customDomain?.created ?? faker.date.recent().toISOString(),
         updated: customDomain?.updated ?? faker.date.recent().toISOString(),
         domain: customDomain?.domain ?? faker.internet.domainName(),
@@ -171,7 +228,7 @@ export const createMockOtp = (otp?: Partial<OtpModel>): OtpModel => {
     const twentyMinutesAgo = now.subtract(20, 'minutes')
 
     return {
-        id: otp?. id ?? apId(),
+        id: otp?.id ?? apId(),
         created: otp?.created ?? faker.date.recent().toISOString(),
         updated: otp?.updated ?? faker.date.between({ from: twentyMinutesAgo.toDate(), to: now.toDate() }).toISOString(),
         type: otp?.type ?? faker.helpers.enumValue(OtpType),
@@ -179,4 +236,57 @@ export const createMockOtp = (otp?: Partial<OtpModel>): OtpModel => {
         value: otp?.value ?? faker.number.int({ min: 100000, max: 999999 }).toString(),
         state: otp?.state ?? faker.helpers.enumValue(OtpState),
     }
+}
+
+export const createMockFlow = (flow?: Partial<Flow>): Flow => {
+    return {
+        id: flow?.id ?? apId(),
+        created: flow?.created ?? faker.date.recent().toISOString(),
+        updated: flow?.updated ?? faker.date.recent().toISOString(),
+        projectId: flow?.projectId ?? apId(),
+        status: flow?.status ?? faker.helpers.enumValue(FlowStatus),
+        folderId: flow?.folderId ?? null,
+        schedule: flow?.schedule ?? null,
+        publishedVersionId: flow?.publishedVersionId ?? null,
+    }
+}
+
+export const createMockFlowVersion = (flowVersion?: Partial<FlowVersion>): FlowVersion => {
+    const emptyTrigger = {
+        type: TriggerType.EMPTY,
+        name: 'trigger',
+        settings: {},
+        valid: false,
+        displayName: 'Select Trigger',
+    } as const
+
+    return {
+        id: flowVersion?.id ?? apId(),
+        created: flowVersion?.created ?? faker.date.recent().toISOString(),
+        updated: flowVersion?.updated ?? faker.date.recent().toISOString(),
+        displayName: flowVersion?.displayName ?? faker.word.words(),
+        flowId: flowVersion?.flowId ?? apId(),
+        trigger: flowVersion?.trigger ?? emptyTrigger,
+        state: flowVersion?.state ?? faker.helpers.enumValue(FlowVersionState),
+        updatedBy: flowVersion?.updatedBy ?? apId(),
+        valid: flowVersion?.valid ?? faker.datatype.boolean(),
+    }
+}
+
+type CreateMockPlatformWithOwnerParams = {
+    platform?: Partial<Omit<Platform, 'ownerId'>>
+    owner?: Partial<Omit<User, 'platformId'>>
+}
+
+type CreateMockPlatformWithOwnerReturn = {
+    mockPlatform: Platform
+    mockOwner: User
+}
+
+type SetupMockApiKeyServiceAccountParams = CreateMockPlatformWithOwnerParams & {
+    apiKey?: Partial<Omit<ApiKey, 'hashedValue' | 'truncatedValue'>>
+}
+
+type SetupMockApiKeyServiceAccountReturn = CreateMockPlatformWithOwnerReturn & {
+    mockApiKey: ApiKey & { value: string }
 }

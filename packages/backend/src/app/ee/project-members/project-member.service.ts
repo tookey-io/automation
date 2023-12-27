@@ -9,7 +9,6 @@ import {
     Principal,
     ProjectId,
     SeekPage,
-    User,
     UserId,
     apId,
     isNil,
@@ -31,6 +30,7 @@ import dayjs from 'dayjs'
 import { accessTokenManager } from '../../authentication/lib/access-token-manager'
 import { getEdition } from '../../helper/secret-helper'
 import { IsNull } from 'typeorm'
+import { jwtUtils } from '../../helper/jwt-utils'
 
 const projectMemberRepo = databaseConnection.getRepository(ProjectMemberEntity)
 
@@ -40,8 +40,15 @@ export const projectMemberService = {
             projectId,
         })
 
+        const existingProjectMember = await projectMemberRepo.findOneBy({
+            projectId,
+            email,
+            platformId: isNil(platformId) ? IsNull() : platformId,
+        })
+        const projectMemberId = existingProjectMember?.id ?? apId()
+
         const projectMember: NewProjectMember = {
-            id: apId(),
+            id: projectMemberId,
             updated: dayjs().toISOString(),
             email,
             platformId,
@@ -153,10 +160,11 @@ export const projectMemberService = {
         })
         return member?.role ?? null
     },
-    async listByUser(user: User): Promise<ProjectMemberSchema[]> {
+    async listByUser({ email, platformId }: { email: string, platformId: null | string }): Promise<ProjectMemberSchema[]> {
         return projectMemberRepo.findBy({
-            email: user.email,
-            platformId: isNil(user.platformId) ? IsNull() : user.platformId,
+            email,
+            status: ProjectMemberStatus.ACTIVE,
+            platformId: isNil(platformId) ? IsNull() : platformId,
         })
     },
     async delete(
@@ -165,20 +173,6 @@ export const projectMemberService = {
     ): Promise<void> {
         await projectMemberRepo.delete({ projectId, id: invitationId })
     },
-
-    async deleteByUserExternalId({ userExternalId, platformId, projectId }: DeleteByUserExternalIdParams): Promise<void> {
-        const userEmail = await getUserEmailByExternalIdOrThrow({
-            userExternalId,
-            platformId,
-        })
-
-        await projectMemberRepo.delete({
-            projectId,
-            platformId,
-            email: userEmail,
-        })
-    },
-
     async countTeamMembersIncludingOwner(projectId: ProjectId): Promise<number> {
         return await projectMemberRepo.countBy({
             projectId,
@@ -187,7 +181,10 @@ export const projectMemberService = {
 }
 
 async function getByInvitationTokenOrThrow(invitationToken: string): Promise<ProjectMember> {
-    const { id: projectMemberId } = await accessTokenManager.extractPrincipal(invitationToken) as ProjectMemberToken
+    const { id: projectMemberId } = await jwtUtils.decodeAndVerify<ProjectMemberToken>({
+        jwt: invitationToken,
+        key: await jwtUtils.getJwtSecret(),
+    })
     return getOrThrow(projectMemberId)
 }
 
@@ -220,25 +217,6 @@ const getOrThrow = async (id: string): Promise<ProjectMember> => {
     return projectMember
 }
 
-const getUserEmailByExternalIdOrThrow = async ({ userExternalId, platformId }: GetUserEmailByExternalIdOrThrowParams): Promise<string> => {
-    const user = await userService.getByPlatformAndExternalId({
-        platformId,
-        externalId: userExternalId,
-    })
-
-    if (isNil(user)) {
-        throw new ActivepiecesError({
-            code: ErrorCode.ENTITY_NOT_FOUND,
-            params: {
-                entityType: 'User',
-                entityId: `userExternalId=${userExternalId} platformId=${platformId}`,
-            },
-        })
-    }
-
-    return user.email
-}
-
 type UpsertParams = {
     email: string
     platformId: PlatformId | null
@@ -258,22 +236,11 @@ type AcceptParams = {
     invitationToken: string
 }
 
-type ProjectMemberToken = {
+export type ProjectMemberToken = {
     id: string
 }
 
 type UpsertAndSendResponse = {
     projectMember: ProjectMember
     invitationToken: string
-}
-
-type DeleteByUserExternalIdParams = {
-    userExternalId: string
-    platformId: PlatformId
-    projectId: ProjectId
-}
-
-type GetUserEmailByExternalIdOrThrowParams = {
-    userExternalId: string
-    platformId: PlatformId
 }

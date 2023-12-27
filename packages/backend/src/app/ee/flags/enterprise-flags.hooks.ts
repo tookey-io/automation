@@ -23,6 +23,7 @@ export const enterpriseFlagsHooks: FlagsServiceHooks = {
             },
             modifiedFlags[ApFlagId.SHOW_BLOG_GUIDE] = false
             modifiedFlags[ApFlagId.SHOW_COMMUNITY_PIECES] = false
+            modifiedFlags[ApFlagId.SHOW_SIGN_UP_LINK] = false
             modifiedFlags[ApFlagId.SHOW_POWERED_BY_AP] = platform.showPoweredBy
             modifiedFlags[ApFlagId.CLOUD_AUTH_ENABLED] = platform.cloudAuthEnabled
             modifiedFlags[ApFlagId.FRONTEND_URL] = `https://${hostname}`
@@ -31,7 +32,6 @@ export const enterpriseFlagsHooks: FlagsServiceHooks = {
             modifiedFlags[ApFlagId.PRIVACY_POLICY_URL] = platform.privacyPolicyUrl
             modifiedFlags[ApFlagId.TERMS_OF_SERVICE_URL] = platform.termsOfServiceUrl
             modifiedFlags[ApFlagId.TEMPLATES_SOURCE_URL] = null
-            modifiedFlags[ApFlagId.CHATBOT_ENABLED] = false
             modifiedFlags[ApFlagId.OWN_AUTH2_ENABLED] = false
         }
         return modifiedFlags
