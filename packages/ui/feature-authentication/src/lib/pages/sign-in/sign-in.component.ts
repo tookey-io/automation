@@ -8,17 +8,17 @@ import {
 import { ActivatedRoute } from '@angular/router';
 
 import { OtpType } from '@activepieces/ee-shared';
-import { ApEdition } from '@activepieces/shared';
+import { ApEdition, ApFlagId, ErrorCode } from '@activepieces/shared';
 import {
   AuthenticationService,
   FlagService,
   RedirectService,
   fadeInUp400ms,
 } from '@activepieces/ui/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { StatusCodes } from 'http-status-codes';
 import { Observable, catchError, map, of, tap } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 interface SignInForm {
   email: FormControl<string>;
   password: FormControl<string>;
@@ -39,6 +39,8 @@ export class SignInComponent implements OnInit {
   isCommunityEdition$: Observable<boolean>;
   showResendVerification = false;
   sendingVerificationEmail = false;
+  invitationOnlySignIn = false;
+  showSignUpLink$: Observable<boolean>;
   sendVerificationEmail$?: Observable<void>;
   constructor(
     private formBuilder: FormBuilder,
@@ -48,6 +50,9 @@ export class SignInComponent implements OnInit {
     private snackbar: MatSnackBar,
     private route: ActivatedRoute,
   ) {
+    this.showSignUpLink$ = this.flagsService.isFlagEnabled(
+      ApFlagId.SHOW_SIGN_UP_LINK
+    );
     this.isCommunityEdition$ = this.flagsService
       .getEdition()
       .pipe(map((ed) => ed === ApEdition.COMMUNITY));
@@ -101,13 +106,19 @@ export class SignInComponent implements OnInit {
       this.loading = true;
       this.showInvalidEmailOrPasswordMessage = false;
       this.showResendVerification = false;
+      this.invitationOnlySignIn = false;
       const request = this.loginForm.getRawValue();
       this.authenticate$ = this.authenticationService.signIn(request).pipe(
         catchError((error: HttpErrorResponse) => {
           this.showInvalidEmailOrPasswordMessage =
             error.status === StatusCodes.UNAUTHORIZED ||
             error.status === StatusCodes.BAD_REQUEST;
-          this.showResendVerification = error.status === StatusCodes.FORBIDDEN;
+          if (error.status === StatusCodes.FORBIDDEN) {
+            this.showResendVerification =
+              error.error.code === ErrorCode.EMAIL_IS_NOT_VERIFIED;
+            this.invitationOnlySignIn =
+              error.error.code === ErrorCode.INVITATIION_ONLY_SIGN_UP;
+          }
 
           this.loading = false;
           return of(null);

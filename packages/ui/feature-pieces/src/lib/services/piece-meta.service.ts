@@ -45,8 +45,7 @@ export const CORE_PIECES_ACTIONS_NAMES = [
   '@activepieces/piece-text-helper',
   '@activepieces/piece-date-helper',
   '@activepieces/piece-file-helper',
-  '@activepieces/piece-math-helper',
-  '@activepieces/piece-chatbots',
+  '@activepieces/piece-math-helper'
 ];
 export const corePieceIconUrl = (pieceName: string) =>
   `assets/img/custom/piece/${pieceName.replace(
@@ -108,7 +107,7 @@ export class PieceMetadataService {
     },
   ];
 
-  constructor(private http: HttpClient, private flagsService: FlagService) {}
+  constructor(private http: HttpClient, private flagsService: FlagService) { }
 
   private getCacheKey(pieceName: string, pieceVersion: string): string {
     return `${pieceName}-${pieceVersion}`;
@@ -160,7 +159,9 @@ export class PieceMetadataService {
     if (params.pieceArchive) {
       formData.set('pieceArchive', params.pieceArchive);
     }
-
+    if (params.platformId) {
+      formData.set('platformId', params.platformId);
+    }
     return this.http.post<PieceMetadataModel>(
       `${environment.apiUrl}/pieces`,
       formData

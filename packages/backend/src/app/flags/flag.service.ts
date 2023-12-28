@@ -44,12 +44,6 @@ export const flagService = {
                 updated,
             },
             {
-                id: ApFlagId.CHATBOT_ENABLED,
-                value: getEdition() === ApEdition.ENTERPRISE ? false : system.getBoolean(SystemProp.CHATBOT_ENABLED),
-                created,
-                updated,
-            },
-            {
                 id: ApFlagId.CLOUD_AUTH_ENABLED,
                 value: system.getBoolean(SystemProp.CLOUD_AUTH_ENABLED) ?? true,
                 created,
@@ -57,6 +51,12 @@ export const flagService = {
             },
             {
                 id: ApFlagId.SHOW_COMMUNITY_PIECES,
+                value: true,
+                created,
+                updated,
+            },
+            {
+                id: ApFlagId.SHOW_SIGN_UP_LINK,
                 value: true,
                 created,
                 updated,
@@ -75,7 +75,8 @@ export const flagService = {
             },
             {
                 id: ApFlagId.THIRD_PARTY_AUTH_PROVIDERS_TO_SHOW_MAP,
-                value: getEdition() === ApEdition.COMMUNITY ? {} : showThirdPartyProvidersMap,
+                //show only for cloud and hide it for platform users in flags hook
+                value: getEdition() === ApEdition.CLOUD ? showThirdPartyProvidersMap : {},
                 created,
                 updated,
             },
@@ -176,18 +177,6 @@ export const flagService = {
                 updated,
             },
             {
-                id: ApFlagId.TEMPLATES_SOURCE_URL,
-                value: system.get(SystemProp.TEMPLATES_SOURCE_URL),
-                created,
-                updated,
-            },
-            {
-                id: ApFlagId.TEMPLATES_PROJECT_ID,
-                value: system.get(SystemProp.TEMPLATES_PROJECT_ID),
-                created,
-                updated,
-            },
-            {
                 id: ApFlagId.SHOW_POWERED_BY_AP,
                 value: false,
                 created,
@@ -213,6 +202,13 @@ export const flagService = {
         catch (ex) {
             return '0.0.0'
         }
+    },
+    isCloudPlatform(platformId: string | null): boolean {
+        const cloudPlatformId = system.get(SystemProp.CLOUD_PLATFORM_ID)
+        if (!cloudPlatformId || !platformId) {
+            return false
+        }
+        return platformId === cloudPlatformId
     },
 }
 

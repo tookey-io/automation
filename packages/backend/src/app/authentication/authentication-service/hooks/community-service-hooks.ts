@@ -1,12 +1,14 @@
-import { ApFlagId, PrincipalType, Project, ProjectType, User } from '@activepieces/shared'
+import {  PrincipalType, Project, ProjectType, User } from '@activepieces/shared'
 import { projectService } from '../../../project/project-service'
-import { flagService } from '../../../flags/flag.service'
 import { AuthenticationServiceHooks } from './authentication-service-hooks'
 import { accessTokenManager } from '../../lib/access-token-manager'
 
 export const communityAuthenticationServiceHooks: AuthenticationServiceHooks = {
+    async preSignUp() {
+        // Empty
+    },
     async postSignUp({ user }) {
-        await flagService.save({ id: ApFlagId.USER_CREATED, value: true })
+
         const project = await projectService.create({
             displayName: `${user.firstName}'s Project`,
             ownerId: user.id,

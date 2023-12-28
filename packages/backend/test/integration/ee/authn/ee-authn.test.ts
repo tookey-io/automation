@@ -3,10 +3,10 @@ import { StatusCodes } from 'http-status-codes'
 import { setupApp } from '../../../../src/app/app'
 import { databaseConnection } from '../../../../src/app/database/database-connection'
 import { createMockSignUpRequest } from '../../../helpers/mocks/authn'
-import { createMockCustomDomain, createMockPlatform, createMockUser } from '../../../helpers/mocks'
 import { faker } from '@faker-js/faker'
 import { emailService } from '../../../../src/app/ee/helper/email/email-service'
 import { stripeHelper } from '../../../../src/app/ee/billing/billing/stripe-helper'
+import { createMockCustomDomain, createMockPlatform, createMockUser } from '../../../../test/helpers/mocks'
 
 let app: FastifyInstance | null = null
 
@@ -60,36 +60,39 @@ describe('Authentication API', () => {
             expect(responseBody?.token).toBeDefined()
         })
 
-
-        it('Disables platform sign ups for non invited users', async () => {
-            // arrange
-            const mockPlatformOwner = createMockUser()
-            await databaseConnection.getRepository('user').save(mockPlatformOwner)
-
-            const mockPlatform = createMockPlatform({ ownerId: mockPlatformOwner.id })
-            await databaseConnection.getRepository('platform').save(mockPlatform)
-
-            const mockCustomDomain = createMockCustomDomain({ platformId: mockPlatform.id })
-            await databaseConnection.getRepository('custom_domain').save(mockCustomDomain)
-
-            const mockSignUpRequest = createMockSignUpRequest()
-
-            // act
-            const response = await app?.inject({
-                method: 'POST',
-                url: '/v1/authentication/sign-up',
-                headers: {
-                    Host: mockCustomDomain.domain,
-                },
-                body: mockSignUpRequest,
-            })
-
-            // assert
-            expect(response?.statusCode).toBe(StatusCodes.FORBIDDEN)
-            const responseBody = response?.json()
-
-            expect(responseBody?.code).toBe('PLATFORM_SIGN_UP_ENABLED_FOR_INVITED_USERS_ONLY')
-        })
     })
 
+
+    it('fails to sign up invited user platform if no project exist', async () => {
+        // arrange
+        const mockPlatformId = faker.string.nanoid(21)
+
+        const mockPlatformOwner = createMockUser({ platformId: mockPlatformId })
+        await databaseConnection.getRepository('user').save([mockPlatformOwner])
+
+        const mockPlatform = createMockPlatform({ id: mockPlatformId, ownerId: mockPlatformOwner.id })
+        await databaseConnection.getRepository('platform').save(mockPlatform)
+
+        const mockCustomDomain = createMockCustomDomain({ platformId: mockPlatform.id })
+        await databaseConnection.getRepository('custom_domain').save(mockCustomDomain)
+
+        const mockedUpEmail = faker.internet.email()
+        const mockSignUpRequest = createMockSignUpRequest({ email: mockedUpEmail })
+
+        // act
+        const response = await app?.inject({
+            method: 'POST',
+            url: '/v1/authentication/sign-up',
+            headers: {
+                Host: mockCustomDomain.domain,
+            },
+            body: mockSignUpRequest,
+        })
+
+        // assert
+        expect(response?.statusCode).toBe(StatusCodes.FORBIDDEN)
+        const responseBody = response?.json()
+
+        expect(responseBody?.code).toBe('INVITATIION_ONLY_SIGN_UP')
+    })
 })
