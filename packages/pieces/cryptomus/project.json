@@ -1,0 +1,45 @@
+{
+  "name": "pieces-cryptomus",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/cryptomus/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/cryptomus",
+        "tsConfig": "packages/pieces/cryptomus/tsconfig.lib.json",
+        "packageJson": "packages/pieces/cryptomus/package.json",
+        "main": "packages/pieces/cryptomus/src/index.ts",
+        "assets": [
+          "packages/pieces/cryptomus/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-cryptomus {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/cryptomus/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "@tookey-io"
+  ]
+}
