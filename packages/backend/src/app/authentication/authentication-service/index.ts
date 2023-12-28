@@ -68,7 +68,7 @@ export const authenticationService = {
 
     async federatedAuthn(params: FederatedAuthnParams): Promise<AuthenticationResponse> {
         const existingUser = await userService.getByPlatformAndEmail({
-            platformId: params.platformId,
+            platformId: params.platformId === 'EXTERNAL' ? null : params.platformId,
             email: params.email,
         })
 
