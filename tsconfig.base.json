@@ -413,6 +413,7 @@
       "@tookey-io/piece-cryptoapi": [
         "packages/pieces/cryptoapi/src/index.ts"
       ],
+      "@tookey-io/piece-cryptomus": ["packages/pieces/cryptomus/src/index.ts"],
       "@tookey-io/piece-epn": [
         "packages/pieces/epn/src/index.ts"
       ],
