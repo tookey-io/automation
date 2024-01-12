@@ -8,6 +8,8 @@ import { RedirectUrlComponent } from './modules/redirect-url/redirect-url.compon
 import { NotFoundComponent } from './modules/not-found/not-found.component';
 import { EmbedRedirectComponent } from '@activepieces/ee-components';
 import { ApEdition } from '@activepieces/shared';
+import { CatchCodeComponent } from './modules/catch-code/catch-code.component';
+import { RedirectCatchComponent } from './modules/redirect-catch/redirect-catch.component';
 
 export const routes: Routes = [
   {
@@ -29,6 +31,14 @@ export const routes: Routes = [
   {
     path: 'redirect',
     component: RedirectUrlComponent,
+  },
+  {
+    path: 'catch_code',
+    component: CatchCodeComponent
+  },
+  {
+    path: 'redirect_catch',
+    component: RedirectCatchComponent
   },
   {
     path: 'embed',

@@ -31,6 +31,9 @@ import { apMonacoTheme } from './monaco-themes/ap-monaco-theme';
 import { cobalt2 } from './monaco-themes/cobalt-2-theme';
 import { EeComponentsModule } from '@activepieces/ee-components';
 import { UiFeatureAuthenticationModule } from '@activepieces/ui/feature-authentication';
+import { CatchCodeComponent } from './modules/catch-code/catch-code.component';
+import { SafePipe } from './modules/safe-pipe/safe-pipe';
+import { RedirectCatchComponent } from './modules/redirect-catch/redirect-catch.component';
 
 const monacoConfig: NgxMonacoEditorConfig = {
   baseUrl: '/assets', // configure base path for monaco editor. Starting with version 8.0.0 it defaults to './assets'. Previous releases default to '/assets'
@@ -60,9 +63,12 @@ export function playerFactory() {
 
 @NgModule({
   declarations: [
+    SafePipe,
     AppComponent,
     NotFoundComponent,
     RedirectUrlComponent,
+    CatchCodeComponent,
+    RedirectCatchComponent,
     ImportFlowComponent,
     ImportFlowUriEncodedComponent,
   ],
