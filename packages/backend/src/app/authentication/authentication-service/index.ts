@@ -32,7 +32,7 @@ export const authenticationService = {
         return { token }
     },
     async signUp(params: SignUpParams): Promise<AuthenticationResponse> {
-        if (!params.skipAssertiong)
+        if (!params.skipAsserting)
             await assertSignUpIsEnabled()
 
         await hooks.get().preSignUp({
@@ -68,7 +68,7 @@ export const authenticationService = {
 
     async federatedAuthn(params: FederatedAuthnParams): Promise<AuthenticationResponse> {
         const existingUser = await userService.getByPlatformAndEmail({
-            platformId: params.platformId === 'EXTERNAL' ? null : params.platformId,
+            platformId: params.platformId,
             email: params.email,
         })
 
@@ -87,7 +87,7 @@ export const authenticationService = {
             newsLetter: true,
             password: await generateRandomPassword(),
             platformId: params.platformId,
-            skipAssertiong: params.platformId === 'EXTERNAL' ? true : undefined,
+            skipAsserting: params.skipAsseting,
         })
     },
 
@@ -262,7 +262,7 @@ type SignUpParams = {
     status: UserStatus
     platformId: string | null
     referringUserId?: string
-    skipAssertiong?: true
+    skipAsserting?: boolean
 }
 
 type SignInParams = {
@@ -282,6 +282,7 @@ type FederatedAuthnParams = {
     firstName: string
     lastName: string
     platformId: string | null
+    skipAsseting?: boolean
 }
 
 type SignUpResponseParams = {

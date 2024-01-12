@@ -15,6 +15,7 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
             ...request.body,
             status: edition === ApEdition.COMMUNITY ? UserStatus.VERIFIED : UserStatus.CREATED,
             platformId,
+            skipAsserting: undefined
         })
     })
 
@@ -46,7 +47,8 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
                 userStatus: UserStatus.VERIFIED,
                 firstName: request.body.firstName,
                 lastName: request.body.lastName,
-                platformId: 'EXTERNAL'
+                platformId: null,
+                skipAsseting: true
             })
         },
     )
@@ -59,18 +61,19 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
             },
         },
         async (request, reply) => {
-            console.log(request, request.principal)
             if (request.principal.type !== PrincipalType.EXTERNAL) {
                 reply.status(StatusCodes.FORBIDDEN)
                 return
             }
+            console.log('auth EXTERNAL')
 
             return authenticationService.federatedAuthn({
                 email: request.body.id,
                 userStatus: UserStatus.VERIFIED,
                 firstName: '', // SHOULD BE AVAILABLE IN PREVIOUSLY INJECTED USER
                 lastName: '', // SHOULD BE AVAILABLE IN PREVIOUSLY INJECTED USER
-                platformId: 'EXTERNAL'
+                platformId: null,
+                skipAsseting: true
             })
         },
     )
