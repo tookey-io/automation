@@ -420,6 +420,7 @@
       "@tookey-io/piece-ethereum": [
         "packages/pieces/ethereum/src/index.ts"
       ],
+      "@tookey-io/piece-instant-form": ["packages/pieces/instant-form/src/index.ts"],
       "@tookey-io/piece-internetcomputer": [
         "packages/pieces/internetcomputer/src/index.ts"
       ],
