@@ -4,6 +4,7 @@ export const environment = {
   jwtTokenName: 'token',
   redirectUrl: 'http://127.0.0.1:4200/redirect',
   backendUrl: 'http://127.0.0.1:3001',
+  frontendUrl: 'https://0329-64-226-96-123.ngrok-free.app',
   userPropertyNameInLocalStorage: 'currentUser',
   activateBeamer: true,
   showDocsButton: true,

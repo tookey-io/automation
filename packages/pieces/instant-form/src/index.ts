@@ -11,7 +11,7 @@ const catchQuery = new URLSearchParams({
 
 export const InstantFormAuth = PieceAuth.OAuth2({
   required: true,
-  authUrl: `https://0329-64-226-96-123.ngrok-free.app/catch_code?${catchQuery.toString()}`,
+  authUrl: `{{window.location.origin}}/catch_code?${catchQuery.toString()}`,
   tokenUrl: 'https://instantlyform.com/webBot/oauth/token',
   scope: [
     'all'

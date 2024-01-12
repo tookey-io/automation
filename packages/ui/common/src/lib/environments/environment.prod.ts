@@ -15,6 +15,7 @@ export const environment ={
   jwtTokenName: 'token',
   redirectUrl: window.location.origin,
   backendUrl: isProductionEnv() ? 'https://backend.production.tookey.cloud' : 'https://backend.develop.tookey.cloud',
+  frontendUrl: isProductionEnv() ? 'https://automation.production.tookey.cloud' : 'https://automation.develop.tookey.cloud',
   userPropertyNameInLocalStorage: 'currentUser',
   websiteTitle: 'Tookey Automation',
   activateBeamer: true,

@@ -93,7 +93,7 @@ export class ManagedOAuth2ConnectionDialogComponent implements OnInit {
         //TODO: decide whether redirect URL should be decided like this or some other way
         this.dialogData.connectionType === AppConnectionType.PLATFORM_OAUTH2
           ? this.dialogData.frontendUrl + '/redirect'
-          : environment.secretsUrl + '/redirect',
+          : environment.frontendUrl + '/redirect',
       scope: this.dialogData.pieceAuthProperty.scope.join(' '),
       pkce: this.dialogData.pieceAuthProperty.pkce,
       extraParams: this.dialogData.pieceAuthProperty.extra || {},

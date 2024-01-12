@@ -28,7 +28,7 @@ export class CatchCodeComponent implements OnInit {
     ngOnInit(): void {
         const fillTemplates = (value: string | undefined, params: Params) => {
             if (typeof value !== 'string') return undefined;
-            let replaced = value;
+            let replaced = value.replaceAll('{{window.location.origin}}', window.location.origin);
             Object.entries(params)
                 .filter((pair): pair is [string, string] => typeof pair[1] === 'string')
                 .map(([key, value]) => (replaced = replaced.replaceAll(`{{${key}}}`, value)));

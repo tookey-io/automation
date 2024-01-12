@@ -52,7 +52,7 @@ export class Oauth2Service {
     const queryParams: Record<string, string> = {
       response_type: 'code',
       client_id: request.client_id,
-      redirect_uri: request.redirect_url || environment.redirectUrl,
+      redirect_uri: request.redirect_url?.replaceAll('{{window.location.origin}}', window.location.origin) || environment.redirectUrl,
       access_type: 'offline',
       state: nanoid(),
       prompt: 'consent',
@@ -66,7 +66,7 @@ export class Oauth2Service {
       queryParams['code_challenge'] = code_challenge;
     }
 
-    const url = new URL(request.auth_url);
+    const url = new URL(request.auth_url.replaceAll('{{window.location.origin}}', window.location.origin));
 
     Object.entries(queryParams).forEach(([key, value]) => {
       url.searchParams.append(key, value);
