@@ -21,12 +21,13 @@ import {
     EngineTestOperation,
     BeginExecuteFlowOperation,
     ResumeExecuteFlowOperation,
-    ExcuteStepOperation,
+    ExecuteStepOperation,
     flowHelper,
     Action,
     assertNotNullOrUndefined,
     ActionType,
     FlowVersion,
+    ExecuteFlowOperation,
 } from '@activepieces/shared'
 import { Sandbox } from '../workers/sandbox'
 import { accessTokenManager } from '../authentication/lib/access-token-manager'
@@ -162,7 +163,7 @@ export const engineHelper = {
             sandboxId: sandbox.boxId,
         }, '[EngineHelper#executeFlow]')
 
-        const input = {
+        const input: ExecuteFlowOperation = {
             ...operation,
             workerToken: await generateWorkerToken({ projectId: operation.projectId }),
             serverUrl: await getServerUrl(),
@@ -284,7 +285,7 @@ export const engineHelper = {
         )
     },
 
-    async executeAction(operation: Omit<ExcuteStepOperation, EngineConstants>): Promise<EngineHelperResponse<EngineHelperActionResult>> {
+    async executeAction(operation: Omit<ExecuteStepOperation, EngineConstants>): Promise<EngineHelperResponse<EngineHelperActionResult>> {
         logger.debug({
             flowVersionId: operation.flowVersion.id,
             stepName: operation.stepName,
@@ -292,8 +293,8 @@ export const engineHelper = {
         const lockedFlowVersion = await lockPieceAction(operation)
         const step = flowHelper.getStep(lockedFlowVersion, operation.stepName) as Action | undefined
         assertNotNullOrUndefined(step, 'Step not found')
-        const sandbox = await getSandboxForAction(operation.projectId, step)
-        const input: ExcuteStepOperation = {
+        const sandbox = await getSandboxForAction(operation.projectId, operation.flowVersion.flowId, step)
+        const input: ExecuteStepOperation = {
             flowVersion: lockedFlowVersion,
             stepName: operation.stepName,
             projectId: operation.projectId,
@@ -373,7 +374,7 @@ async function lockPieceAction({ projectId, flowVersion, stepName }: { projectId
     })
 }
 
-async function getSandboxForAction(projectId: string, action: Action): Promise<Sandbox> {
+async function getSandboxForAction(projectId: string, flowId: string, action: Action): Promise<Sandbox> {
     switch (action.type) {
         case ActionType.PIECE:{
             const { packageType, pieceType, pieceName, pieceVersion } = action.settings
@@ -397,6 +398,8 @@ async function getSandboxForAction(projectId: string, action: Action): Promise<S
             return sandboxProvisioner.provision({
                 type: SandBoxCacheType.CODE,
                 projectId,
+                flowId,
+                name: action.name,
                 sourceCodeHash: hashObject(action.settings.sourceCode),
                 codeSteps: [
                     {
@@ -404,10 +407,10 @@ async function getSandboxForAction(projectId: string, action: Action): Promise<S
                         sourceCode: action.settings.sourceCode,
                     },
                 ],
-            })    
+            })
         }
         case ActionType.BRANCH:
-        case ActionType.LOOP_ON_ITEMS: 
+        case ActionType.LOOP_ON_ITEMS:
             return sandboxProvisioner.provision({
                 type: SandBoxCacheType.NONE,
                 projectId,

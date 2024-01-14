@@ -1,6 +1,6 @@
 import { randomBytes as randomBytesCallback } from 'node:crypto'
 import { promisify } from 'node:util'
-import { AuthenticationResponse, PlatformRole, PrincipalType, Project, ProjectId, ProjectType, User, UserStatus } from '@activepieces/shared'
+import { AuthenticationResponse, PlatformRole, PrincipalType, Project, ProjectId, ProjectType, User } from '@activepieces/shared'
 import { userService } from '../../user/user-service'
 import { PlatformId, ProjectMemberRole, ProjectMemberStatus } from '@activepieces/ee-shared'
 import { platformService } from '../platform/platform.service'
@@ -44,6 +44,14 @@ const getOrCreateUser = async (params: GetOrCreateUserParams): Promise<GetOrCrea
         externalProjectId,
     })
 
+    await projectMemberService.upsert({
+        projectId: project.id,
+        email: params.externalEmail,
+        platformId,
+        role: ProjectMemberRole.EDITOR,
+        status: ProjectMemberStatus.ACTIVE,
+    })
+
     if (existingUser) {
         const { password: _, ...user } = existingUser
 
@@ -60,17 +68,9 @@ const getOrCreateUser = async (params: GetOrCreateUserParams): Promise<GetOrCrea
         lastName: externalLastName,
         trackEvents: true,
         newsLetter: true,
-        status: UserStatus.VERIFIED,
+        verified: true,
         externalId: externalUserId,
         platformId,
-    })
-
-    await projectMemberService.upsert({
-        projectId: project.id,
-        email: newUser.email,
-        platformId,
-        role: ProjectMemberRole.EDITOR,
-        status: ProjectMemberStatus.ACTIVE,
     })
 
     return {

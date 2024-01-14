@@ -2,20 +2,23 @@ import {
     AuthenticationServiceHooks,
 } from '../../../../authentication/authentication-service/hooks/authentication-service-hooks'
 import { flagService } from '../../../../flags/flag.service'
-import { ApFlagId, ProjectType, isNil } from '@activepieces/shared'
+import { ApFlagId, ProjectType } from '@activepieces/shared'
 import { platformService } from '../../../platform/platform.service'
 import { userService } from '../../../../user/user-service'
 import { authenticationHelper } from './authentication-helper'
 import { projectService } from '../../../../project/project-service'
+import { enforceLimits } from '../../../helper/license-validator'
 
 const DEFAULT_PLATFORM_NAME = 'platform'
 
 export const enterpriseAuthenticationServiceHooks: AuthenticationServiceHooks = {
+    async preSignIn({ email, platformId }) {
+        await authenticationHelper.assertEmailAuthIsEnabled({ platformId })
+        await authenticationHelper.assertDomainIsAllowed({ email, platformId })
+    },
     async preSignUp({ email, platformId }) {
-        const isCustomerPlatform = !isNil(platformId) && !flagService.isCloudPlatform(platformId)
-        if (isCustomerPlatform) {
-            await authenticationHelper.assertUserIsInvitedToAnyProject({ email, platformId })
-        }
+        await authenticationHelper.assertEmailAuthIsEnabled({ platformId })
+        await authenticationHelper.assertUserIsInvitedAndDomainIsAllowed({ email, platformId })
     },
     async postSignUp({ user }) {
         const platformCreated = await flagService.getOne(ApFlagId.PLATFORM_CREATED)
@@ -43,6 +46,8 @@ export const enterpriseAuthenticationServiceHooks: AuthenticationServiceHooks = 
 
         await userService.updatePlatformId({ id: user.id, platformId: platform.id })
 
+        await enforceLimits()
+
         await flagService.save({
             id: ApFlagId.PLATFORM_CREATED,
             value: true,
@@ -67,4 +72,3 @@ export const enterpriseAuthenticationServiceHooks: AuthenticationServiceHooks = 
         }
     },
 }
-

@@ -762,6 +762,34 @@
       "contributions": [
         "plugin"
       ]
+    },
+    {
+      "login": "la3rence",
+      "name": "la3rence",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24540598?v=4",
+      "profile": "https://lawrenceli.me",
+      "contributions": [
+        "plugin"
+      ]
+    },
+    {
+      "login": "dennisrongo",
+      "name": "Dennis Rongo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/51771021?v=4",
+      "profile": "http://dennisrongo.com",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "kartikmehta8",
+      "name": "Kartik Mehta",
+      "avatar_url": "https://avatars.githubusercontent.com/u/77505989?v=4",
+      "profile": "https://github.com/kartikmehta8",
+      "contributions": [
+        "doc",
+        "code"
+      ]
     }
   ],
   "commitType": "docs"

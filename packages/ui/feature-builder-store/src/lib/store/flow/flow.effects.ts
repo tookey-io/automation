@@ -16,7 +16,7 @@ import {
   FlowsActions,
   FlowsActionType,
   SingleFlowModifyingState,
-} from './flows.action';
+} from './flow.action';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BuilderSelectors } from '../builder/builder.selector';
 import { UUID } from 'angular2-uuid';
@@ -45,12 +45,13 @@ import { ViewModeActions } from '../builder/viewmode/view-mode.action';
 import { ViewModeEnum } from '../../model';
 import { HttpStatusCode } from '@angular/common/http';
 import { FlowStructureUtil } from '../../utils/flowStructureUtil';
+
 @Injectable()
 export class FlowsEffects {
   loadInitial$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(BuilderActions.loadInitial),
-      switchMap(({ flow, run, folder, publishedVersion }) => {
+      switchMap(({ type, flow, run, folder, publishedVersion }) => {
         return of(
           FlowsActions.setInitial({
             flow: { ...flow, publishedFlowVersion: publishedVersion },
@@ -295,22 +296,7 @@ export class FlowsEffects {
       })
     );
   });
-  showDraftVersion$ = createEffect(() => {
-    return this.actions$.pipe(
-      ofType(ViewModeActions.setViewMode),
-      concatLatestFrom(() =>
-        this.store.select(BuilderSelectors.selectCurrentFlow)
-      ),
-      switchMap(([action, flow]) => {
-        if (action.viewMode === ViewModeEnum.BUILDING) {
-          return of(
-            canvasActions.setInitial({ displayedFlowVersion: flow.version })
-          );
-        }
-        return EMPTY;
-      })
-    );
-  });
+
   applyUpdateOperation$ = createEffect(
     () => {
       return this.actions$.pipe(
@@ -352,30 +338,51 @@ export class FlowsEffects {
     saveRequestId: UUID;
   }): Observable<PopulatedFlow> {
     const update$ = this.flowService.update(request.flow.id, request.operation);
-    const updateTap = tap((updatedFlow: PopulatedFlow) => {
-      this.store.dispatch(
-        FlowsActions.savedSuccess({
-          saveRequestId: request.saveRequestId,
-          flow: updatedFlow,
+
+    const saveSuccessEffect = (obs$: Observable<PopulatedFlow>) =>
+      obs$.pipe(
+        concatLatestFrom(() => {
+          return [
+            this.store.select(BuilderSelectors.selectReadOnly),
+            this.store.select(BuilderSelectors.selectPublishedFlowVersion),
+            this.store.select(BuilderSelectors.selectViewedVersion),
+          ];
+        }),
+        tap(
+          ([
+            updatedFlow,
+            readOnly,
+            publishedFlowVersion,
+            selectViewedVersion,
+          ]) => {
+            if (
+              !readOnly &&
+              publishedFlowVersion?.id === selectViewedVersion.id
+            ) {
+              this.store.dispatch(
+                canvasActions.updateViewedVersionId({
+                  versionId: updatedFlow.version.id,
+                })
+              );
+            }
+          }
+        ),
+        map(([updatedFlow]) => updatedFlow),
+        tap((updatedFlow: PopulatedFlow) => {
+          this.store.dispatch(
+            FlowsActions.savedSuccess({
+              saveRequestId: request.saveRequestId,
+              flow: updatedFlow,
+            })
+          );
+          this.setLastSaveDate();
         })
       );
-      const now = new Date();
-      const nowDate = now.toLocaleDateString('en-us', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      });
-      const nowTime = `${now.getHours().toString().padEnd(2, '0')}:${now
-        .getMinutes()
-        .toString()
-        .padStart(2, '0')}`;
-      this.pieceBuilderService.lastSuccessfulSaveDate = `Last saved on ${nowDate} at ${nowTime}.`;
-    });
     if (environment.production) {
-      return update$.pipe(updateTap);
+      return update$.pipe(saveSuccessEffect.bind(this));
     }
     //so in development mode the publish button doesn't flicker constantly and cause us to have epilieptic episodes
-    return update$.pipe(delay(150), updateTap);
+    return update$.pipe(delay(150), saveSuccessEffect.bind(this));
   }
 
   publishFailed$ = createEffect(
@@ -491,7 +498,7 @@ export class FlowsEffects {
     );
   });
 
-  showPublishedVersion$ = createEffect(() => {
+  viewVersion$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(ViewModeActions.setViewMode),
       concatLatestFrom(() => [
@@ -503,8 +510,8 @@ export class FlowsEffects {
           case ViewModeEnum.SHOW_PUBLISHED:
             if (publishedVersion) {
               return of(
-                canvasActions.setInitial({
-                  displayedFlowVersion: publishedVersion,
+                canvasActions.viewVersion({
+                  viewedFlowVersion: publishedVersion,
                 })
               );
             } else {
@@ -517,14 +524,16 @@ export class FlowsEffects {
               throw Error('Trying to view draft version when there is none');
             } else {
               return of(
-                canvasActions.setInitial({
-                  displayedFlowVersion: currentFlow.version,
+                canvasActions.viewVersion({
+                  viewedFlowVersion: currentFlow.version,
                 })
               );
             }
-          case ViewModeEnum.VIEW_INSTANCE_RUN: {
-            throw Error(
-              'Trying to view run version, viewing run version should only be the initial state'
+          case ViewModeEnum.SHOW_OLD_VERSION: {
+            return of(
+              canvasActions.viewVersion({
+                viewedFlowVersion: action.version,
+              })
             );
           }
         }
@@ -540,4 +549,18 @@ export class FlowsEffects {
     private snackBar: MatSnackBar,
     private builderAutocompleteService: BuilderAutocompleteMentionsDropdownService
   ) {}
+
+  private setLastSaveDate() {
+    const now = new Date();
+    const nowDate = now.toLocaleDateString('en-us', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    const nowTime = `${now.getHours().toString().padEnd(2, '0')}:${now
+      .getMinutes()
+      .toString()
+      .padStart(2, '0')}`;
+    this.pieceBuilderService.lastSuccessfulSaveDate = `Last saved on ${nowDate} at ${nowTime}.`;
+  }
 }

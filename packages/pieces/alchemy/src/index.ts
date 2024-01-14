@@ -219,7 +219,6 @@ block {
 export const BlockEventTrigger = createTrigger({
     displayName: 'On block event',
     auth: AlchemyHooksAuth,
-    requireAuth: true,
     name: 'block_event',
     description: 'Trigger on block event',
     props: {

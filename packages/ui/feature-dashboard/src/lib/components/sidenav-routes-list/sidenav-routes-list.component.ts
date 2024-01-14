@@ -33,7 +33,7 @@ export class SidenavRoutesListComponent implements OnInit {
   showBilling$: Observable<boolean>;
   isInEmbedding$: Observable<boolean>;
   sideNavRoutes$: Observable<SideNavRoute[]>;
-
+  showForEnterpriseAndCloud$: Observable<boolean>;
   mainDashboardRoutes: SideNavRoute[] = [];
   platformDashboardRoutes: SideNavRoute[] = [
     {
@@ -61,6 +61,12 @@ export class SidenavRoutesListComponent implements OnInit {
       showInSideNav$: of(true),
     },
     {
+      icon: 'assets/img/custom/dashboard/users.svg',
+      caption: $localize`Users`,
+      route: 'platform/users',
+      showInSideNav$: of(true),
+    },
+    {
       icon: 'assets/img/custom/dashboard/settings.svg',
       caption: $localize`Settings`,
       route: 'platform/settings',
@@ -77,6 +83,15 @@ export class SidenavRoutesListComponent implements OnInit {
     private navigationService: NavigationService
   ) {
     this.isInEmbedding$ = this.embeddingService.getIsInEmbedding$();
+    this.showForEnterpriseAndCloud$ = this.isInEmbedding$.pipe(
+      switchMap((embedded) => {
+        return this.flagServices.getEdition().pipe(
+          map((ed) => {
+            return ed !== ApEdition.COMMUNITY && !embedded;
+          })
+        );
+      })
+    );
     this.logoUrl$ = this.flagServices
       .getLogos()
       .pipe(map((logos) => logos.logoIconUrl));
@@ -106,15 +121,13 @@ export class SidenavRoutesListComponent implements OnInit {
         icon: 'assets/img/custom/dashboard/members.svg',
         caption: $localize`Team`,
         route: 'team',
-        showInSideNav$: this.isInEmbedding$.pipe(
-          switchMap((embedded) => {
-            return this.flagServices.getEdition().pipe(
-              map((ed) => {
-                return ed !== ApEdition.COMMUNITY && !embedded;
-              })
-            );
-          })
-        ),
+        showInSideNav$: this.showForEnterpriseAndCloud$,
+      },
+      {
+        icon: 'assets/img/custom/dashboard/settings.svg',
+        caption: $localize`Settings`,
+        route: 'settings',
+        showInSideNav$: this.isInEmbedding$.pipe(map((embedded) => !embedded)),
       },
     ];
   }

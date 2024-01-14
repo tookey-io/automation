@@ -165,7 +165,7 @@ export class ManagedOAuth2ConnectionDialogComponent implements OnInit {
     if (this.dialogData.connectionType === AppConnectionType.CLOUD_OAUTH2) {
       const newConnection: UpsertCloudOAuth2Request = {
         projectId: this.authenticationService.getProjectId(),
-        appName: this.dialogData.pieceName,
+        pieceName: this.dialogData.pieceName,
         type: AppConnectionType.CLOUD_OAUTH2,
         value: {
           token_url: tokenUrl,
@@ -186,7 +186,7 @@ export class ManagedOAuth2ConnectionDialogComponent implements OnInit {
     } else {
       const newConnection: UpsertPlatformOAuth2Request = {
         projectId: this.authenticationService.getProjectId(),
-        appName: this.dialogData.pieceName,
+        pieceName: this.dialogData.pieceName,
         type: AppConnectionType.PLATFORM_OAUTH2,
         value: {
           token_url: tokenUrl,

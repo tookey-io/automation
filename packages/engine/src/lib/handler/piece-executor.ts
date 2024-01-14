@@ -6,7 +6,7 @@ import { ActionContext, ConnectionsManager, PauseHook, PauseHookParams, PiecePro
 import { createContextStore } from '../services/storage.service'
 import { createFilesService } from '../services/files.service'
 import { createConnectionService } from '../services/connections.service'
-import { EngineConstantData } from './context/engine-constants-data'
+import { EngineConstants } from './context/engine-constants'
 import { pieceLoader } from '../helper/piece-loader'
 import { utils } from '../utils'
 
@@ -20,7 +20,7 @@ export const pieceExecutor: BaseExecutor<PieceAction> = {
     }: {
         action: PieceAction
         executionState: FlowExecutorContext
-        constants: EngineConstantData
+        constants: EngineConstants
     }) {
         if (executionState.isCompleted({ stepName: action.name })) {
             return executionState
@@ -97,6 +97,10 @@ export const pieceExecutor: BaseExecutor<PieceAction> = {
                     pause: createPauseHook(hookResponse),
                 },
                 resumePayload: constants.resumePayload,
+                project: {
+                    id: constants.projectId,
+                    externalId: constants.externalProjectId,
+                },
             }
             const output = await pieceAction.run(context)
             const newExecutionContext = executionState.addTags(hookResponse.tags)
@@ -106,7 +110,7 @@ export const pieceExecutor: BaseExecutor<PieceAction> = {
                 return newExecutionContext.upsertStep(action.name, stepOutput.setOutput(output)).setVerdict(ExecutionVerdict.SUCCEEDED, {
                     reason: ExecutionOutputStatus.STOPPED,
                     stopResponse: hookResponse.stopResponse.response,
-                })
+                }).increaseTask()
             }
             if (hookResponse.paused) {
                 assertNotNullOrUndefined(hookResponse.pauseResponse, 'pauseResponse')
@@ -118,10 +122,10 @@ export const pieceExecutor: BaseExecutor<PieceAction> = {
                     })
             }
 
-            return newExecutionContext.upsertStep(action.name, stepOutput.setOutput(output)).setVerdict(ExecutionVerdict.RUNNING, undefined)
+            return newExecutionContext.upsertStep(action.name, stepOutput.setOutput(output)).increaseTask().setVerdict(ExecutionVerdict.RUNNING, undefined)
         }
         catch (e) {
-            const errorMessage =  await utils.tryParseJson((e as Error).message)
+            const errorMessage = await utils.tryParseJson((e as Error).message)
             console.error(errorMessage)
             return executionState
                 .upsertStep(action.name, stepOutput.setStatus(StepOutputStatus.FAILED).setErrorMessage(errorMessage))

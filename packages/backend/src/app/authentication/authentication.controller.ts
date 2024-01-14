@@ -1,9 +1,9 @@
 import { ALL_PRINICPAL_TYPES, ApEdition, ExternalServiceAuthRequest, ExternalUserAuthRequest, ExternalUserRequest, PrincipalType, SignInRequest, SignUpRequest, UserStatus } from '@activepieces/shared'
+import { authenticationService } from './authentication-service'
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
 import { StatusCodes } from 'http-status-codes'
 import { resolvePlatformIdForRequest } from '../ee/platform/lib/platform-utils'
 import { getEdition } from '../helper/secret-helper'
-import { authenticationService } from './authentication-service'
 
 const edition = getEdition()
 
@@ -13,7 +13,7 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
 
         return authenticationService.signUp({
             ...request.body,
-            status: edition === ApEdition.COMMUNITY ? UserStatus.VERIFIED : UserStatus.CREATED,
+            verified: edition === ApEdition.COMMUNITY,
             platformId,
             skipAsserting: undefined
         })
@@ -32,19 +32,17 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
     app.post(
         '/external/user/inject',
         {
+            config: {
+                allowedPrincipals: [PrincipalType.EXTERNAL],
+            },
             schema: {
                 body: ExternalUserRequest,
             },
         },
         async (request, reply) => {
-            if (request.principal.type !== PrincipalType.EXTERNAL) {
-                reply.status(StatusCodes.FORBIDDEN)
-                return
-            }
-
             return authenticationService.federatedAuthn({
                 email: request.body.id,
-                userStatus: UserStatus.VERIFIED,
+                verified: true,
                 firstName: request.body.firstName,
                 lastName: request.body.lastName,
                 platformId: null,
@@ -56,20 +54,17 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
     app.post(
         '/external/user/auth',
         {
+            config: {
+                allowedPrincipals: [PrincipalType.EXTERNAL],
+            },
             schema: {
                 body: ExternalUserAuthRequest,
             },
         },
         async (request, reply) => {
-            if (request.principal.type !== PrincipalType.EXTERNAL) {
-                reply.status(StatusCodes.FORBIDDEN)
-                return
-            }
-            console.log('auth EXTERNAL')
-
             return authenticationService.federatedAuthn({
                 email: request.body.id,
-                userStatus: UserStatus.VERIFIED,
+                verified: true,
                 firstName: '', // SHOULD BE AVAILABLE IN PREVIOUSLY INJECTED USER
                 lastName: '', // SHOULD BE AVAILABLE IN PREVIOUSLY INJECTED USER
                 platformId: null,

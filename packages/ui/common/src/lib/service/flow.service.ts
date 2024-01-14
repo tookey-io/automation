@@ -14,6 +14,7 @@ import {
   FlowOperationRequest,
   FlowOperationType,
   FlowRun,
+  FlowVersion,
   FlowVersionId,
   ListFlowsRequest,
   MakeKeyNonNullableAndRequired,
@@ -22,16 +23,21 @@ import {
   TestFlowRunRequestBody,
   UpdateFlowStatusRequest,
 } from '@activepieces/shared';
+import { AuthenticationService } from './authentication.service';
 export const CURRENT_FLOW_IS_NEW_KEY_IN_LOCAL_STORAGE = 'newFlow';
 @Injectable({
   providedIn: 'root',
 })
 export class FlowService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authenticationService: AuthenticationService
+  ) {}
   create(request: CreateFlowRequest): Observable<PopulatedFlow> {
     return this.http.post<PopulatedFlow>(environment.apiUrl + '/flows', {
       displayName: request.displayName,
       folderId: request.folderId,
+      projectId: request.projectId,
     });
   }
 
@@ -74,6 +80,7 @@ export class FlowService {
         switchMap((flow) => {
           return this.create({
             displayName: flow.version.displayName,
+            projectId: this.authenticationService.getProjectId(),
           }).pipe(
             switchMap((clonedFlow) => {
               return this.update(clonedFlow.id, {
@@ -103,6 +110,7 @@ export class FlowService {
       limit: request.limit ?? 10,
       cursor: request.cursor || '',
     };
+    queryParams['projectId'] = request.projectId;
     if (request.folderId) {
       queryParams['folderId'] = request.folderId;
     }
@@ -121,6 +129,12 @@ export class FlowService {
     return this.http.post<PopulatedFlow>(
       environment.apiUrl + '/flows/' + flowId,
       operation
+    );
+  }
+
+  listVersions(flowId: FlowId): Observable<SeekPage<FlowVersion>> {
+    return this.http.get<SeekPage<FlowVersion>>(
+      environment.apiUrl + '/flows/' + flowId + '/versions'
     );
   }
 

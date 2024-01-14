@@ -22,7 +22,13 @@ import { CreateApiKeyDialogComponent } from './components/dialogs/create-api-key
 import { TemplatesTableComponent } from './pages/templates-table/templates-table.component';
 import { CreateOrUpdateTemplateDialogueComponent } from './components/dialogs/create-or-update-template-dialogue/create-or-update-template-dialogue.component';
 import { UiFeaturePiecesModule } from '@activepieces/ui/feature-pieces';
-
+import { UsersTableComponent } from './pages/users-table/users-table.component';
+import { SsoSettingsComponent } from './components/sso-settings/sso-settings.component';
+import { AddAllowedEmailDomainDialogComponent } from './components/dialogs/add-allowed-email-domain-dialog/add-allowed-email-domain-dialog.component';
+import { AllowedEmailDomainsListComponent } from './components/allowed-email-domains-list/allowed-email-domains-list.component';
+import { ConfigureConfederatedAuthnCardComponent } from './components/configure-confederated-authn-card/configure-confederated-authn-card.component';
+import { EnableFederatedAuthnProviderDialogComponent } from './components/dialogs/enable-federated-authn-provider-dialog/enable-federated-authn-provider-dialog.component';
+import { ConfigureAllowingEmailLoginsCardComponent } from './components/configure-allowing-email-logins-card/configure-allowing-email-logins-card.component';
 @NgModule({
   imports: [
     UiCommonModule,
@@ -49,6 +55,13 @@ import { UiFeaturePiecesModule } from '@activepieces/ui/feature-pieces';
     TermsAndServicesSettingsComponent,
     TemplatesTableComponent,
     CustomDomainTableComponent,
+    UsersTableComponent,
+    SsoSettingsComponent,
+    AddAllowedEmailDomainDialogComponent,
+    AllowedEmailDomainsListComponent,
+    ConfigureConfederatedAuthnCardComponent,
+    EnableFederatedAuthnProviderDialogComponent,
+    ConfigureAllowingEmailLoginsCardComponent,
   ],
 })
 export class UiEePlatformModule {}
