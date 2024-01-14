@@ -7,6 +7,7 @@ export class PrincipalTypeAuthzHandler extends BaseSecurityHandler {
         '/favicon.ico',
         '/v1/docs',
         '/redirect',
+        '/v1/authentication/external/service/auth',
     ]
 
     private static readonly DEFAULT_ALLOWED_PRINCIPAL_TYPES = [
