@@ -14,6 +14,7 @@ export class PrincipalTypeAuthzHandler extends BaseSecurityHandler {
         PrincipalType.USER,
         PrincipalType.WORKER,
         PrincipalType.SERVICE,
+        PrincipalType.EXTERNAL,
     ]
 
     protected canHandle(request: FastifyRequest): Promise<boolean> {

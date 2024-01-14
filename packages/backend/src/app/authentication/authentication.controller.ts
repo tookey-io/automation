@@ -32,16 +32,14 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
     app.post(
         '/external/user/inject',
         {
+            config: {
+                allowedPrincipals: [PrincipalType.EXTERNAL],
+            },
             schema: {
                 body: ExternalUserRequest,
             },
         },
         async (request, reply) => {
-            if (request.principal.type !== PrincipalType.EXTERNAL) {
-                reply.status(StatusCodes.FORBIDDEN)
-                return
-            }
-
             return authenticationService.federatedAuthn({
                 email: request.body.id,
                 verified: true,
@@ -56,17 +54,14 @@ export const authenticationController: FastifyPluginAsyncTypebox = async (app) =
     app.post(
         '/external/user/auth',
         {
+            config: {
+                allowedPrincipals: [PrincipalType.EXTERNAL],
+            },
             schema: {
                 body: ExternalUserAuthRequest,
             },
         },
         async (request, reply) => {
-            if (request.principal.type !== PrincipalType.EXTERNAL) {
-                reply.status(StatusCodes.FORBIDDEN)
-                return
-            }
-            console.log('auth EXTERNAL')
-
             return authenticationService.federatedAuthn({
                 email: request.body.id,
                 verified: true,
