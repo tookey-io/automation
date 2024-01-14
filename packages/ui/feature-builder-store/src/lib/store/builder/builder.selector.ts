@@ -95,12 +95,9 @@ const selectFlowStatus = createSelector(
     return flow.status;
   }
 );
-const selectShownFlowVersion = createSelector(
-  selectCanvasState,
-  (cavnasState) => {
-    return cavnasState.displayedFlowVersion;
-  }
-);
+const selectViewedVersion = createSelector(selectCanvasState, (canvasState) => {
+  return canvasState.viewedVersion;
+});
 const selectIsCurrentVersionPublished = createSelector(
   selectCurrentFlow,
   (flow) => {
@@ -210,10 +207,9 @@ export const selectCurrentStepDisplayName = createSelector(
   }
 );
 
-export const selectCurrentFlowVersionId = createSelector(
+export const selectDraftVersionId = createSelector(
   selectCurrentFlow,
-  (flow: PopulatedFlow | undefined) => {
-    if (!flow) return undefined;
+  (flow: PopulatedFlow) => {
     return flow.version.id;
   }
 );
@@ -426,7 +422,7 @@ const selectAppConnectionsDropdownOptions = createSelector(
   (connections: AppConnectionWithoutSensitiveData[]) => {
     return [...connections].map((c) => {
       const result: ConnectionDropdownItem = {
-        label: { appName: c.appName, name: c.name },
+        label: { pieceName: c.pieceName, name: c.name },
         value: `{{connections['${c.name}']}}`,
       };
       return result;
@@ -439,7 +435,7 @@ const selectAppConnectionsDropdownOptionsWithIds = createSelector(
   (connections: AppConnectionWithoutSensitiveData[]) => {
     return [...connections].map((c) => {
       const result: ConnectionDropdownItem = {
-        label: { appName: c.appName, name: c.name },
+        label: { pieceName: c.pieceName, name: c.name },
         value: c.id,
       };
       return result;
@@ -452,10 +448,10 @@ const selectAppConnectionsDropdownOptionsForAppWithIds = (appName: string) => {
     selectAppConnectionsDropdownOptionsWithIds,
     (connections) => {
       return connections
-        .filter((opt) => opt.label.appName === appName)
+        .filter((opt) => opt.label.pieceName === appName)
         .map((c) => {
           const result: ConnectionDropdownItem = {
-            label: { appName: c.label.appName, name: c.label.name },
+            label: { pieceName: c.label.pieceName, name: c.label.name },
             value: c.value,
           };
           return result;
@@ -478,7 +474,7 @@ const selectAppConnectionsForMentionsDropdown = createSelector(
 
 const selectAllStepsForMentionsDropdown = createSelector(
   selectCurrentStep,
-  selectShownFlowVersion,
+  selectViewedVersion,
   selectAllFlowItemsDetails,
   (
     currentStep,
@@ -504,8 +500,8 @@ const selectAllStepsForMentionsDropdown = createSelector(
 );
 
 const selectStepIndex = (stepName: string) => {
-  return createSelector(selectCurrentFlow, (flow) => {
-    return FlowStructureUtil.findStepIndex(flow.version.trigger, stepName);
+  return createSelector(selectViewedVersion, (version) => {
+    return FlowStructureUtil.findStepIndex(version.trigger, stepName);
   });
 };
 const selectStepValidity = createSelector(selectCurrentStep, (step) => {
@@ -600,6 +596,18 @@ const selectFlowTriggerIsTested = createSelector(selectCurrentFlow, (flow) => {
       return !!flow.version.trigger.settings.inputUiInfo.currentSelectedData;
   }
 });
+
+const selectViewedVersionHistoricalStatus = createSelector(
+  selectDraftVersionId,
+  selectPublishedFlowVersion,
+  selectViewedVersion,
+  (draftVersionId, publishedFlowVersion, viewedFlowVersion) => {
+    if (publishedFlowVersion?.id === viewedFlowVersion.id) return 'PUBLISHED';
+    if (draftVersionId === viewedFlowVersion.id) return 'DRAFT';
+    return 'OLDER_VERSION';
+  }
+);
+
 export const BuilderSelectors = {
   selectReadOnly,
   selectViewMode,
@@ -633,8 +641,8 @@ export const BuilderSelectors = {
   selectCurrentStepSettings,
   selectTriggerSelectedSampleData,
   selectStepValidity,
-  selectCurrentFlowVersionId,
-  selectShownFlowVersion,
+  selectDraftVersionId,
+  selectViewedVersion,
   selectIsSchduleTrigger,
   selectCurrentStepPieceVersionAndName,
   selectCurrentFlowFolderName,
@@ -656,4 +664,5 @@ export const BuilderSelectors = {
   selectAppConnectionsDropdownOptionsWithIds,
   selectStepIndex,
   selectFlowStatus,
+  selectViewedVersionHistoricalStatus,
 };

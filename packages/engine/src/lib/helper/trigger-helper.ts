@@ -6,6 +6,7 @@ import { PiecePropertyMap, StaticPropsValue, TriggerStrategy } from '@activepiec
 import { createFilesService } from '../services/files.service'
 import { FlowExecutorContext } from '../handler/context/flow-execution-context'
 import { pieceLoader } from './piece-loader'
+import { EngineConstants } from '../handler/context/engine-constants'
 
 type Listener = {
     events: string[]
@@ -14,10 +15,10 @@ type Listener = {
 }
 
 export const triggerHelper = {
-    async executeTrigger({ params, piecesSource }: { piecesSource: string, params: ExecuteTriggerOperation<TriggerHookType> }): Promise<ExecuteTriggerResponse<TriggerHookType>> {
+    async executeTrigger({ params, constants }: ExecuteTriggerParams): Promise<ExecuteTriggerResponse<TriggerHookType>> {
         const { pieceName, pieceVersion, triggerName, input } = (params.flowVersion.trigger as PieceTrigger).settings
 
-        const piece = await pieceLoader.loadPieceOrThrow({ pieceName, pieceVersion, piecesSource })
+        const piece = await pieceLoader.loadPieceOrThrow({ pieceName, pieceVersion, piecesSource: constants.piecesSource })
         const trigger = piece.getTrigger(triggerName)
 
         if (trigger === undefined) {
@@ -68,6 +69,10 @@ export const triggerHelper = {
             auth: processedInput[AUTHENTICATION_PROPERTY_NAME],
             propsValue: processedInput,
             payload: params.triggerPayload ?? {},
+            project: {
+                id: params.projectId,
+                externalId: constants.externalProjectId,
+            },
         }
         switch (params.hookType) {
             case TriggerHookType.ON_DISABLE:
@@ -181,4 +186,9 @@ export const triggerHelper = {
             }
         }
     },
+}
+
+type ExecuteTriggerParams = {
+    params: ExecuteTriggerOperation<TriggerHookType>
+    constants: EngineConstants
 }

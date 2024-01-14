@@ -1,5 +1,5 @@
-import { KeyAlgorithm, SigningKey, Platform, OAuthApp, FilteredPieceBehavior, CustomDomain, CustomDomainStatus, OtpModel, OtpType, OtpState, ProjectMember, ApiKey, ProjectMemberRole, ProjectMemberStatus } from '@activepieces/ee-shared'
-import { UserStatus, User, apId, Project, NotificationStatus, ProjectType, PieceType, PackageType, Flow, FlowStatus, FlowVersion, TriggerType, FlowVersionState, FlowTemplate, TemplateType } from '@activepieces/shared'
+import { KeyAlgorithm, SigningKey, Platform, OAuthApp, FilteredPieceBehavior, CustomDomain, CustomDomainStatus, OtpModel, OtpType, OtpState, ProjectMember, ApiKey, ProjectMemberRole, ProjectMemberStatus, GitRepo } from '@activepieces/ee-shared'
+import { UserStatus, User, apId, Project, NotificationStatus, ProjectType, PieceType, PackageType, Flow, FlowStatus, FlowVersion, TriggerType, FlowVersionState, FlowTemplate, TemplateType, FlowRun, ExecutionOutputStatus, RunEnvironment } from '@activepieces/shared'
 import { faker } from '@faker-js/faker'
 import { PieceMetadataSchema } from '../../../src/app/pieces/piece-metadata-entity'
 import bcrypt from 'bcrypt'
@@ -24,6 +24,7 @@ export const createMockUser = (user?: Partial<User>): User => {
         status: user?.status ?? faker.helpers.enumValue(UserStatus),
         imageUrl: user?.imageUrl,
         title: user?.title,
+        verified: user?.verified ?? faker.datatype.boolean(),
         externalId: user?.externalId,
         platformId: user?.platformId ?? null,
     }
@@ -72,18 +73,35 @@ export const createMockProject = (project?: Partial<Project>): Project => {
     }
 }
 
+export const createMockGitRepo = (gitRepo?: Partial<GitRepo>): GitRepo => {
+    return {
+        id: gitRepo?.id ?? apId(),
+        created: gitRepo?.created ?? faker.date.recent().toISOString(),
+        updated: gitRepo?.updated ?? faker.date.recent().toISOString(),
+        projectId: gitRepo?.projectId ?? apId(),
+        remoteUrl: gitRepo?.remoteUrl ?? `git@${faker.internet.url()}`,
+        sshPrivateKey: gitRepo?.sshPrivateKey ?? faker.internet.password(),
+        branch: gitRepo?.branch ?? faker.lorem.word(),
+    }
+}
+
 export const createMockPlatform = (platform?: Partial<Platform>): Platform => {
     return {
         id: platform?.id ?? apId(),
         created: platform?.created ?? faker.date.recent().toISOString(),
         updated: platform?.updated ?? faker.date.recent().toISOString(),
         ownerId: platform?.ownerId ?? apId(),
+        enforceAllowedAuthDomains: platform?.enforceAllowedAuthDomains ?? false,
+        federatedAuthProviders: platform?.federatedAuthProviders ?? {},
+        allowedAuthDomains: platform?.allowedAuthDomains ?? [],
         name: platform?.name ?? faker.lorem.word(),
         primaryColor: platform?.primaryColor ?? faker.color.rgb(),
         logoIconUrl: platform?.logoIconUrl ?? faker.image.urlPlaceholder(),
         fullLogoUrl: platform?.fullLogoUrl ?? faker.image.urlPlaceholder(),
+        emailAuthEnabled: platform?.emailAuthEnabled ?? true,
         favIconUrl: platform?.favIconUrl ?? faker.image.urlPlaceholder(),
         filteredPieceNames: platform?.filteredPieceNames ?? [],
+        ssoEnabled: platform?.ssoEnabled ?? faker.datatype.boolean(),
         filteredPieceBehavior: platform?.filteredPieceBehavior ?? faker.helpers.enumValue(FilteredPieceBehavior),
         smtpHost: platform?.smtpHost ?? faker.internet.domainName(),
         smtpPort: platform?.smtpPort ?? faker.internet.port(),
@@ -92,6 +110,7 @@ export const createMockPlatform = (platform?: Partial<Platform>): Platform => {
         smtpUseSSL: platform?.smtpUseSSL ?? faker.datatype.boolean(),
         smtpSenderEmail: platform?.smtpSenderEmail ?? faker.internet.email(),
         privacyPolicyUrl: platform?.privacyPolicyUrl ?? faker.internet.url(),
+        gitSyncEnabled: platform?.gitSyncEnabled ?? faker.datatype.boolean(),
         termsOfServiceUrl: platform?.termsOfServiceUrl ?? faker.internet.url(),
         embeddingEnabled: platform?.embeddingEnabled ?? faker.datatype.boolean(),
         cloudAuthEnabled: platform?.cloudAuthEnabled ?? faker.datatype.boolean(),
@@ -257,6 +276,25 @@ export const createMockOtp = (otp?: Partial<OtpModel>): OtpModel => {
     }
 }
 
+export const createMockFlowRun = (flowRun?: Partial<FlowRun>): FlowRun => {
+    return {
+        id: flowRun?.id ?? apId(),
+        created: flowRun?.created ?? faker.date.recent().toISOString(),
+        updated: flowRun?.updated ?? faker.date.recent().toISOString(),
+        projectId: flowRun?.projectId ?? apId(),
+        flowId: flowRun?.flowId ?? apId(),
+        tags: flowRun?.tags ?? [],
+        flowVersionId: flowRun?.flowVersionId ?? apId(),
+        flowDisplayName: flowRun?.flowDisplayName ?? faker.lorem.word(),
+        logsFileId: flowRun?.logsFileId ?? null,
+        tasks: flowRun?.tasks,
+        status: flowRun?.status ?? faker.helpers.enumValue(ExecutionOutputStatus),
+        startTime: flowRun?.startTime ?? faker.date.recent().toISOString(),
+        finishTime: flowRun?.finishTime ?? faker.date.recent().toISOString(),
+        environment: flowRun?.environment ?? faker.helpers.enumValue(RunEnvironment),
+    }
+}
+
 export const createMockFlow = (flow?: Partial<Flow>): Flow => {
     return {
         id: flow?.id ?? apId(),
@@ -287,7 +325,7 @@ export const createMockFlowVersion = (flowVersion?: Partial<FlowVersion>): FlowV
         flowId: flowVersion?.flowId ?? apId(),
         trigger: flowVersion?.trigger ?? emptyTrigger,
         state: flowVersion?.state ?? faker.helpers.enumValue(FlowVersionState),
-        updatedBy: flowVersion?.updatedBy ?? apId(),
+        updatedBy: flowVersion?.updatedBy,
         valid: flowVersion?.valid ?? faker.datatype.boolean(),
     }
 }

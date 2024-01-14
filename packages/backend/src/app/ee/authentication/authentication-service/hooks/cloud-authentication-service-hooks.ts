@@ -7,15 +7,17 @@ import { referralService } from '../../../referrals/referral.service'
 import { authenticationHelper } from './authentication-helper'
 import { projectService } from '../../../../project/project-service'
 import { userService } from '../../../../user/user-service'
-import { ProjectType, UserStatus, isNil } from '@activepieces/shared'
+import { ProjectType, isNil } from '@activepieces/shared'
 import { flagService } from '../../../../../app/flags/flag.service'
 
 export const cloudAuthenticationServiceHooks: AuthenticationServiceHooks = {
+    async preSignIn({ email, platformId }) {
+        await authenticationHelper.assertEmailAuthIsEnabled({ platformId })
+        await authenticationHelper.assertDomainIsAllowed({ email, platformId })
+    },
     async preSignUp({ email, platformId }) {
-        const customerPlatformEnabled = !isNil(platformId) && !flagService.isCloudPlatform(platformId)
-        if (customerPlatformEnabled) {
-            await authenticationHelper.assertUserIsInvitedToAnyProject({ email, platformId })            
-        }
+        await authenticationHelper.assertEmailAuthIsEnabled({ platformId })
+        await authenticationHelper.assertUserIsInvitedAndDomainIsAllowed({ email, platformId })
     },
     async postSignUp({ user, referringUserId }) {
 
@@ -39,7 +41,7 @@ export const cloudAuthenticationServiceHooks: AuthenticationServiceHooks = {
         const updatedUser = await userService.getOneOrFail({ id: user.id })
         const { project, token } = await authenticationHelper.getProjectAndTokenOrThrow(user)
 
-        if (updatedUser.status !== UserStatus.VERIFIED) {
+        if (!updatedUser.verified) {
             await otpService.createAndSend({
                 platformId: updatedUser.platformId,
                 email: updatedUser.email,

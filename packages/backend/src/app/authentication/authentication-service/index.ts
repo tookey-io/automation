@@ -35,10 +35,7 @@ export const authenticationService = {
         if (!params.skipAsserting)
             await assertSignUpIsEnabled()
 
-        await hooks.get().preSignUp({
-            email: params.email,
-            platformId: params.platformId,
-        })
+        await hooks.get().preSignUp(params)
         const user = await createUser(params)
 
         return this.signUpResponse({
@@ -48,6 +45,7 @@ export const authenticationService = {
     },
 
     async signIn(request: SignInParams): Promise<AuthenticationResponse> {
+        await hooks.get().preSignIn(request)
         const user = await userService.getByPlatformAndEmail({
             platformId: request.platformId,
             email: request.email,
@@ -80,7 +78,7 @@ export const authenticationService = {
 
         return this.signUp({
             email: params.email,
-            status: params.userStatus,
+            verified: params.verified,
             firstName: params.firstName,
             lastName: params.lastName,
             trackEvents: true,
@@ -143,7 +141,8 @@ const createUser = async (params: SignUpParams): Promise<User> => {
     try {
         const newUser: NewUser = {
             email: params.email,
-            status: params.status,
+            verified: params.verified,
+            status: UserStatus.ACTIVE,
             firstName: params.firstName,
             lastName: params.lastName,
             trackEvents: params.trackEvents,
@@ -176,8 +175,15 @@ const assertUserIsAllowedToSignIn: (user: User | null) => asserts user is User =
             params: null,
         })
     }
-
-    if (user.status !== UserStatus.VERIFIED) {
+    if (user.status === UserStatus.INACTIVE) {
+        throw new ActivepiecesError({
+            code: ErrorCode.USER_IS_INACTIVE,
+            params: {
+                email: user.email,
+            },
+        })
+    }
+    if (!user.verified) {
         throw new ActivepiecesError({
             code: ErrorCode.EMAIL_IS_NOT_VERIFIED,
             params: {
@@ -259,7 +265,7 @@ type SignUpParams = {
     lastName: string
     trackEvents: boolean
     newsLetter: boolean
-    status: UserStatus
+    verified: boolean
     platformId: string | null
     referringUserId?: string
     skipAsserting?: boolean
@@ -278,7 +284,7 @@ type AssertPasswordsMatchParams = {
 
 type FederatedAuthnParams = {
     email: string
-    userStatus: UserStatus
+    verified: boolean
     firstName: string
     lastName: string
     platformId: string | null
