@@ -32,7 +32,6 @@ const polling: Polling<PiecePropValueSchema<typeof EPNAuth>, {}> = {
 
 export const BalanceChange = createTrigger({
     auth: EPNAuth,
-    requireAuth: true,
     name: 'balance_change',
     displayName: 'Balance change',
     description: 'Triggers when account balance is changed',
