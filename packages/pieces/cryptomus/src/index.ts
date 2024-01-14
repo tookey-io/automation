@@ -9,7 +9,7 @@ export const cryptomus = createPiece({
     displayName: 'Cryptomus',
     auth: CryptomusAuth,
     minimumSupportedRelease: '0.9.0',
-    logoUrl: 'https://raw.githubusercontent.com/tookey-io/icons/main/piece-uniswap.png',
+    logoUrl: 'https://raw.githubusercontent.com/tookey-io/icons/main/piece-cryptomus.png',
     authors: ["Aler Denisov"],
     actions: [cryptomusCreatePaymentAction, cryptomusGetPaymentsHistory, cryptomusGetPaymentCurrencies],
     triggers: [cryptomusPaymentTrigger],

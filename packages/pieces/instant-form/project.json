@@ -1,0 +1,45 @@
+{
+  "name": "pieces-instant-form",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pieces/instant-form/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/pieces/instant-form",
+        "tsConfig": "packages/pieces/instant-form/tsconfig.lib.json",
+        "packageJson": "packages/pieces/instant-form/package.json",
+        "main": "packages/pieces/instant-form/src/index.ts",
+        "assets": [
+          "packages/pieces/instant-form/*.md"
+        ],
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs pieces-instant-form {args.ver} {args.tag}",
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/pieces/instant-form/**/*.ts"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "@tookey-io"
+  ]
+}

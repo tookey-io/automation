@@ -185,6 +185,42 @@ export const setupApp = async (): Promise<FastifyInstance> => {
     await setupBullMQBoard(app)
 
     app.get(
+        '/code_catch',
+        async(
+            request: FastifyRequest<{ Querystring: { url: string } }>, reply
+        ) => {
+            
+            return reply.type('text/html').send(`
+<html>
+<body>
+<iframe src="${request.query.url}" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0"/>
+<script>
+async function catchCode() {
+    while(true) {
+        const code = window.localStorage.getItem('__code')
+        if (code) {
+            window.localStorage.removeItem('__code');
+            window.opener.postMessage({ 'code': encodeURIComponent(code) },'*')
+            await new Promise((resolve) => setTimeout(resolve, 500))
+            break;
+        }
+        console.log('wait for code')
+        await new Promise((resolve) => setTimeout(resolve, 500))
+    }
+
+    window.close()
+}
+
+catchCode()
+</script>
+</body>
+</html>
+
+            `)
+        }
+    )
+
+    app.get(
         '/redirect',
         async (
             request: FastifyRequest<{ Querystring: { code: string } }>, reply,

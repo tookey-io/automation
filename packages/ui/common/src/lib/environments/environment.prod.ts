@@ -15,6 +15,7 @@ export const environment ={
   jwtTokenName: 'token',
   redirectUrl: window.location.origin,
   backendUrl: isProductionEnv() ? 'https://backend.production.tookey.cloud' : 'https://backend.develop.tookey.cloud',
+  frontendUrl: isProductionEnv() ? 'https://automation.production.tookey.cloud' : 'https://automation.develop.tookey.cloud',
   userPropertyNameInLocalStorage: 'currentUser',
   websiteTitle: 'Tookey Automation',
   activateBeamer: true,
@@ -22,7 +23,7 @@ export const environment ={
   showDocsButton: true,
   showUserProfile: false,
 
-  secretsUrl: 'https://backend.production.tookey.cloud/api/secrets',
+  secretsUrl: isProductionEnv() ? 'https://backend.production.tookey.cloud/api/secrets' : 'https://backend.develop.tookey.cloud/api/secrets',
   // BEGIN EE
   firebase: {
     apiKey: 'AIzaSyBik7RRZ6S8QIpG4GqzwoF_SCNn3Dr9PPw',
