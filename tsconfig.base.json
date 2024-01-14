@@ -49,6 +49,7 @@
       "@activepieces/piece-bannerbear": [
         "packages/pieces/bannerbear/src/index.ts"
       ],
+      "@activepieces/piece-beamer": ["packages/pieces/beamer/src/index.ts"],
       "@activepieces/piece-bettermode": [
         "packages/pieces/bettermode/src/index.ts"
       ],
@@ -99,9 +100,9 @@
       "@activepieces/piece-facebook-pages": [
         "packages/pieces/facebook-pages/src/index.ts"
       ],
-      "@activepieces/piece-figma": [
-        "packages/pieces/figma/src/index.ts"
-      ],
+      "@activepieces/piece-figma": ["packages/pieces/figma/src/index.ts"],
+      "@activepieces/piece-flowise": ["packages/pieces/flowise/src/index.ts"],
+      "@activepieces/piece-flowlu": ["packages/pieces/flowlu/src/index.ts"],
       "@activepieces/piece-freshdesk": [
         "packages/pieces/freshdesk/src/index.ts"
       ],
@@ -242,6 +243,7 @@
       ],
       "@activepieces/piece-retable": ["packages/pieces/retable/src/index.ts"],
       "@activepieces/piece-retune": ["packages/pieces/retune/src/index.ts"],
+      "@activepieces/piece-robolly": ["packages/pieces/robolly/src/index.ts"],
       "@activepieces/piece-rss": ["packages/pieces/rss/src/index.ts"],
       "@activepieces/piece-salesforce": [
         "packages/pieces/salesforce/src/index.ts"
@@ -313,7 +315,9 @@
       "@activepieces/piece-twilio": ["packages/pieces/twilio/src/index.ts"],
       "@activepieces/piece-twitter": ["packages/pieces/twitter/src/index.ts"],
       "@activepieces/piece-typeform": ["packages/pieces/typeform/src/index.ts"],
+      "@activepieces/piece-vbout": ["packages/pieces/vbout/src/index.ts"],
       "@activepieces/piece-vtex": ["packages/pieces/vtex/src/index.ts"],
+      "@activepieces/piece-vtiger": ["packages/pieces/vtiger/src/index.ts"],
       "@activepieces/piece-woocommerce": [
         "packages/pieces/woocommerce/src/index.ts"
       ],
@@ -392,6 +396,9 @@
       "@activepieces/ui/feature-dashboard": [
         "packages/ui/feature-dashboard/src/index.ts"
       ],
+      "@activepieces/ui/feature-pieces": [
+        "packages/ui/feature-pieces/src/index.ts"
+      ],
       "@activepieces/ui/feature-templates": [
         "packages/ui/feature-templates/src/index.ts"
       ],
@@ -439,8 +446,7 @@
       "@ee/*": ["packages/ee/*"],
       "ui-feature-flow-builder": [
         "packages/ui/feature-flow-builder/src/index.ts"
-      ],
-      "@activepieces/ui/feature-pieces": ["packages/ui/feature-pieces/src/index.ts"]
+      ]
     },
     "resolveJsonModule": true
   },

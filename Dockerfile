@@ -20,7 +20,7 @@ COPY .npmrc package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN npx nx run-many --target=build --projects=backend,ui-core --skip-nx-cache
+RUN npx nx run-many --target=build --projects=backend,ui-core --configuration production --skip-nx-cache
 
 # Install backend production dependencies
 RUN cd dist/packages/backend && npm install --production --force
@@ -49,12 +49,13 @@ COPY --from=build /usr/src/app/dist dist
 # Copy Output files to appropriate directory from build stage
 COPY --from=build /usr/src/app/packages packages
 
+LABEL service=activepieces
+
 # Copy frontend files to Nginx document root directory from build stage
 COPY --from=build /usr/src/app/dist/packages/ui/core/ /usr/share/nginx/html/
 
 VOLUME ${AP_CACHE_PATH}
 VOLUME ${AP_PACKAGE_ARCHIVE_PATH}
-
 
 # Set up entrypoint script
 COPY docker-entrypoint.sh .

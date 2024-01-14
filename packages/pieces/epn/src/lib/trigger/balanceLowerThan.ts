@@ -33,7 +33,6 @@ const polling: Polling<PiecePropValueSchema<typeof EPNAuth>, {}> = {
 
 export const BalanceLowerThan = createTrigger({
     auth: EPNAuth,
-    requireAuth: true,
     name: 'balance_lower_than',
     displayName: 'Balance lower than',
     description: 'Triggers when account balance is lower than specified value',

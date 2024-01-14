@@ -75,7 +75,6 @@ export const instantFormNewResponse = createTrigger({
     })
   },
   auth: InstantFormAuth,
-  requireAuth: true,
   type: TriggerStrategy.WEBHOOK,
   async onEnable(ctx) {
     const id = await httpClient.sendRequest<{ data: {id: string } }>({

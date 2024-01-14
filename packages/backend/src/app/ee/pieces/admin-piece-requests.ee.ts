@@ -1,5 +1,5 @@
 import { TriggerStrategy } from '@activepieces/pieces-framework'
-import { ExactVersionType } from '@activepieces/shared'
+import { ExactVersionType, PrincipalType } from '@activepieces/shared'
 import { Type } from '@fastify/type-provider-typebox'
 
 const Action = Type.Object({
@@ -11,7 +11,7 @@ const Action = Type.Object({
 })
 
 const Trigger = Type.Composite([
-    Action,
+    Type.Omit(Action, ['requireAuth']),
     Type.Object({
         sampleData: Type.Unknown(),
         type: Type.Enum(TriggerStrategy),
@@ -32,5 +32,8 @@ export const CreatePieceRequest = {
             actions: Type.Record(Type.String(), Action),
             triggers: Type.Record(Type.String(), Trigger),
         }),
+    },
+    config: {
+        allowedPrincipals: [PrincipalType.SUPER_USER],
     },
 }

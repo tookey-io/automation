@@ -32,7 +32,6 @@ const polling: Polling<PiecePropValueSchema<typeof EPNAuth>, {}> = {
 
 export const CardIssued = createTrigger({
     auth: EPNAuth,
-    requireAuth: true,
     name: 'card_issued',
     displayName: 'Card Issued',
     description: 'Triggers when a card is issued',

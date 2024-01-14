@@ -1,4 +1,4 @@
-import { apId, ExternalUserRequest, SignUpRequest, User, UserId, UserMeta, UserStatus, isNil } from '@activepieces/shared'
+import { apId, SignUpRequest, User, UserId, UserMeta, UserStatus, isNil, ActivepiecesError, ErrorCode } from '@activepieces/shared'
 import { passwordHasher } from '../authentication/lib/password-hasher'
 import { databaseConnection } from '../database/database-connection'
 import { UserEntity } from './user-entity'
@@ -31,6 +31,7 @@ export const userService = {
         const user: NewUser = {
             id: apId(),
             ...params,
+            status: UserStatus.ACTIVE,
             password: hashedPassword,
         }
 
@@ -39,10 +40,17 @@ export const userService = {
 
     async verify({ id }: IdParams): Promise<User> {
         const user = await userRepo.findOneByOrFail({ id })
-
+        if (user.verified) {
+            throw new ActivepiecesError({
+                code: ErrorCode.AUTHORIZATION,
+                params: {
+                    message: 'User is already verified',
+                },
+            })
+        }
         return userRepo.save({
             ...user,
-            status: UserStatus.VERIFIED,
+            verified: true,
         })
     },
 
@@ -105,7 +113,7 @@ export const userService = {
 }
 
 type CreateParams = SignUpRequest & {
-    status: UserStatus
+    verified: boolean
     platformId: PlatformId | null
     externalId?: string
 }
