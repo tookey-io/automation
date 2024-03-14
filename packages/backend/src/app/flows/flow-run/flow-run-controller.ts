@@ -1,8 +1,10 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { FastifyPluginCallbackTypebox, Type } from '@fastify/type-provider-typebox'
-import { TestFlowRunRequestBody, FlowRunId, ListFlowRunsRequestQuery, ApId, ALL_PRINICPAL_TYPES, ExecutionType } from '@activepieces/shared'
+import { TestFlowRunRequestBody, FlowRunId, ListFlowRunsRequestQuery, ApId, ALL_PRINICPAL_TYPES, ExecutionType, isNil } from '@activepieces/shared'
 import { ActivepiecesError, ErrorCode, RetryFlowRequestBody } from '@activepieces/shared'
 import { flowRunService } from './flow-run-service'
+import { flowResponseWatcher } from './flow-response-watcher'
+import { StatusCodes } from 'http-status-codes'
 
 const DEFAULT_PAGING_LIMIT = 10
 
@@ -90,9 +92,41 @@ export const flowRunController: FastifyPluginCallbackTypebox = (app, _options, d
             flowRunId: req.params.id,
             payload: {
                 action: req.query.action,
+                body: req.body,
+                headers: req.headers,
+                query: req.query,
             },
             executionType: ExecutionType.RESUME,
         })
+    })
+
+
+    app.all('/:id/resume/sync', ResumeFlowRunRequest, async (req, reply) => {
+        const synchronousHandlerId = flowResponseWatcher.getHandlerId()
+        const flowRun = await flowRunService.addToQueue({
+            flowRunId: req.params.id,
+            payload: {
+                action: req.query.action,
+                body: req.body,
+                headers: req.headers,
+                query: req.query,
+            },
+            executionType: ExecutionType.RESUME,
+            synchronousHandlerId
+        })
+
+
+        if (isNil(flowRun)) {
+            await reply.status(StatusCodes.NOT_FOUND).send()
+            return
+        }
+
+        console.log('-------------- waiting for response - ' + flowRun.id)
+        const response = await flowResponseWatcher.listen(flowRun.id)
+
+        console.log('---- response --')
+        console.log(response)
+        await reply.status(response.status).headers(response.headers).send(response.body)
     })
 
 

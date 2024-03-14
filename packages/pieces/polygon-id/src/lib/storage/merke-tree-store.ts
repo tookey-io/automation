@@ -2,7 +2,8 @@ import { Hash, Merkletree, Node, str2Bytes } from '@iden3/js-merkletree';
 import { IdentityMerkleTreeMetaInformation, MerkleTreeType, IMerkleTreeStorage } from '@0xpolygonid/js-sdk';
 import * as uuid from 'uuid';
 import { ActionContext, StoreScope } from '@activepieces/pieces-framework';
-import { DELIMITER, PolygonIdAuth, STORAGE_PREFIX } from '../../index';
+import { PolygonIdAuth } from '../../index';
+import { DELIMITER, STORAGE_PREFIX } from '../constants';
 import { KeyValueDB } from './LocalStorageDB';
 
 export const MERKLE_TREE_TYPES: MerkleTreeType[] = [

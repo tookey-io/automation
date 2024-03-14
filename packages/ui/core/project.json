@@ -90,10 +90,10 @@
         "development": {
           "buildOptimizer": false,
           "optimization": false,
-          "vendorChunk": true,
+          "vendorChunk": false,
           "extractLicenses": false,
           "sourceMap": true,
-          "namedChunks": true,
+          "namedChunks": false,
           "localize": [
             "en"
           ]
