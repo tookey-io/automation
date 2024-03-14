@@ -110,11 +110,12 @@ export const flowRunService = {
             }
         }
     },
-    async addToQueue({ flowRunId, payload, executionType }: {
+    async addToQueue({ flowRunId, payload, executionType, synchronousHandlerId }: {
         flowRunId: FlowRunId
         payload: Record<string, unknown>
-        executionType: ExecutionType
-    }): Promise<void> {
+        executionType: ExecutionType,
+        synchronousHandlerId?: string
+    }): Promise<FlowRun> {
         logger.info(`[FlowRunService#resume] flowRunId=${flowRunId}`)
 
         const flowRunToResume = await flowRunRepo.findOneBy({
@@ -130,13 +131,14 @@ export const flowRunService = {
             })
         }
 
-        await flowRunService.start({
+        return await flowRunService.start({
             payload,
             flowRunId: flowRunToResume.id,
             projectId: flowRunToResume.projectId,
             flowVersionId: flowRunToResume.flowVersionId,
             executionType,
             environment: RunEnvironment.PRODUCTION,
+            synchronousHandlerId
         })
     },
     async finish(

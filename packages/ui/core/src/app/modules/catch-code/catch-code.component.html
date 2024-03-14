@@ -1,5 +1,3 @@
-<!-- <iframe [src]="embedUrl$ | async | safe:'url'" class="ap-fixed ap-inset-0"></iframe> -->
-<!-- <iframe src="https://t.me/InstantFormsBot/oauth?startapp=9b0eec85-6da8-4212-a11c-7d9895540f0d" class="ap-fixed ap-inset-0"></iframe> -->
 <div class="ap-p-10 ap-flex ap-items-center ap-justify-center ap-w-full ap-h-full ap-flex-col">
     <img *ngIf="appIcon | async" [src]="appIcon | async" class="ap-w-20 ap-h-20 ap-rounded-full ap-mb-4" />
     <div
@@ -23,4 +21,3 @@
     >
 </div>
 <div class="ap-fixed ap-z-10 ap-inset-0" *ngIf="catchedCode$ | async">code is {{ catchedCode$ | async }}</div>
-<!-- <ng-container *ngIf="sendCodeFromIFrame$ | async"></ng-container> -->
